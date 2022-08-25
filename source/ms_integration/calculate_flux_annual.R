@@ -5,7 +5,8 @@ library(glue)
 library(lubridate)
 library(EGRET)
 library(macrosheds)
-library(bootstrap)
+library(foreach)
+library(doParallel)
 
 source('source/helper_functions.R')
 source('source/egret_overwrites.R')
@@ -30,10 +31,12 @@ site_info  <- read_csv(here('data/site/ms_site_info.csv'))
 # data_dir <-  ms_download_core_data(ms_root)
 
 ms_root <- 'data/ms/'
-site_files  <- list.files('data/ms/hbef/discharge', recursive = F)
+site_files  <- list.files(here(data_dir, 'discharge'), recursive = F)
 ## site_info <- ms_download_site_data()
 var_info <-  ms_download_variables()
 
+logfile = '~/log.txt' #log to a file (necessary for receiving output from parallel processes)
+#logfile = stdout() #log to console as usual
 
 # df to populate with annual flux values by method
 out_frame <- tibble(wy = as.integer(),
@@ -44,9 +47,7 @@ out_frame <- tibble(wy = as.integer(),
                     ms_reccomended = as.integer(),
                     ms_interp_ratio = as.numeric(),
                     ms_status_ratio = as.numeric(),
-                    ms_missing_ratio = as.numeric(),
-                    se = as.numeric(),
-                    bias = as.numeric())
+                    ms_missing_ratio = as.numeric())
 ## i = 2
 ## i = 3
 # Loop through sites #####
@@ -58,14 +59,16 @@ for(i in 1:length(site_files)){
     area <- site_info %>%
         filter(site_code == !!site_code) %>%
         pull(ws_area_ha)
-    # TODO: make the X and Y pulls below work on site_info from macrosheds retrieval func
+
     lat <- site_info %>%
         filter(site_code == !!site_code) %>%
-        pull(Y)
+        select(any_of(c('Y', 'latitude'))) %>%
+        pull()
 
     long <- site_info %>%
         filter(site_code == !!site_code) %>%
-        pull(X)
+        select(any_of(c('X', 'longitude'))) %>%
+        pull()
 
     # read in chemistry data
     raw_data_con_in <- read_feather(here(glue(data_dir, '/stream_chemistry/', site_code, '.feather'))) %>%
@@ -89,16 +92,16 @@ for(i in 1:length(site_files)){
         unique() %>%
         pull(var)
 
-  writeLines(paste("FLUX CALCS:", site_code))
+  writeLines(paste("FLUX CALCS:", site_code), con = logfile)
 
   ## Loop through solutes at site #####
   ## j = 1
   ## j = 20
-  ## j = 5 # Ca
-  ## j = 27 # SpCond
   for(j in 1:length(solutes)){
+
     writeLines(paste("site:", site_code,
-                     "var:", solutes[j]))
+                     "var:", solutes[j]),
+               con = logfile)
 
     #set to target solute
     target_solute <- solutes[j]
@@ -106,24 +109,25 @@ for(i in 1:length(site_files)){
     # convert all solutes to mg/L
     solute_name <- ms_drop_var_prefix(target_solute)
     solute_default_unit <- var_info[var_info$variable_code == solute_name,] %>%
-      filter(variable_type %in% c('chem_discrete', 'chem_mix')) %>%
+      filter(variable_type == 'chem_discrete') %>%
       ## filter(chem_category == 'stream_conc') %>%
       pull(unit)
 
     # read out conversions
     writeLines(paste("\n  unit conversion for", target_solute,
-                     '\n    converting', solute_default_unit, 'to grams per liter (g/L)\n'))
+                     '\n    converting', solute_default_unit, 'to grams per liter (g/L)\n'),
+               con = logfile)
 
     raw_data_con <- read_feather(here(glue(data_dir, '/stream_chemistry/', site_code, '.feather'))) %>%
-              filter(ms_interp == 0,
-                     val > 0) %>%
-              filter(var == target_solute) %>%
-              # conver units from macrosheds default to g/L
-              ms_conversions(convert_units_from = tolower(solute_default_unit),
-                                        convert_units_to = "mg/l",
-                             macrosheds_root = ms_root) %>%
-              select(datetime, val, val_err) %>%
-              tidyr::drop_na(datetime, val)
+        filter(ms_interp == 0,
+               val > 0) %>%
+      filter(var == target_solute) %>%
+        # conver units from macrosheds default to g/L
+        ms_conversions(convert_units_from = tolower(solute_default_unit),
+                                  convert_units_to = "mg/l",
+                       macrosheds_root = ms_root) %>%
+        select(datetime, val, val_err) %>%
+        tidyr::drop_na(datetime, val)
 
     # errors
     raw_data_con$val = errors::set_errors(raw_data_con$val, raw_data_con$val_err)
@@ -213,10 +217,15 @@ for(i in 1:length(site_files)){
     ## write_feather(raw_data_full, "data/ms/hbef/true/w3_chem_samples.feather")
     ## k = 1
     ### Loop through good years #####
-    for(k in 1:length(good_years)){
+
+    # for(k in 1:length(good_years)){
+    cl = makeCluster(detectCores())
+    registerDoParallel(cl)
+    out_frame <- foreach(k = 1:length(good_years), .combine = bind_rows) %dopar% {
 
       writeLines(paste("site:", site_code,
-                       'year:', good_years[k]))
+                       'year:', good_years[k]),
+                 con = logfile)
 
         target_year <- as.numeric(as.character(good_years[k]))
 
@@ -239,7 +248,7 @@ for(i in 1:length(site_files)){
             select(site_code, datetime, con, wy) %>%
             na.omit()
 
-        ##### calculate annual flux ######
+        ### calculate annual flux ######
         chem_df <- con_target_year
         q_df <- q_target_year
 
@@ -252,85 +261,33 @@ for(i in 1:length(site_files)){
             mutate(flux = con*q_lps*3.154e+7*(1/area)*1e-6) %>%
             pull(flux)
 
-        ###### error estimation ######
-
-        n_index <- raw_data_target_year %>%
-            arrange(datetime) %>%
-            mutate(index = row_number(datetime)) %>%
-            select(con, index) %>%
-            na.omit() %>%
-            pull(index)
-
-        n = length(n_index)
-
-        theta <- function(x, n_index, raw_data_target_year){
-
-            flux_annual_average <- raw_data_target_year[n_index[x],] %>%
-                group_by(wy) %>%
-                summarize(q_lps = mean(q_lps, na.rm = TRUE),
-                          con = mean(con, na.rm = TRUE)) %>%
-                # multiply by seconds in a year, and divide my mg to kg conversion (1M)
-                mutate(flux = con*q_lps*3.154e+7*(1/area)*1e-6) %>%
-                pull(flux)
-            return(flux_annual_average)
-        }
-        flux_annual_average_jack <- jackknife(1:n,theta, n_index, raw_data_target_year)
-
 
         #### calculate period weighted #####
         flux_annual_pw <- calculate_pw(chem_df, q_df, datecol = 'datetime')
 
-        ###### error estimation ######
-        n = nrow(chem_df)
-        theta <- function(x, chem_df, q_df){calculate_pw(chem_df[x,], q_df, datecol = 'datetime') }
-        flux_annual_pw_jack <- jackknife(1:n,theta, chem_df, q_df)
-
-
         #### calculate beale ######
         flux_annual_beale <- calculate_beale(chem_df, q_df, datecol = 'datetime')
-
-        ###### error estimation ######
-        n = nrow(chem_df)
-        theta <- function(x, chem_df, q_df){calculate_beale(chem_df[x,], q_df, datecol = 'datetime') }
-        flux_annual_beale_jack <- jackknife(1:n,theta, chem_df, q_df)
 
         #### calculate rating #####
         flux_annual_rating <- calculate_rating(chem_df, q_df, datecol = 'datetime')
 
-        ###### error estimation ######
-        n = nrow(chem_df)
-        theta <- function(x, chem_df, q_df){calculate_rating(chem_df[x,], q_df, datecol = 'datetime') }
-        flux_annual_rating_jack <- jackknife(1:n,theta, chem_df, q_df)
-
         #### calculate WRTDS ######
+        flux_annual_wrtds <- calculate_wrtds(
+          chem_df = chem_df,
+          q_df = q_df,
+          ws_size = area,
+          lat = lat,
+          long = long,
+          datecol = 'datetime')
 
-        # put agg here
         #### calculate composite ######
-        rating_filled_df <- generate_residual_corrected_con(chem_df = chem_df,
+        rating_filled_df <- generate_residual_corrected_cote(wy = watn(chem_df = chem_df,
                                                             q_df = q_df,
                                                             datecol = 'datetime',
                                                             sitecol = 'site_code')
 
         # calculate annual flux from composite
         flux_annual_comp <- calculate_composite_from_rating_filled_df(rating_filled_df)
-
-
-        ###### error estimation ######
-        n = nrow(chem_df)
-        theta <- function(x, chem_df, q_df){
-            #### calculate composite ######
-
-            rating_filled_df <- generate_residual_corrected_con(chem_df = chem_df[-x,],
-                                                                q_df = q_df,
-                                                                datecol = 'datetime',
-                                                                sitecol = 'site_code')
-            #if(!is.logical(rating_filled_df)){
-            out <- calculate_composite_from_rating_filled_df(rating_filled_df)
-            return(out$flux[1])
-            #}else{return(NA)}
-
-        }
-        flux_annual_comp_jack <- jackknife(1:n,theta, chem_df, q_df)
 
         #### select MS favored ####
         paired_df <- q_df %>%
@@ -369,9 +326,6 @@ for(i in 1:length(site_files)){
             }
         }
 
-        # placeholder for testing
-        flux_annual_wrtds = 99999
-        flux_annual_wrtds_jack = tibble(jack.se = 9999, jack.bias = 9999)
 
         #### congeal fluxes ####
         target_year_out <- tibble(wy = as.character(target_year),
@@ -379,47 +333,20 @@ for(i in 1:length(site_files)){
                                           flux_annual_pw,
                                           flux_annual_beale,
                                           flux_annual_rating,
-                                          ## flux_annual_wrtds,
+                                          flux_annual_wrtds,
                                           flux_annual_comp$flux[1]),
                             site_code = !!site_code,
                             var = !!target_solute,
-                            method = c('average', 'pw', 'beale', 'rating', 'composite')) %>%
+                            method = c('average', 'pw', 'beale', 'rating', 'wrtds', 'composite')) %>%
             mutate(ms_recommended = ifelse(method == !!ideal_method, 1, 0))
 
-        #### congeal SE ####
-        target_year_out_jack <- tibble(wy = as.character(target_year),
-                                  se = c(flux_annual_average_jack$jack.se,
-                                          flux_annual_pw_jack$jack.se,
-                                          flux_annual_beale_jack$jack.se,
-                                          flux_annual_rating_jack$jack.se,
-                                          flux_annual_wrtds_jack$jack.se,
-                                          flux_annual_comp_jack$jack.se),
-                                  bias = c(flux_annual_average_jack$jack.bias,
-                                         flux_annual_pw_jack$jack.bias,
-                                         flux_annual_beale_jack$jack.bias,
-                                         flux_annual_rating_jack$jack.bias,
-                                         flux_annual_wrtds_jack$jack.bias,
-                                         flux_annual_comp_jack$jack.bias),
-                                  method = c('average', 'pw', 'beale', 'rating', 'wrtds', 'composite'))
-
-        #### add to output ####
-        target_year_out_combined <- target_year_out %>%
-            left_join(., target_year_out_jack, by = 'method')
-
-        out_frame <- rbind(out_frame, target_year_out_combined)
+        # out_frame <- rbind(out_frame, target_year_out)
+        return(target_year_out)
 
         } # end year loop
 
-        wrtds_out <- flux_annual_wrtds %>%
-          filter(wy %in% good_years) %>%
-          rename(val = flux) %>%
-          mutate(site_code = site_code,
-                 var = solutes[j],
-                 method = 'wrtds',
-                 ms_recommended = 0)
+    stopCluster(cl)
 
-        out_frame <- rbind(out_frame, wrtds_out) %>%
-          arrange(desc(method), desc(wy))
     } # end solute loop
 
     directory <- glue(data_dir,'stream_flux/')
@@ -428,6 +355,5 @@ for(i in 1:length(site_files)){
     }
     file_path <- glue('{directory}/{s}.feather',
                       s = site_code)
-  write_feather(out_frame, file_path)
+write_feather(out_frame, file_path)
 } # end site loop
-
