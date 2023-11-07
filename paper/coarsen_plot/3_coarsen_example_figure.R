@@ -82,13 +82,92 @@ plot_dat <- full %>%
     mutate(n = as.integer(n))
 plot_dat$label <- factor(plot_dat$label, levels = c('15 Minute', 'Hourly', 'Daily','Weekly', 'Bimonthly'))
 
-ggplot(plot_dat, aes(x = date, y = con))+
-    geom_point()+
-    geom_line()+
-    facet_wrap(~label, ncol = 1) +
-    theme_few()+
-    theme(legend.position = 'none',
-          text=element_text(size=20))+
-    labs(y = 'Nitrate (mg/L)', x = '')
+# ggplot(plot_dat, aes(x = date, y = con))+
+#     geom_point()+
+#     geom_line()+
+#     facet_wrap(~label, ncol = 1) +
+#     theme_few()+
+#     theme(legend.position = 'none',
+#           text=element_text(size=20))+
+#     labs(y = 'Nitrate (mg/L)', x = '')
 
-ggsave(filename = here('paper','coarsen_plot', 'nitrate_thinning.png'), width = 13, height = 6)
+colors <- c('Daily' = 'black','Weekly' = 'orange', 'Bimonthly' = 'red')
+
+p_top <- plot_dat %>%
+    pivot_wider(id_cols = date, names_from = label, values_from = con) %>%
+    ggplot(., aes(x = date))+
+        geom_line(aes(y = `15 Minute`)) +
+        geom_point(aes(y = Daily, color = 'Daily'), size = 2)+
+        geom_point(aes(y = Weekly, color = 'Weekly'), size = 2)+
+        geom_point(aes(y = Bimonthly, color = 'Bimonthly'), size = 4)+
+    theme_few()+
+    theme(legend.position = 'bottom',
+          text=element_text(size=20))+
+    labs(y = 'Nitrate-N (mg/L)', x = '',
+         color = 'Frequency')+
+    scale_color_manual(values = colors)
+p_top
+
+plot_full <- plot_dat %>%
+    pivot_wider(id_cols = date, names_from = label, values_from = con) %>%
+    full_join(., d, by = c('date' = 'datetime')) %>%
+    ggplot(aes(x = IS_discharge, y = `15 Minute`))+
+    geom_point()+
+    scale_y_log10()+
+    scale_x_log10()+
+    labs(y = 'Nitrate-N (mg/L)',
+         x = 'Q (Lps)',
+         title = '15 Minute')+
+    geom_smooth(method = 'lm', se = F)+
+    theme_few()+
+    theme(text=element_text(size=20))
+
+
+plot_day <- plot_dat %>%
+    pivot_wider(id_cols = date, names_from = label, values_from = con) %>%
+    full_join(., d, by = c('date' = 'datetime')) %>%
+    ggplot(aes(x = IS_discharge, y = Daily))+
+    geom_point()+
+    scale_y_log10()+
+    scale_x_log10()+
+    labs(y = 'Nitrate-N (mg/L)',
+         x = 'Q (Lps)',
+         title = 'Daily')+
+    geom_smooth(method = 'lm', se = F)+
+    theme_few()+
+    theme(text=element_text(size=20))
+
+
+plot_week <- plot_dat %>%
+    pivot_wider(id_cols = date, names_from = label, values_from = con) %>%
+    full_join(., d, by = c('date' = 'datetime')) %>%
+    ggplot(aes(x = IS_discharge, y = Weekly))+
+    geom_point()+
+    scale_y_log10()+
+    scale_x_log10()+
+    labs(y = 'Nitrate-N (mg/L)',
+         x = 'Q (Lps)',
+         title = 'Weekly')+
+    geom_smooth(method = 'lm', se = F)+
+    theme_few()+
+    theme(text=element_text(size=20))
+
+
+plot_bimonth <- plot_dat %>%
+    pivot_wider(id_cols = date, names_from = label, values_from = con) %>%
+    full_join(., d, by = c('date' = 'datetime')) %>%
+    ggplot(aes(x = IS_discharge, y = Bimonthly))+
+    geom_point()+
+    scale_y_log10()+
+    scale_x_log10()+
+    labs(y = 'Nitrate-N (mg/L)',
+         x = 'Q (Lps)',
+         title = 'Bimonthly')+
+    geom_smooth(method = 'lm', se = F)+
+    theme_few()+
+    theme(text=element_text(size=20))
+
+
+p_top/(plot_full+plot_day+plot_week+plot_bimonth)
+
+ggsave(filename = here('paper','coarsen_plot', 'nitrate_thinning.png'), width = 13, height = 12)
