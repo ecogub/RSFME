@@ -88,7 +88,7 @@ out_tbl %>%
         facet_wrap(~label, ncol = 1)+
     labs(x = 'Load (kg/ha/year, log)',
          y = 'Count',
-         title = 'Macrosheds Load Estimates')+
+         title = 'MacroSheds Load Estimates')+
     scale_fill_manual(values = c('red', 'blue'))+
     theme_minimal()+
     theme(legend.position = 'none',

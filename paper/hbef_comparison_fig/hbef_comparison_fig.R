@@ -117,7 +117,7 @@ w3_flux_pub <- read.csv('paper/hbef_comparison_fig/hbef_published_flux/ws3_strea
 w3_all <- bind_rows(w3_flux_methods, w3_flux_pub, w3_true, w3_recc)
 
 # look at flux time series
-fluxpal <- brewer.pal(n=9, name='Set1')
+fluxpal <- c('#332288', '#117733','#44AA99', '#88CCEE', '#DDCC77', '#CC6677', '#AA4499', '#000000')
 breaks <- c('average', 'pw', 'beale', 'rating','composite', 'true', 'published', 'recommended')
 labels <- c('Average', 'LI', 'Beale', 'Rating','Composite', 'True', 'Published', 'Recommended')
 
@@ -163,9 +163,17 @@ p_comp <- w3_all %>%
                        values = fluxpal,
                        labels = labels
                        )+
+    scale_x_continuous(breaks = c(4, 6, 8, 10))+
+    expand_limits( x = c(4,10))+
     labs(y = 'Estimated Load', color = 'Method',
          x = 'Sensor Derived Load')
 
 p_comp
+
+fit_check <- w3_all %>%
+    left_join(w3_true, by = 'wy') %>%
+    filter(!is.na(Ca.y),
+           method.x == 'recommended')
+summary(lm(Ca.y ~ Ca.x, data = fit_check))
 
 ggsave(filename = here('paper','hbef_comparison_fig', 'method_comparison.png'), width = 8, height = 6)

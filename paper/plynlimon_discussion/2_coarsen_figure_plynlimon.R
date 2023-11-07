@@ -92,19 +92,19 @@ plot_tbl %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -5, ymax = 5, fill = 'green4', alpha = .25)+
+             ymin = -5, ymax = 5, fill = 'green4', alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -20, ymax = -5, fill = 'yellow', alpha = .25)+
+             ymin = -20, ymax = -5, fill = 'yellow', alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = 5, ymax = 20, fill = 'yellow', alpha = .25)+
+             ymin = 5, ymax = 20, fill = 'yellow', alpha = .15)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0)+
-    geom_line(size = 1)+
-    geom_line(aes(y = max), linetype = 'dashed', size = .75)+
-    geom_line(aes(y = min), linetype = 'dashed', size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
+    geom_line(size = 1.5)+
+    geom_line(aes(y = max), size = .75)+
+    geom_line(aes(y = min), size = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -122,12 +122,6 @@ plot_tbl %>%
     theme(text = element_text(size = 20),
           axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
           panel.spacing = unit(.25,'lines'))+
-    #geom_vline(xintercept = 1)+ #hourly
-    geom_vline(xintercept = 24)+ #daily
-    geom_vline(xintercept = 96)+ #weekly
-    geom_vline(xintercept = 192)+ #biweekly
-    geom_vline(xintercept = 384)+ #monthly
-    geom_vline(xintercept = 768)+ #bimonthly
     labs(title = 'Calcium Load Accuracy')+
     coord_cartesian(ylim = c(-25,25))
 ggsave(filename = here('paper','plynlimon_discussion', 'ca_annual.png'), width = 13, height = 6)
@@ -183,19 +177,19 @@ plot_tbl %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -5, ymax = 5, fill = 'green4', alpha = .25)+
+             ymin = -5, ymax = 5, fill = 'green4', alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -20, ymax = -5, fill = 'yellow', alpha = .25)+
+             ymin = -20, ymax = -5, fill = 'yellow', alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = 5, ymax = 20, fill = 'yellow', alpha = .25)+
+             ymin = 5, ymax = 20, fill = 'yellow', alpha = .15)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0)+
-    geom_line(size = 1)+
-    geom_line(aes(y = max), linetype = 'dashed', size = .75)+
-    geom_line(aes(y = min), linetype = 'dashed', size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
+    geom_line(size = 1.5)+
+    geom_line(aes(y = max), size = .75)+
+    geom_line(aes(y = min), size = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -213,12 +207,6 @@ plot_tbl %>%
     theme(text = element_text(size = 20),
           axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
           panel.spacing = unit(.25,'lines'))+
-    #geom_vline(xintercept = 1)+ #hourly
-    geom_vline(xintercept = 24)+ #daily
-    geom_vline(xintercept = 96)+ #weekly
-    geom_vline(xintercept = 192)+ #biweekly
-    geom_vline(xintercept = 384)+ #monthly
-    geom_vline(xintercept = 768)+ #bimonthly
     labs(title = 'Nitrate Load Accuracy')+
     coord_cartesian(ylim = c(-25,25))
 ggsave(filename = here('paper','plynlimon_discussion', 'nitrate_annual.png'), width = 13, height = 6)

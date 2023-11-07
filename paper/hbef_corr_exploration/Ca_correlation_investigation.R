@@ -7,6 +7,7 @@ library(lubridate)
 library(gridExtra)
 library(grid)
 library(lfstat)
+library(ggthemes)
 
 # read in chemistry data ####
 simple_chem_and_Q <- read_csv(here("paper","hbef_corr_exploration", "HBEFdata_All_2022-11-17.csv")) %>%
@@ -33,3 +34,14 @@ fit <- summary(lm(Ca~spCond+0, data = complete_ds))
 fit$coefficients[[1]]
 
 ## Ca in mg/L = spCond*0.06284158
+
+ca_sc_plot <- ggplot(simple_chem_and_Q, aes(x = spCond, y = Ca))+
+                         geom_point()+
+                         geom_smooth(method = 'lm')+
+                         theme_few()+
+                         labs(y = 'Ca (mg/L)',
+                              x = 'SC (uS/cm)')+
+                        theme(text = element_text(size = 20),
+                              plot.title = element_text(size = 30))
+
+ca_sc_plot

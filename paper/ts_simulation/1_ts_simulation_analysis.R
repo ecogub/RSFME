@@ -86,6 +86,8 @@ target_wy <- 2016
 dn <- d %>%
     filter(wy == target_wy)
 
+dn$IS_discharge[dn$datetime > ymd_hms('2016/01/02 18:00:00') & dn$datetime < ymd_hms('2016/01/10 5:00:00')] <- NA
+
 ## fit ARIMA model to series ####
 fit <- auto.arima(xts(dn$IS_discharge, order.by = dn$datetime))
 
