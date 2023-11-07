@@ -1,12 +1,13 @@
 .Rproj.user
 .Rhistory
 .RData
-.Rproj
 .Ruserdata
 
 /streamlined/data/*
 /streamlined/out_ms/*
 /streamlined/out/*
+
+/paper/macrosheds_application/ms_flux_12162022/hbef/true/*
 
 out
 data
@@ -15,4 +16,3 @@ data
 data/
 streamlined/out/
 vault/
-flux_plots/
