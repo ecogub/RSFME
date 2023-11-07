@@ -244,9 +244,9 @@ p7_data <- loop_out %>%
 p7_data$method <- factor(p7_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p7 <-plot_guts(p7_data)+
-  theme(axis.title.y=element_text(size = 20),
+  theme(axis.title.y=element_text(angle = 90, size = y_axis_text_size),
         axis.text.y = element_text(size = y_axis_text_size))+
-  labs(y = " ")
+  labs(y = "         ")
 
 p7
 
@@ -348,8 +348,9 @@ p13 <- plot_guts(p13_data)+
   theme(axis.title.y=element_text(size = y_axis_text_size))+
   labs(y = " ") +
   theme(axis.title.x=element_text(size = x_axis_text_size),
-        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1))+
-  labs(x = " ")+
+        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1),
+        axis.title.y=element_text(angle = 90, size = y_axis_text_size))+
+  labs(x = " ", y = "         ")+
   scale_x_discrete(labels = c('LI', 'Beale', 'Rating', 'Composite'))
 p13
 
@@ -454,4 +455,5 @@ supp_tbl_pre <- loop_out %>%
          `95% CI` = ci, Median = median, Minimum = min_error, Maximum = max_error, Outliers = n_outliers)
 
 write_csv(supp_tbl_pre, file = here('paper','ts_simulation', 'supp_table.csv'))
+
 
