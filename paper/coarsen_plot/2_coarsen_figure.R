@@ -84,44 +84,26 @@ x_labels <- c('Hourly', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 y_min = -20
 y_max = 20
 
-## generate plot with legend ####
-
+## generate plot ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    geom_rect(alpha = .25,
-              aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = 5,
-                  fill = '+/-20%')) +
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = 5,
-                  ymax = 20,
-                  fill = '+/-5%'),
-              alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = -20,
-                  fill = '+/-5%'),
-              #fill = 'test2',
-              alpha = 0.50)+
-    scale_fill_manual(name = 'Error',
-                      values = c('chartreuse4','gold1'),
-                      labels = c('+/-5%', '+/-20%'),
-                      guide = guide_legend())+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = -5, ymax = 5, fill = 'green4', alpha = .25)+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = -20, ymax = -5, fill = 'yellow', alpha = .25)+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = 5, ymax = 20, fill = 'yellow', alpha = .25)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0)+
+    geom_line(size = 1)+
+    geom_line(aes(y = max), linetype = 'dashed', size = .75)+
+    geom_line(aes(y = min), linetype = 'dashed', size = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -139,8 +121,14 @@ plot_tbl %>%
     theme(text = element_text(size = 20),
           axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
           panel.spacing = unit(.25,'lines'))+
+    geom_vline(xintercept = 1)+ #hourly
+    geom_vline(xintercept = 24)+ #daily
+    geom_vline(xintercept = 96)+ #weekly
+    geom_vline(xintercept = 192)+ #biweekly
+    geom_vline(xintercept = 384)+ #monthly
+    geom_vline(xintercept = 768)+ #bimonthly
     labs(title = 'Calcium Load Accuracy')
-ggsave(filename = here('paper','coarsen_plot', 'ca_annual_legend.png'), width = 13, height = 6)
+ggsave(filename = here('paper','coarsen_plot', 'ca_annual.png'), width = 13, height = 6)
 
 # create nitrate figure #####
 ## set watershed attributes ####
@@ -212,38 +200,20 @@ plot_tbl %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = 5,
-                  fill = '+/-20%'),
-              #fill = 'test',
-              alpha = 0.5) +
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = 5,
-                  ymax = 20,
-                  fill = '+/-5%'),
-              alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = -20,
-                  fill = '+/-5%'),
-              #fill = 'test2',
-              alpha = 0.50)+
-    scale_fill_manual(name = 'Error',
-                      values = c('chartreuse4','gold1'),
-                      labels = c('+/-5%', '+/-20%'),
-                      guide = guide_legend(override.aes = list(alpha = 1)))+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = -5, ymax = 5, fill = 'green4', alpha = .25)+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = -20, ymax = -5, fill = 'yellow', alpha = .25)+
+    annotate('rect', xmin = -Inf, xmax = Inf,
+             ymin = 5, ymax = 20, fill = 'yellow', alpha = .25)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0)+
+    geom_line(size = 1)+
+    geom_line(aes(y = max), linetype = 'dashed', size = .75)+
+    geom_line(aes(y = min), linetype = 'dashed', size = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -261,8 +231,14 @@ plot_tbl %>%
     theme(text = element_text(size = 20),
           axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
           panel.spacing = unit(.25,'lines'))+
+    geom_vline(xintercept = 1)+ #hourly
+    geom_vline(xintercept = 24)+ #daily
+    geom_vline(xintercept = 96)+ #weekly
+    geom_vline(xintercept = 192)+ #biweekly
+    geom_vline(xintercept = 384)+ #monthly
+    geom_vline(xintercept = 768)+ #bimonthly
     labs(title = 'Nitrate Load Accuracy')+
     coord_cartesian(ylim = c(-50,50))
 
-ggsave(filename = here('paper','coarsen_plot', 'nitrate_annual_legend.png'), width = 13, height = 6)
+ggsave(filename = here('paper','coarsen_plot', 'nitrate_annual.png'), width = 13, height = 6)
 

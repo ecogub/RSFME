@@ -1,7 +1,6 @@
 .Rproj.user
 .Rhistory
 .RData
-.Rproj
 .Ruserdata
 
 /streamlined/data/*
@@ -17,4 +16,3 @@ data
 data/
 streamlined/out/
 vault/
-flux_plots/
