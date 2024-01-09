@@ -1,7 +1,7 @@
 # An Assessment of Annual Load Estimation Methods in Small Watersheds for Cross Site Comparisons
 
 ## Structure
-All scripts are found in the /paper subfolder. The run order of this repo is as follows:
+All scripts used in the paper are found in the /paper subfolder. Background scripts describing the flux estimation methods are present in the /src folder. The run order of the /paper subfolder is as follows:
 
 ### ts_simulation
 Performs ARIMA fitting and time series simulation experiments.
