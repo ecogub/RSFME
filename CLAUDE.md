@@ -18,7 +18,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - Future milestones will be defined in M1.
 
 ### Important Conventions
-- **Workflow after every milestone or sub-milestone:** do the work → commit → push → update CLAUDE.md → update `plans/decisions_made.txt`
+- **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push
 - **This CLAUDE.md must be updated after all major changes** to keep it an accurate map of the project.
 - **`plans/decisions_made.txt`** is a running log of all significant decisions. Update it whenever a non-trivial choice is made about code, paper structure, methods, or figures.
 - **Commit early, commit often.** Each sub-milestone (M2a, M2b, etc.) gets its own commit so changes are reviewable.
@@ -64,19 +64,19 @@ RSFME/
 
 ### Code Quality Issues
 
-**Critical:**
-1. **Hardcoded absolute paths** in 6+ scripts pointing to `C:/Users/gubbi/desktop/w3_sensor_wdisch.feather`. This file needs to be in the repo and referenced via `here()`.
-2. **Loop variable collision bugs** - In `1_coarsen_analysis.R` and `1_coarsen_analysis_plynlimon.R`, the outer solute loop variable `i` is clobbered by inner loop variables, potentially causing incorrect results or only processing the last solute.
-3. **Possible result accumulation bug** in `1_coarsen_analysis.R` - `out_tbl` is reinitialized inside the rep loop, so only the last rep's method results may survive per coarsening level.
-4. **Undefined variables** - `flag` in `misc_figs.R` (line 102) and `test` in `ms_application_compare.R` (line 84) will cause runtime errors.
-5. **File format mismatch** - Plynlimon analysis saves `.RData` but the figure script reads `.csv`.
+**Critical (all fixed in M2a/M2b):**
+1. ~~Hardcoded absolute paths~~ — Fixed: all 7 scripts now use `here('w3_sensor_wdisch.feather')`. NEON script uses `MACROSHEDS_ROOT` env var.
+2. ~~Loop variable collisions~~ — Fixed: renamed to `solute_var`, `coarse_n`, `k` to avoid shadowing.
+3. ~~Result accumulation bug~~ — Verified not a bug: R for-loops iterate all elements regardless of variable modification.
+4. ~~Undefined variables~~ — Fixed: removed `flag` from misc_figs.R, changed `test` to `n_frame` in ms_application_compare.R.
+5. ~~File format mismatch~~ — Fixed: Plynlimon analysis now saves `.csv` matching figure script.
 
-**Structural:**
+**Structural (M2c TODO):**
 6. **Massive code duplication** - HBEF/Plynlimon/NEON analysis scripts are near-copies. The coarsen analysis, figure generation, and C:Q plotting code is repeated 3x with minor parameter changes.
 7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files.
 8. **Row-by-row `rbind()` in loops** - Severe performance anti-pattern in coarsen_analysis (HBEF, Plynlimon, NEON) and ms_application_compare.R. Should use list accumulation + `bind_rows()`.
-9. **Global variable dependencies** - `calculate_truth_ts.R` relies on `dn` and `target_wy` from the calling environment instead of taking them as parameters.
-10. **No data pipeline** - Data files scattered (desktop, data/, paper/ subdirs), no clear way to reproduce from scratch.
+9. ~~Global variable dependencies~~ — Fixed: `calculate_truth_ts.R` now takes `dn` and `target_wy` as explicit parameters. Monthly branch `q_df` vs `q_df_add` bug also fixed.
+10. **No data pipeline** - Data files in various locations, no clear way to reproduce from scratch. `w3_sensor_wdisch.feather` now in repo root (gitignored, proprietary).
 
 **Minor:**
 11. **Deprecated ggplot2 usage** - `size` should be `linewidth` for line-based geoms throughout all plotting scripts.

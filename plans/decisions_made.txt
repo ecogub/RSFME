@@ -46,6 +46,16 @@ Update this file whenever a non-trivial choice is made.
 
 2026-07-27 | Workflow Convention Established
 - Decision: After every milestone or sub-milestone, follow the pattern:
-  do work → commit → push → update CLAUDE.md → update decisions_made.txt
-- Context: Keeps the project documentation in sync with the code at all times and
-  ensures every change is reviewable on GitHub.
+  do work → update CLAUDE.md → update decisions_made.txt → commit → push
+- Context: Documentation updates go BEFORE the commit so everything ships atomically.
+  Keeps the project documentation in sync with the code at all times.
+
+2026-07-27 | M2a+M2b Completed
+- Replaced 7 hardcoded desktop paths with here(). NEON script uses env var fallback.
+- Fixed undefined variables (flag, test), Plynlimon format mismatch (.RData→.csv),
+  loop variable shadowing (renamed i→solute_var/coarse_n/k), calculate_truth_ts.R
+  global deps (now explicit params) and q_df/q_df_add bug in monthly branch.
+- Verified "result accumulation bug" is not a bug — R for-loops are immune to
+  loop variable modification. Code is inefficient but correct.
+- Error band labels in 2_coarsen_figure.R are visually correct (two swaps cancel).
+  Will clean up naming in M2c.
