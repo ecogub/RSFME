@@ -20,9 +20,9 @@ area <- 122
 site_code = 'UHF'
 
 # begin solute loop ####
-for(i in c('NO3-N mg/l', 'Ca mg/l')){
+for(solute_var in c('NO3-N mg/l', 'Ca mg/l')){
     ## set solute #####
-    target_solute = i
+    target_solute = solute_var
 
     ## read in data ####
     d <- read_csv(here('paper/plynlimon_discussion/PlynlimonHighFrequencyHydrochemistry.csv')) %>%
@@ -78,8 +78,8 @@ for(i in c('NO3-N mg/l', 'Ca mg/l')){
 
     ## Start coarsening loop ####
     reps <- 100
-    for(i in loop_vec){
-        n = i
+    for(coarse_n in loop_vec){
+        n = coarse_n
 
         for(j in 1:reps){
             loopid <- loopid+1
@@ -111,6 +111,6 @@ for(i in c('NO3-N mg/l', 'Ca mg/l')){
 }
 
             ## save/load data from previous runs #####
-            if(target_solute == 'Ca mg/l'){save(out_tbl, file = here('paper','plynlimon_discussion', '100reps_annual_Ca.RData'))}
-            if(target_solute == 'NO3-N mg/l'){save(out_tbl, file = here('paper','plynlimon_discussion', '100reps_annual_NO3.RData'))}
+            if(target_solute == 'Ca mg/l'){write_csv(out_tbl, file = here('paper','plynlimon_discussion', '100reps_annual_Ca.csv'))}
+            if(target_solute == 'NO3-N mg/l'){write_csv(out_tbl, file = here('paper','plynlimon_discussion', '100reps_annual_NO3.csv'))}
     }

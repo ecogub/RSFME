@@ -19,7 +19,7 @@ area <- 42.4
 site_code = 'w3'
 
 # read in HBEF data ####
-d <- read_feather('C:/Users/gubbi/desktop/w3_sensor_wdisch.feather') %>%
+d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 #slice(1:ts_len)
 
@@ -99,14 +99,13 @@ ggsave(filename = here('paper','misc_figure_creation', 'rawchem.png'), width = 1
 
 ## HBEF Streamflow timeseries ####
 dn %>%
-    ggplot(aes(x = datetime, y = IS_discharge, color = flag)) +
+    ggplot(aes(x = datetime, y = IS_discharge)) +
     geom_line()+
     theme_classic()+
     theme(text = element_text(size = 20),
           legend.position = 'none')+
     scale_y_log10(breaks = q_breaks,
                   labels = q_labels)+
-    scale_color_manual(values = c('black', 'red'))+
     labs(x = '',
          y = 'Q (Lps)',
          title = 'Streamflow at HBEF Watershed 3 - 2016 Water Year')

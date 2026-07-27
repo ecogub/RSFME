@@ -22,3 +22,30 @@ Update this file whenever a non-trivial choice is made.
   tool access to C:\Users\gubbi\Dropbox\RSFME while keeping broader Dropbox deny rules.
 - Context: User settings blocked all Dropbox access. Since the project lives in Dropbox,
   specific exceptions were needed.
+
+2026-07-27 | M1 Plan Written — Three-Phase Improvement Flow
+- Decision: Improvement work follows code → figures → text ordering (M2 → M3 → M4).
+- Context: Nic reviewed M0 findings and determined that fixing code correctness first is
+  essential because figures depend on correct results, and text depends on final figures.
+- Detail: M2 is subdivided into data portability (M2a), bug fixes (M2b), refactoring (M2c),
+  and verification (M2d). M3 covers figure style and regeneration. M4 covers paper structure
+  and text reconciliation. See plans/m1_planning.md for full breakdown.
+- Open questions posed to Nic about data file hosting, ts_simulation placement, flowchart
+  approach, new analyses, and MacroSheds site-year count discrepancy.
+
+2026-07-27 | M1 Open Questions Resolved
+- w3_sensor_wdisch.feather: Added to repo locally but MUST be in .gitignore — data is
+  proprietary. Scripts should reference it via here() at a repo-relative path.
+- ts_simulation figure (pop_test.png): Goes to supplement, not main text.
+- Decision flowchart (Fig 15): Recreate programmatically for easy editing.
+- New analyses: OK if they are major improvements in the same conceptual space, but
+  prefer light touch. Don't add new methods or datasets without clear justification.
+- MacroSheds count: 210k site-years were computed, ~16k passed quality cutoffs for
+  flux derivation. Both numbers are correct in their respective contexts — paper should
+  clarify this distinction.
+
+2026-07-27 | Workflow Convention Established
+- Decision: After every milestone or sub-milestone, follow the pattern:
+  do work → commit → push → update CLAUDE.md → update decisions_made.txt
+- Context: Keeps the project documentation in sync with the code at all times and
+  ensures every change is reviewable on GitHub.

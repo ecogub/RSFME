@@ -1,4 +1,4 @@
-calculate_truth <- function(raw_chem_list, q_df, period = period, flow_regime = NULL, cq = NULL){
+calculate_truth <- function(raw_chem_list, q_df, period = period, flow_regime = NULL, cq = NULL, dn = dn, target_wy = target_wy){
     if(period == 'annual'){
         chem_df <- tibble(datetime = dn$datetime, con = raw_chem_list) %>%
             group_by(lubridate::yday(datetime)) %>%
@@ -32,7 +32,7 @@ calculate_truth <- function(raw_chem_list, q_df, period = period, flow_regime = 
         q_df_add <- q_df %>%
             mutate(site_code = 'w3', wy = target_wy)
 
-        out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
+        out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df_add, sitecol = 'site_code') %>%
             select(datetime = date, q_lps, con, con_com, wy) %>%
             calculate_composite_from_rating_filled_df(., period = 'month') %>%
             mutate(method = 'truth',

@@ -21,7 +21,7 @@ target_solute = 'IS_spCond'
 
 
 ## read in and prep data ####
-d <- read_feather('C:/Users/gubbi/desktop/w3_sensor_wdisch.feather') %>%
+d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 #### subset to 2016 wy ####

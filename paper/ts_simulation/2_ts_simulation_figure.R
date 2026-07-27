@@ -16,7 +16,7 @@ set.seed(53045)
 
 source(here('source/flux_methods.R'))
 # read in data ######
-d <- read_feather('C:/Users/gubbi/desktop/w3_sensor_wdisch.feather') %>%
+d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 ## Subset to 2016 wy

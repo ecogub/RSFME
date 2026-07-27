@@ -71,7 +71,7 @@ w3_flux_true <- read_feather("data/ms/hbef/true/w3_sensor_wdisch.feather") %>%
            method = 'true') %>%
     select(-Ca, Ca)
 
-d <- read_feather('C:/Users/gubbi/desktop/w3_sensor_wdisch.feather') %>%
+d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 w3_true <- tibble(wy = as.integer(),

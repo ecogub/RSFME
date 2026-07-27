@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 ~$*
+w3_sensor_wdisch.feather
 
 /streamlined/data/*
 /streamlined/out_ms/*

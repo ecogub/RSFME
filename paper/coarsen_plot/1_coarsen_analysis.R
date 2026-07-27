@@ -20,12 +20,12 @@ area <- 42.4
 site_code = 'w3'
 
 # begin solute loop ####
-for(i in c('IS_NO3', 'IS_spCond')){
+for(solute_var in c('IS_NO3', 'IS_spCond')){
     ## set solute #####
-    target_solute = i
+    target_solute = solute_var
 
     ## read in data ####
-    d <- read_feather('C:/Users/gubbi/desktop/w3_sensor_wdisch.feather') %>%
+    d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
         mutate(wy = water_year(datetime, origin = 'usgs'))
 
     ## subset to 2016 wy ####
@@ -81,8 +81,8 @@ for(i in c('IS_NO3', 'IS_spCond')){
 
     ## Start coarsening loop ####
     reps <- 100
-    for(i in loop_vec){
-        n = i
+    for(coarse_n in loop_vec){
+        n = coarse_n
 
         for(j in 1:reps){
             loopid <- loopid+1
@@ -93,11 +93,11 @@ for(i in c('IS_NO3', 'IS_spCond')){
 
     ## Start method application loop ####
     out_tbl <- tibble(method = as.character(), estimate = as.numeric(), n = as.integer())
-    for(i in 2:length(coarse_chem)){
+    for(k in 2:length(coarse_chem)){
 
-        n <- as.numeric(str_split_fixed(names(coarse_chem[i]), pattern = 'sample_', n = 2)[2])
+        n <- as.numeric(str_split_fixed(names(coarse_chem[k]), pattern = 'sample_', n = 2)[2])
 
-        chem_df <- coarse_chem[[i]] %>%
+        chem_df <- coarse_chem[[k]] %>%
             group_by(lubridate::yday(date)) %>%
             summarize(date = date(date),
                       con = mean(con)) %>%

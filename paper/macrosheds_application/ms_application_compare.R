@@ -81,7 +81,7 @@ n_frame <- out_tbl %>%
     filter(solute == 'GN_NO3_N' |
            solute == 'GN_Ca')
 
-ggplot(test, aes(x = rec_method)) +
+ggplot(n_frame, aes(x = rec_method)) +
     geom_bar()
 
 # create boxplot

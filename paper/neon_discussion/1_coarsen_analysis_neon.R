@@ -35,10 +35,11 @@ source(here('paper/coarsen_plot/coarsen_helpers.R'))
 # stackByTable(filepath=here('paper', 'neon_discussion', 'data', 'filesToStack20288'))
 #set watershed attributes #####
 
+macrosheds_root <- Sys.getenv("MACROSHEDS_ROOT", unset = here('data', 'macrosheds'))
 q_dat<- ms_load_product(prodname = 'discharge', site_codes = unique(small_sites$site_code),
-                        macrosheds_root = "C:/Users/gubbi/Dropbox/ms_physical_patterns/data_raw/ms")
+                        macrosheds_root = macrosheds_root)
 c_dat<- ms_load_product(prodname = 'stream_chemistry', site_codes = unique(small_sites$site_code),
-                        macrosheds_root = "C:/Users/gubbi/Dropbox/ms_physical_patterns/data_raw/ms")
+                        macrosheds_root = macrosheds_root)
 
 
 for(target_site in unique(c_dat$site_code)){

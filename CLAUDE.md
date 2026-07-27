@@ -18,8 +18,10 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - Future milestones will be defined in M1.
 
 ### Important Conventions
+- **Workflow after every milestone or sub-milestone:** do the work → commit → push → update CLAUDE.md → update `plans/decisions_made.txt`
 - **This CLAUDE.md must be updated after all major changes** to keep it an accurate map of the project.
 - **`plans/decisions_made.txt`** is a running log of all significant decisions. Update it whenever a non-trivial choice is made about code, paper structure, methods, or figures.
+- **Commit early, commit often.** Each sub-milestone (M2a, M2b, etc.) gets its own commit so changes are reviewable.
 
 ## Repository Structure
 
