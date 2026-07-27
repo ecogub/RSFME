@@ -3,133 +3,68 @@ library(here)
 library(lfstat)
 library(lubridate)
 library(RiverLoad)
+
 ms_sites <- read_csv(here('data', 'macrosheds', 'sites.csv'), show_col_types = FALSE)
 
 small_sites <- read_csv(here('data', 'neon', 'ms_stream_order.csv'),
                         show_col_types = FALSE) %>%
     left_join(ms_sites, by = 'site_code') %>%
-    filter(domain == 'neon',
-           stream_order == 1)
+    filter(domain == 'neon', stream_order == 1)
 
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
 source(here('paper','source','coarsen_helpers.R'))
 
-# load NEON timeseries from EDI download
 neon_ts <- read_csv(here('data', 'macrosheds', 'timeseries_neon.csv'), show_col_types = FALSE)
 neon_site_codes <- unique(small_sites$site_code)
-q_dat <- neon_ts %>%
-    filter(var_category == 'discharge', site_code %in% neon_site_codes)
-c_dat <- neon_ts %>%
-    filter(var_category == 'stream_chemistry', site_code %in% neon_site_codes)
+q_dat <- neon_ts %>% filter(var_category == 'discharge', site_code %in% neon_site_codes)
+c_dat <- neon_ts %>% filter(var_category == 'stream_chemistry', site_code %in% neon_site_codes)
 
+loop_vec <- c(seq(from = 1, to = 13, by = 1),
+              seq(from = 14, to = 28, by = 7),
+              30, 60, 90)
 
-for(target_site in unique(c_dat$site_code)){
-area <- ms_sites %>%
-    filter(site_code == target_site) %>%
-    pull(ws_area_ha)
-# begin solute loop ####
-for(target_solute in c('turbid_FNU')){
-    ## set solute #####
-    #target_solute = "turbid_FNU"
-    gc()
-    ## read in data ####
-   q_data_in <- q_dat %>%
-       filter(site_code == target_site) %>%
-       select(date, site_code, q_lps = val)
+for (target_site in unique(c_dat$site_code)) {
+    area <- ms_sites %>% filter(site_code == target_site) %>% pull(ws_area_ha)
 
-   c_data_in <- c_dat %>%
-       filter(site_code == target_site,
-              var == target_solute,
-              grab_sample == 0) %>%
-       select(date, site_code, con = val)
+    for (target_solute in c('turbid_FNU')) {
+        gc()
+        q_data_in <- q_dat %>%
+            filter(site_code == target_site) %>%
+            select(date, site_code, q_lps = val)
 
-   com_dat_raw <- q_data_in %>%
-       full_join(c_data_in) %>%
-       mutate(wy = as.integer(as.character(water_year(date, origin = 'usgs'))))
+        c_data_in <- c_dat %>%
+            filter(site_code == target_site, var == target_solute, grab_sample == 0) %>%
+            select(date, site_code, con = val)
 
-   good_years <- com_dat_raw %>% na.omit() %>% select(wy, site_code) %>% count(wy) %>%
-       filter(n > 364)
+        com_dat_raw <- q_data_in %>%
+            full_join(c_data_in, by = c('date', 'site_code')) %>%
+            mutate(wy = as.integer(as.character(water_year(date, origin = 'usgs'))))
 
-   if(nrow(good_years) > 0){
-   com_dat <- com_dat_raw %>%
-       filter(wy %in% good_years$wy)
+        good_years <- com_dat_raw %>% na.omit() %>% count(wy) %>% filter(n > 364)
+        if (nrow(good_years) == 0) next
 
+        com_dat <- com_dat_raw %>% filter(wy %in% good_years$wy)
 
-   for(target_wy in unique(com_dat$wy)){
+        for (target_wy in unique(com_dat$wy)) {
+            com_dat_wy <- com_dat %>% filter(wy == target_wy)
+            if (nrow(na.omit(com_dat_wy)) <= 300) next
 
-    com_dat_wy <- com_dat %>%
-       filter(wy == target_wy)
+            ts_df <- com_dat_wy %>% select(date, con, q_lps)
 
-    if(nrow(na.omit(com_dat_wy)) > 300){
+            out_tbl <- run_coarsening_experiment(
+                ts_df = ts_df, site_code = target_site, target_wy = target_wy,
+                area = area, loop_vec = loop_vec, reps = 100, daily_agg = FALSE)
 
-    ## calculate truth ####
-    chem_df <- com_dat_wy %>%
-        select(-q_lps) %>%
-        na.omit()
-
-    q_df <- com_dat_wy %>%
-        select(-con) %>%
-        na.omit()
-
-    out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code', datecol = 'date') %>%
-        rename(datetime = date) %>%
-        calculate_composite_from_rating_filled_df() %>%
-        pull(flux)
-    truth <- tibble(method = 'truth', estimate = out_val)
-
-    ## make gradually coarsened chem ###
-    ## iniitalize output and loop
-    coarse_chem <- list()
-    loopid = 0
-
-    # create vector of nth elements
-    # go from daily to biweekly by day
-    # set monthly and bimonthly discretely
-    loop_vec <- c(seq(from = 1, to = 13, by = 1),
-                  seq(from = 14, to = 28, by = 7),
-                  30, 60, 90)
-
-    ## Start coarsening loop ####
-    reps <- 100
-    for(i in loop_vec){
-        n = i
-
-        for(j in 1:reps){
-            loopid <- loopid+1
-            start_pos <- sample(1:n, size = 1) # take a random starting position from inside the interval
-            coarse_chem[[loopid]] <- tibble(date =  nth_element(com_dat_wy$date, 1, n = start_pos),
-                                            con = nth_element(com_dat_wy$con, 1, n = start_pos))
-            names(coarse_chem)[loopid] <- paste0('sample_',n)
-        }
-
-            ## Start method application loop ####
-            out_list <- list()
-            for(k in 2:length(coarse_chem)){
-
-                n <- as.numeric(str_split_fixed(names(coarse_chem[k]), pattern = 'sample_', n = 2)[2])
-
-                chem_df <- coarse_chem[[k]] %>%
-                    group_by(lubridate::yday(date)) %>%
-                    summarize(date = date(date),
-                              con = mean(con)) %>%
-                    ungroup() %>%
-                    unique() %>%
-                    select(date, con) %>%
-                    mutate(site_code = target_site, wy = target_wy)
-
-                out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_df) %>%
-                    mutate(n = n)
+            if (target_solute == 'spCond') {
+                save(out_tbl, file = here('data','coarsen_neon',
+                    paste0('TEST100reps_annual_spCond_', target_wy, '_', target_site, '.RData')))
             }
+            if (target_solute == 'turbid_FNU') {
+                save(out_tbl, file = here('data','coarsen_neon',
+                    paste0('TEST100reps_annual_turb', target_wy, '_', target_site, '.RData')))
+            }
+        }
     }
-
-            out_tbl <- bind_rows(out_list)
-            ## save/load data from previous runs #####
-            if(target_solute == 'spCond'){save(out_tbl, file = here('data','coarsen_neon', paste0('TEST100reps_annual_spCond_', target_wy, '_', target_site, '.RData') ))}
-            if(target_solute == 'turbid_FNU'){save(out_tbl, file = here('data','coarsen_neon', paste0('TEST100reps_annual_turb', target_wy, '_', target_site, '.RData')))}
-   }else{next}
-} }else{next} #end wy loop
-} # end solute loop
-} # end site loop
-
+}

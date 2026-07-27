@@ -13,9 +13,12 @@ The paper evaluates four common solute load estimation methods (linear interpola
 
 This project uses **milestone-driven development**. See `plans/` for current milestone details.
 
-- **M0:** Initial codebase and paper review (this document)
-- **M1:** Plan creation and subsequent milestone definition (to be done collaboratively)
-- Future milestones will be defined in M1.
+- **M0:** Initial codebase and paper review — complete
+- **M1:** Plan creation — complete (see `plans/m1_planning.md`)
+- **M2:** Fix the codebase — complete (M2a–M2d all done, except shared config and defunct cleanup)
+- **M3:** Improve figures — complete (M3a–M3c done; M3d figure-to-text numbering check remains)
+- **M4:** Reconcile narrative text — mostly complete (structure fixes, NEON expansion, Conclusions all done; quantitative audit + Nic tasks remain)
+- **M5:** Organize repo — M5a/M5b/M5c/M5d complete; old subdir cleanup done; end-to-end test of `00_run_all.R` remains
 
 ### Important Conventions
 - **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push
@@ -28,34 +31,54 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 ```
 RSFME/
 ├── source/
-│   ├── flux_methods.R          # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
-│   └── plot_theme.R            # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
-├── ms_overwrites.R             # Unit/molecule conversion utilities for MacroSheds data
+│   ├── flux_methods.R           # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
+│   ├── plot_theme.R             # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
+│   └── calculate_annual_flux.R  # MacroSheds annual load estimation (reads data/macrosheds/, writes data/load_annual.csv)
+├── ms_overwrites.R              # Unit/molecule conversion utilities for MacroSheds data
+├── data/
+│   ├── README.md                # Data provenance and download instructions
+│   ├── coarsen_hbef/            # HBEF coarsening results (.RData)
+│   ├── coarsen_plynlimon/       # Plynlimon coarsening results (.csv)
+│   ├── coarsen_neon/            # NEON coarsening results (.RData)
+│   ├── hbef/                    # HBEF chemistry CSV
+│   ├── hbef_published_flux/     # Published HBEF monthly flux data
+│   ├── macrosheds/              # EDI download (edi.1262.2) — site metadata, timeseries CSVs
+│   ├── neon/                    # NEON stream order CSV
+│   ├── plynlimon/               # Plynlimon high-frequency hydrochemistry CSV
+│   ├── ts_simulation/           # ARIMA simulation outputs
+│   ├── load_annual.csv          # Computed annual loads (output of calculate_annual_flux.R)
+│   └── load_annual_diagnostics.csv
 ├── paper/
-│   ├── paper_HESS_draft_v2.docx  # Current working draft
-│   ├── Run Order.txt             # Execution order for analysis scripts
-│   ├── coarsen_plot/             # HBEF data coarsening experiment (Figs 9-10)
-│   ├── ts_simulation/            # ARIMA-based synthetic time series experiments (Fig 8)
-│   ├── plynlimon_discussion/     # Plynlimon replication of coarsening (Figs 11-12)
-│   ├── neon_discussion/          # NEON sensor data coarsening (Figs a1-a8)
-│   ├── macrosheds_application/   # MacroSheds dataset load estimation (Fig a9)
-│   ├── hbef_comparison_fig/      # Method comparison against sensor truth (Fig 14)
-│   ├── hbef_corr_exploration/    # Ca-SpCond regression analysis (Fig 2 inset)
-│   ├── misc_figure_creation/     # C:Q plots and raw data figures (Figs 2-5)
-│   ├── method_illustration/      # Method illustration diagram (Fig 1, PNG only)
-│   └── flowchart/                # Decision framework flowchart (Fig 15, PNGs only)
-├── plans/                        # Milestone plans and decisions log
-└── CLAUDE.md                     # This file
+│   ├── paper_HESS_draft_v2.docx # Current working draft
+│   ├── source/                  # All analysis + figure scripts, numbered in execution order (01–15)
+│   │   ├── 01–15_*.R            # Numbered scripts (see Script Run Order below)
+│   │   ├── coarsen_helpers.R    # Shared coarsening experiment function
+│   │   ├── calculate_truth_ts.R # Truth computation helper
+│   │   └── base_storm_sep.R     # Baseflow/stormflow separation utility
+│   └── figures/                 # All output figures, named by figure number (30 PNGs)
+├── plans/                       # Milestone plans and decisions log
+├── w3_sensor_wdisch.feather     # HBEF sensor data (PROPRIETARY — gitignored)
+└── CLAUDE.md                    # This file
 ```
 
-### Script Run Order (from `paper/Run Order.txt`)
-1. `ts_simulation/` - ARIMA fitting and simulation experiments
-2. `coarsen_plot/` - HBEF data coarsening experiments
-3. `plynlimon_discussion/` - Plynlimon replication
-4. `macrosheds_application/` - MacroSheds load estimates
-5. `hbef_corr_exploration/` - Ca-SpCond investigation
-6. `hbef_comparison_fig/` - Method comparison figure
-7. `misc_figure_creation/` - Supporting plots
+### Script Run Order (all in `paper/source/`)
+| # | Script | Produces |
+|---|--------|----------|
+| 01 | `01_ts_simulation_analysis.R` | Simulated time series, coarsening CSVs → `data/ts_simulation/` |
+| 02 | `02_ts_simulation_figure.R` | `fig_supp_ts_simulation.png` (supplement) |
+| 03 | `03_ts_descriptive_figures.R` | `fig_hydro_regime.png`, `fig_cq_regime.png` |
+| 04 | `04_coarsen_analysis_hbef.R` | HBEF coarsening results → `data/coarsen_hbef/` |
+| 05 | `05_coarsen_figure_hbef.R` | `fig07_hbef_ca_coarsening.png`, `fig08_hbef_no3_coarsening.png` |
+| 06 | `06_coarsen_example_figure.R` | `fig06_coarsen_example.png` |
+| 07 | `07_coarsen_analysis_plynlimon.R` | Plynlimon coarsening results → `data/coarsen_plynlimon/` |
+| 08 | `08_coarsen_figure_plynlimon.R` | `fig09_plynlimon_ca_coarsening.png`, `fig10_plynlimon_no3_coarsening.png` |
+| 09 | `09_coarsen_analysis_neon.R` | NEON coarsening results → `data/coarsen_neon/` |
+| 10 | `10_coarsen_figure_neon.R` | `figa_neon_cond_*.png`, `figa_neon_turb_*.png` (8 supplement figs) |
+| 11 | `11_macrosheds_compare.R` | `figa9_macrosheds_density.png`, `figa9_macrosheds_method_comp.png` |
+| 12 | `12_macrosheds_descriptive.R` | `figa9_macrosheds_load_hist.png` |
+| 13 | `13_ca_correlation.R` | Ca–SpCond regression (sourced by 14, no standalone output) |
+| 14 | `14_misc_figures.R` | `fig02–fig05` raw data and C:Q plots (8 PNGs) |
+| 15 | `15_hbef_method_comparison.R` | `fig11_hbef_method_ts.png`, `fig11_hbef_method_comparison.png` |
 
 ### Key Dependencies
 - R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, forecast, zoo, ggthemes, cowplot
@@ -77,12 +100,12 @@ RSFME/
 5. ~~File format mismatch~~ — Fixed: Plynlimon analysis now saves `.csv` matching figure script.
 
 **Structural (M2c — mostly fixed):**
-6. **Massive code duplication** - HBEF/Plynlimon/NEON analysis scripts are near-copies. Deferred to avoid risk before verification — will revisit after M2d.
+6. ~~Massive code duplication~~ — Fixed: extracted `run_coarsening_experiment()` into `paper/source/coarsen_helpers.R`, reducing HBEF/Plynlimon/NEON scripts from ~110 lines each to ~35.
 7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files. Deferred — low risk and low urgency.
 8. ~~Row-by-row `rbind()` in loops~~ — Fixed: converted to list accumulation + `bind_rows()` in 5 scripts (ts_simulation, ms_application_compare, coarsen HBEF/Plynlimon/NEON).
 9. ~~Global variable dependencies~~ — Fixed: `calculate_truth_ts.R` now takes `dn` and `target_wy` as explicit parameters. Monthly branch `q_df` vs `q_df_add` bug also fixed.
-10. **No data pipeline** - Data files in various locations, no clear way to reproduce from scratch. `w3_sensor_wdisch.feather` now in repo root (gitignored, proprietary).
-11. ~~Performance: data re-read inside rep loop~~ — Fixed: `1_ts_simulation_analysis.R` now reads data, fits ARIMA, and defines functions once outside the loop.
+10. ~~No data pipeline~~ — Fixed: all data consolidated under `data/`, all scripts in `paper/source/`, all figures in `paper/figures/`. See `data/README.md` for provenance.
+11. ~~Performance: data re-read inside rep loop~~ — Fixed: `01_ts_simulation_analysis.R` now reads data, fits ARIMA, and defines functions once outside the loop.
 
 **Minor (all fixed in M2c):**
 12. ~~Deprecated ggplot2 usage~~ — Fixed: `size` → `linewidth` for line-based geoms in all plotting scripts. Also fixed `lwd` → `linewidth` in NEON figure.
@@ -111,7 +134,7 @@ RSFME/
 9. **Repetition** between Results observations and Discussion points.
 
 ### Figure Quality Issues
-1. Figures are generated as individual PNGs with inconsistent styling across scripts.
-2. The decision flowchart (Fig 15) is a manually-created PNG - not reproducible from code.
-3. Method illustration (Fig 1) is also a manual PNG.
-4. No unified theme or color palette across figure scripts.
+1. ~~Inconsistent styling~~ — Fixed: all scripts use `theme_rsfme()` and `ggsave_hess()` from `source/plot_theme.R`.
+2. Fig 12 (decision flowchart) is a manually-created PNG — not reproducible from code.
+3. Fig 1 (method illustration) is also a manual PNG.
+4. ~~No unified theme or color palette~~ — Fixed: colorblind-safe Paul Tol palette, shared error band scales, consistent sizing.

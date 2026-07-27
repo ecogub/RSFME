@@ -1,28 +1,95 @@
-# function to apply all methods #####
 apply_methods_coarse <- function(chem_df, q_df){
-    n = nrow(chem_df)
-
-    out <- tibble(method = as.character(), estimate = as.numeric())#, se)
-    #pw
+    out <- tibble(method = as.character(), estimate = as.numeric())
     out[1,2] <- calculate_pw(chem_df, q_df)
-
-    #beale
     out[2,2] <- calculate_beale(chem_df, q_df)
-
-    #rating
     out[3,2] <- calculate_rating(chem_df, q_df)
-
-    #comp
     out[4,2] <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
         rename(datetime = date) %>%
         calculate_composite_from_rating_filled_df() %>%
         pull(flux)
-
     out$method <- c('pw', 'beale', 'rating', 'composite')
     return(out)
 }
 
-# create function to take every nth element from series. ####
 nth_element <- function(vector, starting_position, n) {
     vector[seq(starting_position, length(vector), n)]
+}
+
+# Shared coarsening experiment: thin a time series at multiple frequencies,
+# apply flux methods at each, return a tibble of estimates.
+#
+# ts_df: tibble with columns date, con, q_lps (any temporal resolution)
+# site_code, target_wy: identifiers added to intermediate data frames
+# area: watershed area in ha (assigned to .GlobalEnv for flux_methods.R)
+# loop_vec: integer vector of thinning intervals (in units of ts_df rows)
+# reps: number of random-start repetitions per interval
+# daily_agg: if TRUE, aggregate ts_df to daily means before computing
+#            truth and building q_df (needed for sub-daily input like HBEF/Plynlimon)
+run_coarsening_experiment <- function(ts_df, site_code, target_wy, area,
+                                      loop_vec, reps = 100, daily_agg = TRUE) {
+    assign('area', area, envir = .GlobalEnv)
+
+    if (daily_agg) {
+        chem_daily <- ts_df %>%
+            group_by(lubridate::yday(date)) %>%
+            summarize(date = lubridate::date(date), con = mean(con), .groups = 'drop') %>%
+            unique() %>%
+            select(date, con) %>%
+            mutate(site_code = site_code, wy = target_wy)
+
+        q_daily <- ts_df %>%
+            select(date, q_lps) %>%
+            group_by(lubridate::yday(date)) %>%
+            summarize(date = lubridate::date(date), q_lps = mean(q_lps), .groups = 'drop') %>%
+            unique() %>%
+            mutate(site_code = site_code, wy = target_wy)
+    } else {
+        chem_daily <- ts_df %>%
+            select(date, con) %>%
+            na.omit() %>%
+            mutate(site_code = site_code, wy = target_wy)
+
+        q_daily <- ts_df %>%
+            select(date, q_lps) %>%
+            na.omit() %>%
+            mutate(site_code = site_code, wy = target_wy)
+    }
+
+    truth_val <- generate_residual_corrected_con(
+        chem_df = chem_daily, q_df = q_daily, sitecol = 'site_code') %>%
+        rename(datetime = date) %>%
+        calculate_composite_from_rating_filled_df() %>%
+        pull(flux)
+
+    coarse_chem <- list()
+    loopid <- 0
+
+    for (coarse_n in loop_vec) {
+        n <- coarse_n
+        for (j in 1:reps) {
+            loopid <- loopid + 1
+            start_pos <- sample(1:n, size = 1)
+            coarse_chem[[loopid]] <- tibble(
+                date = nth_element(ts_df$date, 1, n = start_pos),
+                con  = nth_element(ts_df$con,  1, n = start_pos))
+            names(coarse_chem)[loopid] <- paste0('sample_', n)
+        }
+
+        out_list <- list()
+        for (k in 2:length(coarse_chem)) {
+            n <- as.numeric(str_split_fixed(names(coarse_chem[k]),
+                                            pattern = 'sample_', n = 2)[2])
+            chem_df <- coarse_chem[[k]] %>%
+                group_by(lubridate::yday(date)) %>%
+                summarize(date = lubridate::date(date), con = mean(con), .groups = 'drop') %>%
+                unique() %>%
+                select(date, con) %>%
+                mutate(site_code = site_code, wy = target_wy)
+
+            out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_daily) %>%
+                mutate(n = n)
+        }
+    }
+
+    bind_rows(out_list)
 }

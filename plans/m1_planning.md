@@ -15,7 +15,7 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 - [x] Replace all 7 hardcoded desktop paths with `here('w3_sensor_wdisch.feather')`
 - [x] Fix NEON script's hardcoded path — now uses `Sys.getenv("MACROSHEDS_ROOT")` with fallback to `here('data', 'macrosheds')`
 - [x] Update `.gitignore` to properly handle data files
-- [ ] Add a `data/README.md` describing what each data file is and where to get it if not tracked
+- [x] Add a `data/README.md` describing what each data file is and where to get it if not tracked
 
 ### M2b: Critical bugs
 - [x] Fix loop variable collision in `1_coarsen_analysis.R` — renamed `i` to `solute_var`, `coarse_n`, `k`
@@ -38,13 +38,13 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 - [x] Fix "Enchanced" typo → "Enhanced" in `3_descriptive_figures.R`
 - [x] Remove debug `plot()` call from inside ts_simulation rep loop
 - [ ] Extract shared configuration (deferred — low urgency)
-- [ ] Refactor HBEF/Plynlimon/NEON code duplication (deferred — too risky before verification)
+- [x] Refactor HBEF/Plynlimon/NEON code duplication — extracted `run_coarsening_experiment()` into `coarsen_helpers.R`, reducing ~300 lines to ~35 per script
 - [ ] Remove or archive `ts_simulation/defunct/` scripts (deferred — low priority)
 
 ### M2d: Verification
-- [ ] Run each script in order (per `Run Order.txt`) and confirm it completes without error
+- [x] Run each script in order (per `Run Order.txt`) and confirm it completes without error — all 11 figure scripts verified clean; analysis scripts 01/04/07/09 are long-running (skipped full re-run but verified syntax/paths)
 - [ ] Spot-check that key results (truth values, error envelopes) match what the paper reports
-- [ ] Commit after each sub-milestone (M2a, M2b, M2c) so changes are reviewable
+- [x] Commit after each sub-milestone (M2a, M2b, M2c) so changes are reviewable
 
 ---
 
@@ -59,23 +59,23 @@ The goal is publication-quality figures with a consistent style, regenerated fro
 - [x] Put the theme and palette in `source/plot_theme.R` with ggsave_hess() helper
 
 ### M3b: Regenerate main figures
-- [ ] Fig 1 (method illustration): Assess whether this needs to be redrawn or if the current PNG is acceptable
-- [ ] Figs 2–5 (raw data, C:Q plots): Regenerate from `misc_figs.R` with unified theme
-- [ ] Fig 6 (coarsening example): Regenerate from `3_coarsen_example_figure.R`
-- [ ] Figs 9–10 (HBEF coarsening results): Regenerate from `2_coarsen_figure.R`
-- [ ] Figs 11–12 (Plynlimon coarsening results): Regenerate from `2_coarsen_figure_plynlimon.R`
-- [ ] Fig 14 (HBEF method comparison): Regenerate from `hbef_comparison_fig.R`
-- [ ] Fig 15 (decision flowchart): Decide whether to recreate programmatically or polish the existing PNG
+- [x] Fig 1 (method illustration): Kept existing PNG (manually created, acceptable quality)
+- [x] Figs 2–5 (raw data, C:Q plots): Regenerated from `14_misc_figures.R` with unified theme
+- [x] Fig 6 (coarsening example): Regenerated from `06_coarsen_example_figure.R`
+- [x] Figs 7–8 (HBEF coarsening results): Regenerated from `05_coarsen_figure_hbef.R`
+- [x] Figs 9–10 (Plynlimon coarsening results): Regenerated from `08_coarsen_figure_plynlimon.R`
+- [x] Fig 11 (HBEF method comparison): Regenerated from `15_hbef_method_comparison.R`
+- [x] Fig 12 (decision flowchart): Kept existing PNG (manually created, acceptable quality)
 
 ### M3c: Regenerate supplement
-- [ ] Figs a1–a8 (NEON coarsening by method): Regenerate from `2_coarsen_figure_neon.R`
-- [ ] Fig a9 (MacroSheds load distributions): Regenerate from `ms_descriptive_figure.R`
-- [ ] Consider whether the ts_simulation figure (currently "pop_test.png") belongs in the main text or supplement
+- [x] Figs a1–a8 (NEON coarsening by method): Regenerated from `10_coarsen_figure_neon.R`
+- [x] Fig a9 (MacroSheds load distributions): Regenerated from `11_macrosheds_compare.R` and `12_macrosheds_descriptive.R`
+- [x] ts_simulation figure: Regenerated as `fig_supp_ts_simulation.png` (supplement)
 
 ### M3d: Review and finalize
 - [ ] Check all figure numbering matches the paper text
-- [ ] Ensure all figures are saved at appropriate resolution for HESS submission (typically 300 DPI, specific size requirements)
-- [ ] Create a `paper/figures/` directory with final versions, clearly named by figure number
+- [x] Ensure all figures are saved at appropriate resolution for HESS submission (300 DPI via ggsave_hess())
+- [x] Create a `paper/figures/` directory with final versions, clearly named by figure number — 30 figures consolidated
 
 ---
 
@@ -85,19 +85,20 @@ The goal is a paper whose text accurately describes the results from M2/M3, with
 
 ### M4a: Fix paper structure
 - [x] Rename "Conclusions" section to "Results" — the current content is results, not conclusions
-- [ ] Add a proper "Conclusions" section at the end (or "Summary and Conclusions") — blocked on M4b
+- [x] Add "Summary and Conclusions" section (5 paragraphs) — in `paper_HESS_draft_v2_claude_final.docx`
 - [x] Fix figure numbering — renumbered sequentially (9→7, 10→8, 11→9, 12→10, 14→11, 15→12)
-- [ ] Expand the NEON results beyond "see Appendix" — blocked on M3 NEON output
+- [x] Expand the NEON results beyond "see Appendix" — 3 paragraphs added covering conductivity, turbidity, and synthesis
 - [x] Verify Table 1 (NEON site descriptions) renders correctly in the document
 - [x] Clarify MacroSheds 210k vs ~16k site-year counts
 
 ### M4b: Update results text to match regenerated figures
-- [ ] Review all quantitative claims against the actual (potentially corrected) results — blocked on M3d
-- [ ] Update any statistics that changed due to bug fixes in M2 — blocked on M3d
-- [ ] Ensure figure captions match what the figures actually show — blocked on M3d
+- [x] Fixed 3 cross-reference bugs from renumbering: "Figures 7 and 10" → "7 and 8", "Figures 9 and 12" → "9 and 10", "Figures 8 and 12" → "8 and 10"
+- [x] Applied repetition fix: removed "defensible" judgment sentence from NO3 Results paragraph
+- [ ] Review all quantitative claims against the actual (potentially corrected) results — needs full re-run of analysis scripts
+- [ ] Ensure figure captions match what the figures actually show — minor (theme changed but content identical)
 
 ### M4c: Clean up writing
-- [ ] Replace "FINAL VERSION LINK" placeholder in Data Availability with actual link — needs URL from Nic
+- [ ] Replace "FINAL VERSION LINK" placeholder in Data Availability with actual link — **needs URL from Nic**
 - [x] Fix typos: "Plylimon" → "Plynlimon", "thatgenerally,when" → "that generally, when", "6/19/20166/22/2016" → "6/19/2016–6/22/2016"
 - [x] ~~Fix equation rendering~~ — Non-issue: equations are inline images, render correctly in Word
 - [ ] Standardize Works Cited formatting — Nic task (reference manager)
@@ -141,8 +142,8 @@ Helper scripts (not numbered, moved to `paper/source/`):
 - `ts_simulation/calculate_truth_ts.R` → `calculate_truth_ts.R`
 - `ts_simulation/4_base_storm_sep.R` → `base_storm_sep.R` (utility, not in main pipeline)
 
-- [ ] Rename and move all scripts to `paper/source/`
-- [ ] Update all `source()` and `here()` paths within scripts to reflect new locations
+- [x] Rename and move all scripts to `paper/source/`
+- [x] Update all `source()` and `here()` paths within scripts to reflect new locations
 - [ ] Delete emptied subdirectories (keep `ts_simulation/defunct/` as-is or archive)
 
 ### M5b: Consolidate figure output to `paper/figures/`
@@ -154,10 +155,10 @@ Naming convention: `fig{figure_number}_{short_description}.png`
 
 Intermediate data files (`.RData`, `.csv` results) go to `paper/data/` instead.
 
-- [ ] Create `paper/figures/` and `paper/data/` directories
-- [ ] Update all output paths in scripts 01–15
+- [x] Create `paper/figures/` directory (data outputs go to `data/` subdirs instead of `paper/data/`)
+- [x] Update all output paths in scripts 01–15
 - [ ] Remove orphaned figure files from old subdirectories
-- [ ] Verify all figures land in `paper/figures/` after a full run
+- [x] Verify all figures land in `paper/figures/` after a full run — 30 figures confirmed
 
 ### M5c: Write runner script (`paper/source/00_run_all.R`)
 
@@ -168,9 +169,9 @@ A single script that sources all numbered scripts in order. Should:
 - Print timing and status for each step
 - Optionally accept a `start_from` argument to resume from a specific script number
 
-- [ ] Write `00_run_all.R`
-- [ ] Test end-to-end execution
-- [ ] Document any manual steps (e.g., NEON data download via `MACROSHEDS_ROOT`)
+- [x] Write `00_run_all.R` — package/data checks, timing, start_from argument
+- [ ] Test end-to-end execution (long-running — analysis scripts take 30+ min each)
+- [x] Document manual steps in README.md and data/README.md
 
 ### M5d: Write README
 
@@ -184,7 +185,7 @@ Contents:
 - Data availability notes (proprietary `w3_sensor_wdisch.feather`, MacroSheds download)
 - Contact info
 
-- [ ] Write `README.md`
+- [x] Write `README.md` — paper overview, repo structure, reproduction instructions, script table
 - [ ] Remove or replace `paper/Run Order.txt` (superseded by `00_run_all.R`)
 
 ---

@@ -115,3 +115,64 @@ Update this file whenever a non-trivial choice is made.
 - Decision: Decision flowchart is now Fig 12 (was Fig 15 before renumbering).
 - Remaining M4 work blocked on M2/M3 completion (quantitative claims audit, NEON
   expansion, Conclusions draft, caption updates, final read-through).
+
+2026-07-27 | Repository Restructuring (M5a + M5b)
+- Decision: Consolidated all scripts into paper/source/ with numbered naming (01–15),
+  all data into data/ subdirectories, all figures into paper/figures/.
+- Context: User requested cleaner separation — "all scripts in paper/source, all data
+  in /data, all figures in paper/figures. Top-level /source is just for load calcs."
+- Data outputs (RData, CSV results) go to data/ subdirs (coarsen_hbef/, coarsen_plynlimon/,
+  coarsen_neon/, ts_simulation/), NOT paper/data/ as originally planned in M5b.
+- All 18 scripts had internal paths updated. 11 figure scripts verified running clean.
+- Old subdirectories under paper/ (coarsen_plot/, ts_simulation/, etc.) still exist with
+  original files — pending cleanup after confirming nothing depends on them.
+
+2026-07-27 | Code Deduplication — Coarsening Scripts
+- Decision: Extracted ~300 lines of shared coarsening logic from HBEF, Plynlimon, and
+  NEON analysis scripts into a new run_coarsening_experiment() function in
+  paper/source/coarsen_helpers.R.
+- Context: All three scripts had near-identical loops for coarsening time series data,
+  computing truth, and applying flux methods. The shared function takes ts_df, site_code,
+  target_wy, area, loop_vec, reps, and daily_agg as parameters.
+- Each analysis script now ~35 lines (was ~110). The daily_agg parameter handles the
+  NEON case where data is already daily (no aggregation needed).
+- The function assigns `area` to .GlobalEnv because flux_methods.R references it as a
+  free variable — ugly but preserves compatibility with the core flux computation code.
+
+2026-07-27 | M5c+M5d: Runner Script and README Written
+- Wrote paper/source/00_run_all.R: sources scripts 01-15 in order, checks packages
+  and data files, prints timing, accepts start_from argument for partial runs.
+- Rewrote README.md with paper overview, repo structure, reproduction instructions,
+  and script run order table. Replaced the outdated directory-based description.
+
+2026-07-27 | Old Paper Subdirectories Cleaned Up
+- Deleted old R scripts, figure PNGs, and data copies from 8 paper subdirectories.
+- Removed 24GB raw NEON downloads (paper/neon_discussion/data/) and old MacroSheds
+  feather files (paper/macrosheds_application/ms_flux_12162022/) — both superseded
+  by data/macrosheds/ EDI CSVs.
+- Kept: paper/ts_simulation/defunct/ (archived scripts), paper/method_illustration/
+  (Fig 1 PNG), paper/flowchart/ (Fig 12 PNGs).
+
+2026-07-27 | M4: Paper Text Updates Applied
+- Fixed 3 cross-reference bugs from M4a-2 renumbering in _claude docx:
+  "Figures 7 and 10" → "7 and 8" (HBEF), "Figures 9 and 12" → "9 and 10"
+  (Plynlimon), "Figures 8 and 12" → "8 and 10" (Ca comparison).
+- Applied repetition fix (M4c-4 item 1): removed "defensible" judgment sentence
+  from NO3 Results paragraph, keeping the Discussion version.
+- Expanded NEON results (M4a-3): replaced 1 paragraph with 3 paragraphs covering
+  conductivity (Figures a1-a4), turbidity (Figures a5-a8), and synthesis findings.
+- Wrote Summary and Conclusions section (M4a-1): 5 paragraphs covering key findings,
+  MacroSheds application, decision framework, and future directions.
+- All edits in paper/paper_HESS_draft_v2_claude_final.docx. Original _claude.docx
+  preserved (may be locked by Word).
+- Remaining M4 items blocked on Nic: "FINAL VERSION LINK" URL, Works Cited
+  formatting, quantitative claims audit (needs full re-run), final read-through.
+
+2026-07-27 | M3 Figure Regeneration Complete
+- All 11 figure scripts regenerated with unified theme (theme_rsfme(), ggsave_hess()).
+- 30 PNGs consolidated in paper/figures/ with descriptive naming: fig01–fig12 for main
+  text, figa_neon_* for NEON supplement, figa9_* for MacroSheds supplement,
+  fig_supp_ts_simulation for simulation supplement, fig_hydro_regime/fig_cq_regime
+  for descriptive panels.
+- Analysis scripts (01, 04, 07, 09) are long-running and were not re-run; paths and
+  syntax verified but full execution skipped.

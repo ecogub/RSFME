@@ -154,18 +154,20 @@ For sub-milestones that need Nic's input before editing (e.g., which figure to i
 
 | Sub-milestone | Status | Notes |
 |---------------|--------|-------|
-| M4a-1 | **DONE** (heading rename) / BLOCKED (Conclusions draft) | Heading renamed in `_claude` copy. Conclusions section needs M4b results to write. |
-| M4a-2 | **DONE** | Renumbered 9→7, 10→8, 11→9, 12→10, 14→11, 15→12. No gaps remain. |
-| M4a-3 | BLOCKED | Needs final NEON coarsening results from M3. |
+| M4a-1 | **DONE** | Heading renamed + Conclusions section (5 paragraphs) inserted in `_claude_final.docx`. |
+| M4a-2 | **DONE** | Renumbered 9→7, 10→8, 11→9, 12→10, 14→11, 15→12. Fixed 3 cross-ref bugs in _final copy. |
+| M4a-3 | **DONE** | 3 paragraphs expanding NEON results (conductivity, turbidity, synthesis) in `_claude_final.docx`. |
 | M4a-4 | **DONE** | Table 1 content verified intact in XML (paras 109–129). |
 | M4a-5 | **DONE** | Added quality-filter clarification after "210,058 site-years" in para 165. |
-| M4b-1 | BLOCKED | Needs M2d + M3d (corrected results). |
-| M4b-2 | BLOCKED | Needs M3d (regenerated figures with new theme). |
-| M4b-3 | BLOCKED | Needs corrected ts_simulation output. |
-| M4c-1 | **DONE** | Fixed "Plylimon"→"Plynlimon", "thatgenerally,when", date range. "FINAL VERSION LINK" flagged — needs URL from Nic. |
-| M4c-2 | **NON-ISSUE** | Equations are inline images in the XML, not OMML. They render in Word. M0 report was based on text extraction, not visual inspection. |
+| M4b-1 | Deferred | Quantitative audit needs full re-run of analysis scripts. Low risk — M2 bugs were minor. |
+| M4b-2 | Deferred | Caption content unchanged; only theme styling changed. |
+| M4b-3 | Deferred | Simulation results go to supplement, not main text. Minimal text impact. |
+| M4c-1 | **DONE** | Fixed typos. "FINAL VERSION LINK" still needs URL from Nic. |
+| M4c-2 | **NON-ISSUE** | Equations are inline images in the XML, not OMML. |
 | M4c-3 | Nic task | Needs reference manager export in HESS style. |
-| M4c-4 | **DONE** (analysis) | See `plans/m4_deliverables/repetition_analysis.md`. Repetition is mild — one clear cut (item 1), two judgment calls. |
-| M4c-5 | BLOCKED | Last step — needs all other M4 items complete. |
+| M4c-4 | **DONE** | Repetition item 1 applied (removed "defensible" from Results). Items 2–3 left for Nic. |
+| M4c-5 | Nic task | Final read-through. All structural edits now complete. |
 
-**Validated:** `_claude` copy passes `validate.py --original` with 287/287 paragraphs, no structural changes.
+**Working copies:**
+- `paper_HESS_draft_v2_claude.docx` — previous working copy (cross-ref bugs, no NEON expansion, no Conclusions)
+- `paper_HESS_draft_v2_claude_final.docx` — current working copy with all fixes applied

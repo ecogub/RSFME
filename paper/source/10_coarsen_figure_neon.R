@@ -74,7 +74,7 @@ error_table %>%
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     facet_wrap(~site_code, ncol = 1)
 
-ggsave_hess(here('paper', 'figures', paste0('neon_cond_', i,'.png')))
+ggsave_hess(here('paper', 'figures', paste0('figa_neon_cond_', i,'.png')))
 }
 
 # turb plots ####
@@ -145,5 +145,5 @@ for(i in c('pw', 'beale', 'rating', 'composite')){
         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
         facet_wrap(~site_code, ncol = 1)
 
-    ggsave_hess(here('paper', 'figures', paste0('neon_turb_', i,'.png')))
+    ggsave_hess(here('paper', 'figures', paste0('figa_neon_turb_', i,'.png')))
 }

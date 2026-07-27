@@ -293,5 +293,5 @@ out_csv <- out_frame %>%
 write_csv(out_csv, here('data', 'load_annual.csv'))
 write_csv(diag_frame, here('data', 'load_annual_diagnostics.csv'))
 
-cat(sprintf("\nDone. %d load estimates across %d sites written to paper/macrosheds_application/load_annual.csv\n",
+cat(sprintf("\nDone. %d load estimates across %d sites written to data/load_annual.csv\n",
             nrow(out_csv), length(unique(out_csv$site_code))))
