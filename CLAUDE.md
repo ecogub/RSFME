@@ -87,6 +87,8 @@ RSFME/
 16. ~~Plynlimon site_code hardcoded as 'w3'~~ — Fixed: now uses the `site_code` variable (set to 'UHF').
 17. ~~"Enchanced" typo~~ in `3_descriptive_figures.R` — Fixed: → "Enhanced".
 18. ~~Debug `plot()` call~~ inside ts_simulation rep loop — Removed.
+19. ~~Copy-paste bug~~ in `1_ts_simulation_analysis.R`: "no pattern / base flow" truth used `simulated_series[[4]]` (chemostatic) instead of `[[5]]` (no-pattern). Fixed.
+20. ~~Missing closing braces~~ in `1_coarsen_analysis.R`: j and coarse_n loops were never closed. Pre-existing since before M2. Fixed to match Plynlimon version structure.
 
 ### Paper Text Issues
 

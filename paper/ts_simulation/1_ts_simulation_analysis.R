@@ -296,7 +296,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'base', cq = 'none'),
+    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'base', cq = 'none'),
     run_out)
 # apply
 run_out <- rbind(

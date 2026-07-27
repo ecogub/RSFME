@@ -85,6 +85,7 @@ for(solute_var in c('IS_NO3', 'IS_spCond')){
             coarse_chem[[loopid]] <- tibble(date =  nth_element(dn$date, 1, n = start_pos),
                                             con = nth_element(dn$con, 1, n = start_pos))
             names(coarse_chem)[loopid] <- paste0('sample_',n)
+        }
 
     ## Start method application loop ####
     out_list <- list()
@@ -104,6 +105,7 @@ for(solute_var in c('IS_NO3', 'IS_spCond')){
         out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_df) %>%
             mutate(n = n)
                                 }
+    }
 
     out_tbl <- bind_rows(out_list)
     ## save/load data from previous runs #####

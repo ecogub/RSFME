@@ -80,6 +80,15 @@ Update this file whenever a non-trivial choice is made.
   refactoring is too risky before verification). Shared config.R also deferred.
 - Deferred: ts_simulation/defunct/ cleanup (low priority).
 
+2026-07-27 | M2d Verification — Two Bugs Found and Fixed
+- Pre-existing bug: 1_ts_simulation_analysis.R line 299 used simulated_series[[4]]
+  (chemostatic) instead of [[5]] (no-pattern) for "no pattern / base flow" truth.
+  Copy-paste error. Fixed.
+- Pre-existing bug: 1_coarsen_analysis.R had missing closing braces for the j and
+  coarse_n loops (present in original code since before M2 changes). File would fail
+  to parse as a complete R script. Fixed by adding braces matching the Plynlimon
+  version's structure.
+
 2026-07-27 | Code Review Before Push Convention Added
 - Decision: Do not push code without running /code-review first for feedback.
 - Context: User requested quality control step before changes reach remote.
