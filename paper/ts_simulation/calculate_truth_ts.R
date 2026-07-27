@@ -1,9 +1,9 @@
-calculate_truth <- function(raw_chem_list, q_df, period = period, flow_regime = NULL, cq = NULL, dn = dn, target_wy = target_wy){
+calculate_truth <- function(raw_chem_list, q_df, period, flow_regime = NULL, cq = NULL, dn, target_wy){
     if(period == 'annual'){
         chem_df <- tibble(datetime = dn$datetime, con = raw_chem_list) %>%
             group_by(lubridate::yday(datetime)) %>%
-            summarize(date = date(datetime),
-                      con = mean(con)) %>%
+            summarize(date = first(date(datetime)),
+                      con = mean(con, na.rm = TRUE)) %>%
             ungroup() %>%
             unique() %>%
             select(date, con) %>%
@@ -22,8 +22,8 @@ calculate_truth <- function(raw_chem_list, q_df, period = period, flow_regime = 
     if(period == 'month'){
         chem_df <- tibble(datetime = dn$datetime, con = raw_chem_list) %>%
             group_by(lubridate::yday(datetime)) %>%
-            summarize(date = date(datetime),
-                      con = mean(con)) %>%
+            summarize(date = first(date(datetime)),
+                      con = mean(con, na.rm = TRUE)) %>%
             ungroup() %>%
             unique() %>%
             select(date, con) %>%

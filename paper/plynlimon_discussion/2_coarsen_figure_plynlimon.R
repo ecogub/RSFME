@@ -7,6 +7,7 @@ library(RiverLoad)
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
 
 # read in shared data ####
 area <- 122
@@ -65,61 +66,30 @@ plot_tbl <- out_tbl %>%
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n*7)
 
-## set names and breaks #####
-method_names <- c(
-    `pw` = "Linear Interpolation",
-    `beale` = "Beale",
-    `rating` = "Rating",
-    `composite` = "Composite"
-)
-
+## set breaks #####
 breaks <- c(24,96,192,384,768)
-
 x_labels <- c('Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 
-y_min = -30
-y_max = 30
-
-## generate plot ####
+## generate Ca plot ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -5, ymax = 5, fill = 'green4', alpha = .15)+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -20, ymax = -5, fill = 'yellow', alpha = .15)+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = 5, ymax = 20, fill = 'yellow', alpha = .15)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .15)+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
     geom_line(aes(y = min), linewidth = .75)+
-    #geom_point()+
-    #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
-    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
-    #scale_y_reverse(limits = c(100,0)) +
-    labs(x = 'Frequency',
-         y = 'Error (%)'
-         # y = 'Estimate (kg/hr/yr)',
-         # caption = '15 minute NO3 data from HBEF W3 2016 WY resampled by every nth measurement, compared to truth using every sample and the composite method.
-         # \n Vertical bars indicate hourly, daily, weekly, biweekly, monthly, and bimonthly intervals, black line is the median prediction and grey area the range of possible predictions.'
-    )+
-    theme_classic()+
-    scale_x_continuous(breaks = breaks, labels = x_labels,guide = guide_axis(check.overlap = TRUE)
-    )+
-    scale_y_continuous(limits = c(y_min, y_max))+
-    theme(text = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-          panel.spacing = unit(.25,'lines'))+
-    labs(title = 'Calcium Load Accuracy')+
+    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_labels))+
+    labs(x = 'Frequency', y = 'Error (%)', title = '(a) Calcium Load Accuracy')+
+    theme_rsfme()+
+    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     coord_cartesian(ylim = c(-25,25))
-ggsave(filename = here('paper','plynlimon_discussion', 'ca_annual.png'), width = 13, height = 6)
+ggsave_hess(filename = here('paper','plynlimon_discussion', 'ca_annual.png'))
 
 # create nitrate figure #####
 target_solute = 'NO3-N mg/l'
@@ -165,43 +135,23 @@ plot_tbl <- out_tbl %>%
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n*7)
 
-## generate plot ####
+## generate NO3 plot ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -5, ymax = 5, fill = 'green4', alpha = .15)+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = -20, ymax = -5, fill = 'yellow', alpha = .15)+
-    annotate('rect', xmin = -Inf, xmax = Inf,
-             ymin = 5, ymax = 20, fill = 'yellow', alpha = .15)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .15)+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
     geom_line(aes(y = min), linewidth = .75)+
-    #geom_point()+
-    #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
-    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
-    #scale_y_reverse(limits = c(100,0)) +
-    labs(x = 'Frequency',
-         y = 'Error (%)'
-         # y = 'Estimate (kg/hr/yr)',
-         # caption = '15 minute NO3 data from HBEF W3 2016 WY resampled by every nth measurement, compared to truth using every sample and the composite method.
-         # \n Vertical bars indicate hourly, daily, weekly, biweekly, monthly, and bimonthly intervals, black line is the median prediction and grey area the range of possible predictions.'
-    )+
-    theme_classic()+
-    scale_x_continuous(breaks = breaks, labels = x_labels,guide = guide_axis(check.overlap = TRUE)
-    )+
-    scale_y_continuous(limits = c(y_min, y_max))+
-    theme(text = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-          panel.spacing = unit(.25,'lines'))+
-    labs(title = 'Nitrate Load Accuracy')+
+    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_labels))+
+    labs(x = 'Frequency', y = 'Error (%)', title = '(b) Nitrate Load Accuracy')+
+    theme_rsfme()+
+    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     coord_cartesian(ylim = c(-25,25))
-ggsave(filename = here('paper','plynlimon_discussion', 'nitrate_annual.png'), width = 13, height = 6)
+ggsave_hess(filename = here('paper','plynlimon_discussion', 'nitrate_annual.png'))

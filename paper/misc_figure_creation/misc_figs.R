@@ -10,6 +10,7 @@ set.seed(53045)
 
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
 source(here('paper/hbef_corr_exploration/Ca_correlation_investigation.R'))
 
 area <- 42.4
@@ -46,16 +47,15 @@ dn %>%
     scale_y_log10()+
     scale_x_log10(breaks = q_breaks,
                   labels = q_labels) +
-    theme_classic() +
+    theme_rsfme() +
     geom_smooth(method = 'lm', color = 'black')+
     labs(x = 'Q (lps)',
          y = 'C (mg/L)',
          title = 'Calcium at HBEF',
          color = 'Season')+
-    theme(text = element_text(size = 20)) +
-    scale_color_manual(values = c('#882255','#117733','#DDCC77', '#332288'))
+    scale_color_manual(values = season_colors)
 
-ggsave(filename = here('paper','misc_figure_creation', 'ca_cq.png'), width = 6, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'ca_cq.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)
 
 ##  HBEF nitrate C:Q relationship ####
 dn %>%
@@ -64,15 +64,14 @@ dn %>%
     scale_y_log10()+
     scale_x_log10(breaks = q_breaks,
                   labels = q_labels) +
-    theme_classic() +
+    theme_rsfme() +
     geom_smooth(method = 'lm', color = 'black')+
     labs(x = 'Q (lps)',
          y = 'C (mg/L)',
          title = 'Nitrate-N at HBEF')+
-    theme(text = element_text(size = 20),
-          legend.position = 'none')+
-    scale_color_manual(values = c('#882255','#117733','#DDCC77', '#332288'))
-ggsave(filename = here('paper','misc_figure_creation', 'nitrate_cq.png'), width = 6, height = 6)
+    theme(legend.position = 'none')+
+    scale_color_manual(values = season_colors)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'nitrate_cq.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)
 
 ## HBEF chemistry time series ####
 chem_ts <- dn %>%
@@ -84,23 +83,21 @@ chem_ts <- dn %>%
     ggplot(aes(x = datetime, y = val)) +
     geom_line()+
     facet_wrap(~var, ncol = 1, scales = 'free')+
-    theme_classic()+
-    theme(text = element_text(size = 20))+
+    theme_rsfme()+
     labs(x = '',
          y = 'C (mg/L)',
          title = 'HBEF Watershed 3 - 2016 Water Year')
 
 chem_ts + inset_element(ca_sc_plot + theme(text = element_text(size = 10)), 0.1, 0.75, 0.3, .99, align_to = 'plot')
 
-ggsave(filename = here('paper','misc_figure_creation', 'rawchem.png'), width = 12, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'rawchem.png'))
 
 ## HBEF Streamflow timeseries ####
 dn %>%
     ggplot(aes(x = datetime, y = IS_discharge)) +
     geom_line()+
-    theme_classic()+
-    theme(text = element_text(size = 20),
-          legend.position = 'none')+
+    theme_rsfme()+
+    theme(legend.position = 'none')+
     scale_y_log10(breaks = q_breaks,
                   labels = q_labels)+
     labs(x = '',
@@ -108,7 +105,7 @@ dn %>%
          title = 'Streamflow at HBEF Watershed 3 - 2016 Water Year')
 
 
-ggsave(filename = here('paper','misc_figure_creation', 'rawQ.png'), width = 12, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'rawQ.png'))
 
 # read in Plynlimon data ####
 area <- 122
@@ -141,16 +138,15 @@ d %>%
     scale_y_log10()+
     scale_x_log10(breaks = q_breaks,
                   labels = q_labels) +
-    theme_classic() +
+    theme_rsfme() +
     geom_smooth(method = 'lm', color = 'black')+
     labs(x = 'Q (lps)',
          y = 'C (mg/L)',
          title = 'Calcium at Plynlimon',
          color = 'Season')+
-    theme(text = element_text(size = 20)) +
-    scale_color_manual(values = c('#882255','#117733','#DDCC77', '#332288'))
+    scale_color_manual(values = season_colors)
 
-ggsave(filename = here('paper','misc_figure_creation', 'ca_cq_ply.png'), width = 6, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'ca_cq_ply.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)
 
 ##  PLY nitrate C:Q relationship ####
 d %>%
@@ -159,15 +155,14 @@ d %>%
     scale_y_log10()+
     scale_x_log10(breaks = q_breaks,
                   labels = q_labels) +
-    theme_classic() +
+    theme_rsfme() +
     geom_smooth(method = 'lm', color = 'black')+
     labs(x = 'Q (lps)',
          y = 'C (mg/L)',
          title = 'Nitrate-N at Plynlimon')+
-    theme(text = element_text(size = 20),
-          legend.position = 'none')+
-    scale_color_manual(values = c('#882255','#117733','#DDCC77', '#332288'))
-ggsave(filename = here('paper','misc_figure_creation', 'nitrate_cq_ply.png'), width = 6, height = 6)
+    theme(legend.position = 'none')+
+    scale_color_manual(values = season_colors)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'nitrate_cq_ply.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)
 
 ## PLY chemistry time series ####
 d %>%
@@ -177,21 +172,19 @@ d %>%
     ggplot(aes(x = as_datetime(datetime), y = val)) +
     geom_line()+
     facet_wrap(~var, ncol = 1, scales = 'free')+
-    theme_classic()+
-    theme(text = element_text(size = 20))+
+    theme_rsfme()+
     labs(x = '',
          y = 'C (mg/L)',
          title = 'Plynlimon Upper Hafren - 2008 Water Year')
 
-ggsave(filename = here('paper','misc_figure_creation', 'rawchem_ply.png'), width = 12, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'rawchem_ply.png'))
 
 ## PLY Streamflow timeseries ####
 d %>%
     ggplot(aes(x = as_datetime(datetime), y = q_lps)) +
     geom_line()+
-    theme_classic()+
-    theme(text = element_text(size = 20),
-          legend.position = 'none')+
+    theme_rsfme()+
+    theme(legend.position = 'none')+
     scale_y_log10(#breaks = q_breaks,
                   #labels = q_labels
         )+
@@ -201,5 +194,5 @@ d %>%
          title = 'Streamflow at Plynlimon Upper Hafren - 2008 Water Year')
 
 
-ggsave(filename = here('paper','misc_figure_creation', 'rawQ_ply.png'), width = 12, height = 6)
+ggsave_hess(filename = here('paper','misc_figure_creation', 'rawQ_ply.png'))
 

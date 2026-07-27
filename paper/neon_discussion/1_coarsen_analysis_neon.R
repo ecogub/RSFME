@@ -3,10 +3,11 @@ library(here)
 library(lfstat)
 library(lubridate)
 library(RiverLoad)
-library(macrosheds)
+ms_sites <- read_csv(here('data', 'macrosheds', 'sites.csv'), show_col_types = FALSE)
 
-small_sites <- read_csv(here('paper', 'neon_discussion', 'ms_stream_order.csv')) %>%
-    left_join(ms_site_data, by = 'site_code') %>%
+small_sites <- read_csv(here('paper', 'neon_discussion', 'ms_stream_order.csv'),
+                        show_col_types = FALSE) %>%
+    left_join(ms_sites, by = 'site_code') %>%
     filter(domain == 'neon',
            stream_order == 1)
 
@@ -15,27 +16,17 @@ set.seed(53045)
 source(here('source/flux_methods.R'))
 source(here('paper/coarsen_plot/coarsen_helpers.R'))
 
-# dl neon data
-# zipsByProduct(dpID="DP1.20288.001", site=small_sites$site_code,
-#                      package="expanded", release="current",
-#                      check.size = F, savepath = here('paper', 'neon_discussion', 'data'))
-# zipsByProduct(dpID="DP4.00130.001", site=small_sites$site_code,
-#               package="expanded", release="current",
-#               check.size = F, savepath = here('paper', 'neon_discussion', 'data'))
-#
-# stackByTable(filepath=here('paper', 'neon_discussion', 'data', 'filesToStack00130'))
-# stackByTable(filepath=here('paper', 'neon_discussion', 'data', 'filesToStack20288'))
-#set watershed attributes #####
-
-macrosheds_root <- Sys.getenv("MACROSHEDS_ROOT", unset = here('data', 'macrosheds'))
-q_dat<- ms_load_product(prodname = 'discharge', site_codes = unique(small_sites$site_code),
-                        macrosheds_root = macrosheds_root)
-c_dat<- ms_load_product(prodname = 'stream_chemistry', site_codes = unique(small_sites$site_code),
-                        macrosheds_root = macrosheds_root)
+# load NEON timeseries from EDI download
+neon_ts <- read_csv(here('data', 'macrosheds', 'timeseries_neon.csv'), show_col_types = FALSE)
+neon_site_codes <- unique(small_sites$site_code)
+q_dat <- neon_ts %>%
+    filter(var_category == 'discharge', site_code %in% neon_site_codes)
+c_dat <- neon_ts %>%
+    filter(var_category == 'stream_chemistry', site_code %in% neon_site_codes)
 
 
 for(target_site in unique(c_dat$site_code)){
-area <- ms_site_data %>%
+area <- ms_sites %>%
     filter(site_code == target_site) %>%
     pull(ws_area_ha)
 # begin solute loop ####

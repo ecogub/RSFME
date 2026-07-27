@@ -23,15 +23,15 @@ rtnorm <- function(n, mean, sd, a = 0, b = 5){
 make_q_daily <- function(q_df){
     out <- q_df %>%
         group_by(lubridate::yday(datetime)) %>%
-        summarize(date = date(datetime),
-                  q_lps = mean(q_lps)) %>%
+        summarize(date = first(date(datetime)),
+                  q_lps = mean(q_lps, na.rm = TRUE)) %>%
         ungroup() %>%
         unique() %>%
         select(date, q_lps)
 }
 
 # apply methods function
-apply_methods <- function(chem_df, q_df, period = period, flow_regime = NULL, cq = NULL){
+apply_methods <- function(chem_df, q_df, period, flow_regime = NULL, cq = NULL){
     if(period == 'annual'){
     out <- tibble(method = as.character(), estimate = as.numeric(),
                   flow = as.character(), cq = as.character())
@@ -99,7 +99,7 @@ dn$IS_discharge[dn$datetime > ymd_hms('2016/01/02 18:00:00') & dn$datetime < ymd
 
 # Fit ARIMA once
 fit <- auto.arima(xts(dn$IS_discharge, order.by = dn$datetime))
-sum_q <- sum(dn$IS_discharge)
+sum_q <- sum(dn$IS_discharge, na.rm = TRUE)
 
 # Thinning Frequency Loop Start #####
 thin_freqs <- c('weekly','biweekly', 'monthly')
@@ -158,14 +158,14 @@ simulated_series = list()
 reg <- dn$IS_discharge
 simulated_series[[1]] = reg + resampled_residuals + 5
 simulated_series[[1]][which(simulated_series[[1]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[1]]))
+hold_factor <- (sum_q/sum(simulated_series[[1]], na.rm = TRUE))
 simulated_series[[1]] <- simulated_series[[1]]*hold_factor
 
 ### stormflow dominated ####
 storm <- dn$IS_discharge
 simulated_series[[2]] = storm^1.5 + resampled_residuals + 5
 simulated_series[[2]][which(simulated_series[[2]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[2]]))
+hold_factor <- (sum_q/sum(simulated_series[[2]], na.rm = TRUE))
 simulated_series[[2]] <- simulated_series[[2]]*hold_factor
 
 ###baseflow dominated ####
@@ -173,7 +173,7 @@ base <- dn$IS_discharge
 simulated_series[[3]] <- base^0.9 + resampled_residuals + 5
 simulated_series[[3]] <- rollmean(simulated_series[[3]], k = 10, fill = T)
 simulated_series[[3]][which(simulated_series[[3]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[3]]))
+hold_factor <- (sum_q/sum(simulated_series[[3]], na.rm = TRUE))
 simulated_series[[3]] <- simulated_series[[3]]*hold_factor
 
 ## Chemistry series creation  ####
@@ -231,7 +231,7 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = simulated_series[[4
 
 #### unaltered flow ####
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic'),
+    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic', dn = dn, target_wy = target_wy),
     run_out)
 run_out <- rbind(
     apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic'),
@@ -242,7 +242,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'storm', cq = 'chemostatic'),
+    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'storm', cq = 'chemostatic', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -254,7 +254,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'base', cq = 'chemostatic'),
+    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'base', cq = 'chemostatic', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -272,7 +272,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'unaltered', cq = 'none'),
+    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'unaltered', cq = 'none', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -284,7 +284,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'storm', cq = 'none'),
+    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'storm', cq = 'none', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -296,7 +296,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'base', cq = 'none'),
+    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'base', cq = 'none', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -315,7 +315,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = en_unalt, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich'),
+    calculate_truth(raw_chem_list = en_unalt, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -332,7 +332,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = en_storm, period = period, q_df, flow_regime = 'storm', cq = 'enrich'),
+    calculate_truth(raw_chem_list = en_storm, period = period, q_df, flow_regime = 'storm', cq = 'enrich', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -349,7 +349,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = en_base, q_df, period = period, flow_regime = 'base', cq = 'enrich'),
+    calculate_truth(raw_chem_list = en_base, q_df, period = period, flow_regime = 'base', cq = 'enrich', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -369,7 +369,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = di_unalt, period = period, q_df, flow_regime = 'unaltered', cq = 'dilution'),
+    calculate_truth(raw_chem_list = di_unalt, period = period, q_df, flow_regime = 'unaltered', cq = 'dilution', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -386,7 +386,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = di_storm, period = period, q_df, flow_regime = 'storm', cq = 'dilution'),
+    calculate_truth(raw_chem_list = di_storm, period = period, q_df, flow_regime = 'storm', cq = 'dilution', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(
@@ -403,7 +403,7 @@ q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]
     mutate(site_code = 'w3', wy = target_wy)
 #truth
 run_out <- rbind(
-    calculate_truth(raw_chem_list = di_base, q_df, period = period, flow_regime = 'base', cq = 'dilution'),
+    calculate_truth(raw_chem_list = di_base, q_df, period = period, flow_regime = 'base', cq = 'dilution', dn = dn, target_wy = target_wy),
     run_out)
 # apply
 run_out <- rbind(

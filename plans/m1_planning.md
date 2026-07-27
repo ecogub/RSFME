@@ -1,7 +1,7 @@
 # M1 Plan: RSFME Paper Improvement
 
 **Created:** 2026-07-27
-**Flow:** Fix code → Improve figures → Reconcile text
+**Flow:** Fix code → Improve figures → Reconcile text → Organize repo
 
 ---
 
@@ -84,24 +84,108 @@ The goal is publication-quality figures with a consistent style, regenerated fro
 The goal is a paper whose text accurately describes the results from M2/M3, with proper structure and no placeholder content.
 
 ### M4a: Fix paper structure
-- [ ] Rename "Conclusions" section to "Results" — the current content is results, not conclusions
-- [ ] Add a proper "Conclusions" section at the end (or "Summary and Conclusions")
-- [ ] Fix figure numbering — there is no Figure 13 (either add one or renumber)
-- [ ] Expand the NEON results beyond "see Appendix" — at minimum a paragraph summarizing key findings
-- [ ] Verify Table 1 (NEON site descriptions) renders correctly in the document
+- [x] Rename "Conclusions" section to "Results" — the current content is results, not conclusions
+- [ ] Add a proper "Conclusions" section at the end (or "Summary and Conclusions") — blocked on M4b
+- [x] Fix figure numbering — renumbered sequentially (9→7, 10→8, 11→9, 12→10, 14→11, 15→12)
+- [ ] Expand the NEON results beyond "see Appendix" — blocked on M3 NEON output
+- [x] Verify Table 1 (NEON site descriptions) renders correctly in the document
+- [x] Clarify MacroSheds 210k vs ~16k site-year counts
 
 ### M4b: Update results text to match regenerated figures
-- [ ] Review all quantitative claims against the actual (potentially corrected) results
-- [ ] Update any statistics that changed due to bug fixes in M2
-- [ ] Ensure figure captions match what the figures actually show
+- [ ] Review all quantitative claims against the actual (potentially corrected) results — blocked on M3d
+- [ ] Update any statistics that changed due to bug fixes in M2 — blocked on M3d
+- [ ] Ensure figure captions match what the figures actually show — blocked on M3d
 
 ### M4c: Clean up writing
-- [ ] Replace "FINAL VERSION LINK" placeholder in Data Availability with actual link
-- [ ] Fix typos: "Plylimon" → "Plynlimon", "Enchanced" → "Enhanced", "6/19/20166/22/2016" → "6/19/2016–6/22/2016"
-- [ ] Fix equation rendering (Equations 1–3 need proper symbols)
-- [ ] Standardize Works Cited formatting
-- [ ] Remove repetition between Results and Discussion sections
-- [ ] One final read-through for clarity and flow
+- [ ] Replace "FINAL VERSION LINK" placeholder in Data Availability with actual link — needs URL from Nic
+- [x] Fix typos: "Plylimon" → "Plynlimon", "thatgenerally,when" → "that generally, when", "6/19/20166/22/2016" → "6/19/2016–6/22/2016"
+- [x] ~~Fix equation rendering~~ — Non-issue: equations are inline images, render correctly in Word
+- [ ] Standardize Works Cited formatting — Nic task (reference manager)
+- [x] Identify repetition between Results and Discussion — analysis in `plans/m4_deliverables/repetition_analysis.md`; one clear cut, two judgment calls
+- [ ] One final read-through for clarity and flow — blocked on all other M4 items
+
+---
+
+---
+
+## M5: Organize Repo for Reproducibility
+
+The goal is a repo a reviewer or collaborator can clone and understand immediately: numbered scripts, one figures output folder, a single runner script, and a README that explains what's here.
+
+### M5a: Number scripts in execution order
+
+Rename all analysis and figure scripts to a flat, numbered sequence in `paper/source/`. The number reflects execution order. Helper/utility scripts sourced by others keep descriptive names but move into the same folder.
+
+Current scripts and their new names:
+
+| # | Current location | New name | Produces |
+|---|-----------------|----------|----------|
+| 01 | `ts_simulation/1_ts_simulation_analysis.R` | `01_ts_simulation_analysis.R` | CSV results, `simulated_series.Rdata` |
+| 02 | `ts_simulation/2_ts_simulation_figure.R` | `02_ts_simulation_figure.R` | Fig 7 (supplement), Supp Table 1 |
+| 03 | `ts_simulation/3_descriptive_figures.R` | `03_ts_descriptive_figures.R` | Hydro regime + C:Q regime panels |
+| 04 | `coarsen_plot/1_coarsen_analysis.R` | `04_coarsen_analysis_hbef.R` | HBEF coarsening .RData |
+| 05 | `coarsen_plot/2_coarsen_figure.R` | `05_coarsen_figure_hbef.R` | Figs 7–8 (Ca + NO3 coarsening) |
+| 06 | `coarsen_plot/3_coarsen_example_figure.R` | `06_coarsen_example_figure.R` | Fig 6 (thinning example) |
+| 07 | `plynlimon_discussion/1_coarsen_analysis_plynlimon.R` | `07_coarsen_analysis_plynlimon.R` | Plynlimon coarsening .csv |
+| 08 | `plynlimon_discussion/2_coarsen_figure_plynlimon.R` | `08_coarsen_figure_plynlimon.R` | Figs 9–10 |
+| 09 | `neon_discussion/1_coarsen_analysis_neon.R` | `09_coarsen_analysis_neon.R` | NEON coarsening results |
+| 10 | `neon_discussion/2_coarsen_figure_neon.R` | `10_coarsen_figure_neon.R` | Figs a1–a8 |
+| 11 | `macrosheds_application/ms_application_compare.R` | `11_macrosheds_compare.R` | Method comparison figure |
+| 12 | `macrosheds_application/ms_descriptive_figure.R` | `12_macrosheds_descriptive.R` | Fig a9 |
+| 13 | `hbef_corr_exploration/Ca_correlation_investigation.R` | `13_ca_correlation.R` | Ca-SpCond regression (sourced by 14) |
+| 14 | `misc_figure_creation/misc_figs.R` | `14_misc_figures.R` | Figs 2–5 (raw data, C:Q) |
+| 15 | `hbef_comparison_fig/hbef_comparison_fig.R` | `15_hbef_method_comparison.R` | Fig 11 |
+
+Helper scripts (not numbered, moved to `paper/source/`):
+- `coarsen_plot/coarsen_helpers.R` → `coarsen_helpers.R`
+- `ts_simulation/calculate_truth_ts.R` → `calculate_truth_ts.R`
+- `ts_simulation/4_base_storm_sep.R` → `base_storm_sep.R` (utility, not in main pipeline)
+
+- [ ] Rename and move all scripts to `paper/source/`
+- [ ] Update all `source()` and `here()` paths within scripts to reflect new locations
+- [ ] Delete emptied subdirectories (keep `ts_simulation/defunct/` as-is or archive)
+
+### M5b: Consolidate figure output to `paper/figures/`
+
+All scripts currently save figures into their own subdirectories. Redirect all `ggsave()` / `png()` calls to `paper/figures/`, with the script number as filename prefix.
+
+Naming convention: `fig{figure_number}_{short_description}.png`
+- e.g., `fig07_hbef_nitrate_coarsening.png`, `figa1_neon_cond_li.png`
+
+Intermediate data files (`.RData`, `.csv` results) go to `paper/data/` instead.
+
+- [ ] Create `paper/figures/` and `paper/data/` directories
+- [ ] Update all output paths in scripts 01–15
+- [ ] Remove orphaned figure files from old subdirectories
+- [ ] Verify all figures land in `paper/figures/` after a full run
+
+### M5c: Write runner script (`paper/source/00_run_all.R`)
+
+A single script that sources all numbered scripts in order. Should:
+- Set the working directory via `here()`
+- Check for required packages and data files up front
+- Source scripts 01–15 in sequence
+- Print timing and status for each step
+- Optionally accept a `start_from` argument to resume from a specific script number
+
+- [ ] Write `00_run_all.R`
+- [ ] Test end-to-end execution
+- [ ] Document any manual steps (e.g., NEON data download via `MACROSHEDS_ROOT`)
+
+### M5d: Write README
+
+Replace or create a top-level `README.md` that explains the repo as it is now — no history of past issues or milestones.
+
+Contents:
+- Paper title, authors, target journal
+- Repository structure (tree diagram)
+- How to reproduce: prerequisites (R version, packages), data setup, running `00_run_all.R`
+- Where outputs go (`paper/figures/`, `paper/data/`)
+- Data availability notes (proprietary `w3_sensor_wdisch.feather`, MacroSheds download)
+- Contact info
+
+- [ ] Write `README.md`
+- [ ] Remove or replace `paper/Run Order.txt` (superseded by `00_run_all.R`)
 
 ---
 
@@ -120,10 +204,11 @@ The goal is a paper whose text accurately describes the results from M2/M3, with
 | M4a | Paper structure | — (can start in parallel with M3) |
 | M4b | Results reconciliation | M3d (figures finalized) |
 | M4c | Writing cleanup | M4a + M4b |
+| M5a | Number and move scripts | M3d (figures finalized, scripts stable) |
+| M5b | Consolidate figure output | M5a |
+| M5c | Runner script | M5a + M5b |
+| M5d | README | M5c (repo structure finalized) |
 
 ## Resolved Questions
-1. **w3_sensor_wdisch.feather** — Now in repo root. Proprietary data, must stay in `.gitignore`. Scripts should reference via `here('w3_sensor_wdisch.feather')`.
-2. **ts_simulation figure** — Moves to supplement.
-3. **Decision flowchart (Fig 15)** — Will be recreated programmatically for easy editing.
-4. **New analyses** — OK if major improvements in the same conceptual space, but light touch preferred.
-5. **MacroSheds count** — 210k site-years computed, ~16k passed quality cutoffs. Both correct in context; paper should clarify the distinction.
+
+See `plans/decisions_made.txt` for the full decisions log.

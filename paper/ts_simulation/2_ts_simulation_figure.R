@@ -9,6 +9,7 @@ library(cowplot)
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
 # read in data ######
 d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
@@ -35,17 +36,13 @@ side_ymin <- 0.01
 side_ymax <- 1000
 side_breaks <- c(1e-1, 1e1, 1e3)
 side_labels <- c('0.1', '10', '1,000')
-x_axis_text_size = 25
-y_axis_text_size = 25
 # unaltered q plot
 p1 <- ggplot(dn, aes(x = date))+
   geom_line(aes(y = simulated_series[[1]])) +
-  theme_classic()+
+  theme_rsfme()+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
-        axis.title.y=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size))+
+        axis.title.y=element_blank())+
   labs(title = 'Unaltered Flow')+
   scale_y_log10(limits = c(side_ymin,side_ymax),
                 breaks = side_breaks,
@@ -56,12 +53,9 @@ p1
 # storm q plot
 p2 <- ggplot(dn, aes(x = date))+
   geom_line(aes(y = simulated_series[[2]])) +
-  theme_classic()+
+  theme_rsfme()+
   theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size),
-        axis.title.y = element_text(size = y_axis_text_size))+
+        axis.text.x=element_blank())+
   labs(title = 'Stormflow Dominated',
        y = 'Q (lps)')+
   scale_y_log10(limits = c(side_ymin,side_ymax),
@@ -72,13 +66,10 @@ p2
 # base q plot
 p3 <- ggplot(dn, aes(x = date))+
   geom_line(aes(y = simulated_series[[3]])) +
-  theme_classic()+
+  theme_rsfme()+
   theme(axis.title.y=element_blank(),
         axis.title.x = element_blank(),
-        text = element_text(size = 20),
-        axis.text.x = element_text(angle = 45, hjust = 1, size = x_axis_text_size),
-        axis.text.y = element_text(size = y_axis_text_size)
-  )+
+        axis.text.x = element_text(angle = 45, hjust = 1))+
   labs(title = 'Baseflow Dominated')+
   scale_y_log10(limits = c(side_ymin,side_ymax),
                 breaks = side_breaks,
@@ -98,7 +89,7 @@ top_row_ymin <- 1e-2
 p4 <- tibble(q = simulated_series[[1]], con = simulated_series[[4]]) %>%
   ggplot(aes(x = q, y = con)) +
   geom_point() +
-  theme_classic()+
+  theme_rsfme()+
   scale_x_log10(breaks = side_breaks,
                 labels = side_labels) +
   scale_y_log10(limits = c(top_row_ymin, top_row_ymax),
@@ -106,11 +97,7 @@ p4 <- tibble(q = simulated_series[[1]], con = simulated_series[[4]]) %>%
                 labels = top_row_labels) +
   labs(title = 'Chemostatic',
        y = 'C (mg/L)')+
-  theme(axis.title.x=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size),
-        axis.text.x = element_text(size = x_axis_text_size),
-        axis.title.y = element_text(size = y_axis_text_size))
+  theme(axis.title.x=element_blank())
 
 p4
 
@@ -118,7 +105,7 @@ p4
 p5 <- tibble(q = simulated_series[[1]], con = simulated_series[[5]]) %>%
   ggplot(aes(x = q, y = con)) +
   geom_point() +
-  theme_classic()+
+  theme_rsfme()+
   scale_x_log10(breaks = side_breaks,
                 labels = side_labels) +
   scale_y_log10(limits = c(top_row_ymin, top_row_ymax),
@@ -126,18 +113,14 @@ p5 <- tibble(q = simulated_series[[1]], con = simulated_series[[5]]) %>%
                 labels = top_row_labels)+
   labs(title = 'No Pattern',
        x = 'Q (lps)')+
-  theme(axis.title.y=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size),
-        axis.text.x = element_text(size = x_axis_text_size),
-        axis.title.x = element_text(size = x_axis_text_size))
+  theme(axis.title.y=element_blank())
 p5
 
 # enrich cq
 p6 <- tibble(q = simulated_series[[1]], con = simulated_series[[6]]) %>%
   ggplot(aes(x = q, y = con)) +
   geom_point() +
-  theme_classic()+
+  theme_rsfme()+
   scale_x_log10(breaks = side_breaks,
                 labels = side_labels) +
   scale_y_log10(limits = c(top_row_ymin, top_row_ymax),
@@ -146,17 +129,14 @@ p6 <- tibble(q = simulated_series[[1]], con = simulated_series[[6]]) %>%
   labs(title = 'Enriching',
        x = 'Q')+
   theme(axis.title.y=element_blank(),
-        axis.title.x=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size),
-        axis.text.x = element_text(size = x_axis_text_size))
+        axis.title.x=element_blank())
 p6
 
 # dilute cq
 p16 <- tibble(q = simulated_series[[1]], con = simulated_series[[7]]) %>%
   ggplot(aes(x = q, y = con)) +
   geom_point() +
-  theme_classic()+
+  theme_rsfme()+
   scale_x_log10(breaks = side_breaks,
                 labels = side_labels) +
   scale_y_log10(limits = c(top_row_ymin, top_row_ymax),
@@ -165,10 +145,7 @@ p16 <- tibble(q = simulated_series[[1]], con = simulated_series[[7]]) %>%
   labs(title = 'Dilution',
        x = 'Q')+
   theme(axis.title.y=element_blank(),
-        axis.title.x=element_blank(),
-        text = element_text(size = 20),
-        axis.text.y = element_text(size = y_axis_text_size),
-        axis.text.x = element_text(size = x_axis_text_size))
+        axis.title.x=element_blank())
 p16
 
 # broken dilution c:q
@@ -177,22 +154,22 @@ p16
 ymin = -75
 ymax = 75
 
+freq_colors <- c('Weekly' = '#EE7733', 'Biweekly' = '#BBBBBB', 'Monthly' = '#33BBEE')
+
 plot_guts <- function(p){
   ggplot(p, aes(x = method, y = error))+
     geom_hline(yintercept = 0)+
     geom_boxplot(
       aes(fill = freq)
     )+
-    theme_classic()+
+    theme_rsfme()+
     theme(
       axis.title.x=element_blank(),
       axis.text.x=element_blank(),
       axis.title.y=element_blank(),
-      text = element_text(size = 20),
-      legend.position="none",
-      axis.text.y = element_text(size = y_axis_text_size)
+      legend.position="none"
     )+
-    scale_fill_manual(values = c('darkorange', 'gray', 'deepskyblue'))+
+    scale_fill_manual(values = freq_colors)+
     ylim(ymin, ymax)
 }
 
@@ -218,11 +195,7 @@ p0_data <- loop_out %>%
 p0_data$method <- factor(p0_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p0 <-plot_guts(p0_data)+
-  theme(legend.position = 'left',
-        legend.title = element_text(size = 30),
-        legend.text = element_text(size = 25),
-        legend.key.size = unit(2.5, 'cm')
-  )+
+  theme(legend.position = 'left')+
   labs(fill = 'Frequency')
 
 # now extract the legend
@@ -238,8 +211,7 @@ p7_data <- loop_out %>%
 p7_data$method <- factor(p7_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p7 <-plot_guts(p7_data)+
-  theme(axis.title.y=element_text(angle = 90, size = y_axis_text_size),
-        axis.text.y = element_text(size = y_axis_text_size))+
+  theme(axis.title.y=element_text(angle = 90))+
   labs(y = "         ")
 
 p7
@@ -288,7 +260,7 @@ p10_data <- loop_out %>%
 p10_data$method <- factor(p10_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p10 <- plot_guts(p10_data)+
-  theme(axis.title.y=element_text(angle = 90, size = y_axis_text_size))+
+  theme(axis.title.y=element_text(angle = 90))+
   labs(y = 'Error (%)')
 p10
 
@@ -310,7 +282,7 @@ p12_data <- loop_out %>%
          cq == 'enrich') %>%
   transform_loop_out()
 
-p12_data$error[p18_data$method == 'pw' | p12_data$method == 'beale'] <- NA
+p12_data$error[p12_data$method == 'pw' | p12_data$method == 'beale'] <- NA
 p12_data$method <- factor(p12_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p12 <- plot_guts(p12_data)
@@ -339,11 +311,8 @@ p13_data <- loop_out %>%
 p13_data$method <- factor(p13_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p13 <- plot_guts(p13_data)+
-  theme(axis.title.y=element_text(size = y_axis_text_size))+
-  labs(y = " ") +
-  theme(axis.title.x=element_text(size = x_axis_text_size),
-        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1),
-        axis.title.y=element_text(angle = 90, size = y_axis_text_size))+
+  theme(axis.text.x=element_text(angle = 45, vjust = .9, hjust = 1),
+        axis.title.y=element_text(angle = 90))+
   labs(x = " ", y = "         ")+
   scale_x_discrete(labels = c('LI', 'Beale', 'Rating', 'Composite'))
 p13
@@ -357,8 +326,7 @@ p14_data <- loop_out %>%
 p14_data$method <- factor(p14_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p14 <- plot_guts(p14_data) +
-  theme(axis.title.x=element_text(size = 30),
-        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1))+
+  theme(axis.text.x=element_text(angle = 45, vjust = .9, hjust = 1))+
   labs(x = 'Method') +
   scale_x_discrete(labels = c('LI', 'Beale', 'Rating', 'Composite'))
 p14
@@ -372,8 +340,7 @@ p15_data <- loop_out %>%
 p15_data$method <- factor(p15_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p15 <- plot_guts(p15_data) +
-  theme(axis.title.x=element_text(size = x_axis_text_size),
-        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1))+
+  theme(axis.text.x=element_text(angle = 45, vjust = .9, hjust = 1))+
   labs(x = " ")+
   scale_x_discrete(labels = c('LI', 'Beale', 'Rating', 'Composite'))
 
@@ -388,8 +355,7 @@ p19_data <- loop_out %>%
 p19_data$method <- factor(p15_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p19 <- plot_guts(p19_data) +
-  theme(axis.title.x=element_text(size = x_axis_text_size),
-        axis.text.x=element_text(angle = 45, vjust = .9, size = x_axis_text_size, hjust = 1))+
+  theme(axis.text.x=element_text(angle = 45, vjust = .9, hjust = 1))+
   labs(x = " ")+
   scale_x_discrete(labels = c('LI', 'Beale', 'Rating', 'Composite'))
 
@@ -401,7 +367,8 @@ p19
   (p2+ theme(plot.margin = unit(c(0,30,0,0), "pt")) | p10 | p11 | p12 | p18)/
   (p3+ theme(plot.margin = unit(c(0,30,0,0), "pt")) | p13 | p14 | p15 | p19)
 
-ggsave(filename = here('paper','ts_simulation', 'pop_test.png'), width = 20, height = 16)
+ggsave_hess(filename = here('paper','ts_simulation', 'pop_test.png'),
+            width = HESS_DOUBLE_COL_CM, height = 22)
 
 # make supp table 1 ####
 pretty_flow <- tibble(flow = c('base', 'storm', 'unaltered'),
@@ -427,15 +394,15 @@ supp_tbl_pre <- loop_out %>%
                #cols = everything() ,
                names_to = 'method', values_to = 'error') %>%
   group_by(flow, cq, freq, method) %>%
-  summarize(mean_error = round(mean(error), digits = 2),
-            sd_error = round(sd(error), digits = 2),
+  summarize(mean_error = round(mean(error, na.rm = TRUE), digits = 2),
+            sd_error = round(sd(error, na.rm = TRUE), digits = 2),
             ci_95_low = round(mean_error-(sd_error*1.96), digits = 2),
             ci_95_hi = round(mean_error+(sd_error*1.96), digits = 2),
-            min_error = round(min(error), digits = 2),
-            max_error = round(max(error), digits = 2),
-            iqr = IQR(error),
-            median = round(median(error), digits = 2),
-            n_outliers = sum((error > median+(iqr*1.5))+(error < median-(iqr*1.5))),
+            min_error = round(min(error, na.rm = TRUE), digits = 2),
+            max_error = round(max(error, na.rm = TRUE), digits = 2),
+            iqr = IQR(error, na.rm = TRUE),
+            median = round(median(error, na.rm = TRUE), digits = 2),
+            n_outliers = sum((error > median+(iqr*1.5))+(error < median-(iqr*1.5)), na.rm = TRUE),
             ci = paste0(ci_95_low,', ', ci_95_hi)
   ) %>%
   left_join(.,pretty_cq, by = 'cq') %>%

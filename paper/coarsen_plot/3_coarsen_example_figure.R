@@ -3,10 +3,10 @@ library(feather)
 library(here)
 library(lfstat)
 library(patchwork)
-library(ggthemes)
 
 set.seed(53045)
 source(here('paper/coarsen_plot/coarsen_helpers.R'))
+source(here('source/plot_theme.R'))
 
 # set watershed attributes #####
 area <- 42.4
@@ -95,9 +95,8 @@ p_top <- plot_dat %>%
         geom_point(aes(y = Daily, color = 'Daily'), size = 2)+
         geom_point(aes(y = Weekly, color = 'Weekly'), size = 2)+
         geom_point(aes(y = Bimonthly, color = 'Bimonthly'), size = 4)+
-    theme_few()+
-    theme(legend.position = 'bottom',
-          text=element_text(size=20))+
+    theme_rsfme()+
+    theme(legend.position = 'bottom')+
     labs(y = 'Nitrate-N (mg/L)', x = '',
          color = 'Frequency')+
     scale_color_manual(values = colors)
@@ -114,8 +113,7 @@ plot_full <- plot_dat %>%
          x = 'Q (Lps)',
          title = '15 Minute')+
     geom_smooth(method = 'lm', se = F)+
-    theme_few()+
-    theme(text=element_text(size=20))
+    theme_rsfme()
 
 
 plot_day <- plot_dat %>%
@@ -129,8 +127,7 @@ plot_day <- plot_dat %>%
          x = 'Q (Lps)',
          title = 'Daily')+
     geom_smooth(method = 'lm', se = F)+
-    theme_few()+
-    theme(text=element_text(size=20))
+    theme_rsfme()
 
 
 plot_week <- plot_dat %>%
@@ -144,8 +141,7 @@ plot_week <- plot_dat %>%
          x = 'Q (Lps)',
          title = 'Weekly')+
     geom_smooth(method = 'lm', se = F)+
-    theme_few()+
-    theme(text=element_text(size=20))
+    theme_rsfme()
 
 
 plot_bimonth <- plot_dat %>%
@@ -159,10 +155,10 @@ plot_bimonth <- plot_dat %>%
          x = 'Q (Lps)',
          title = 'Bimonthly')+
     geom_smooth(method = 'lm', se = F)+
-    theme_few()+
-    theme(text=element_text(size=20))
+    theme_rsfme()
 
 
 p_top/(plot_full+plot_day+plot_week+plot_bimonth)
 
-ggsave(filename = here('paper','coarsen_plot', 'nitrate_thinning.png'), width = 13, height = 12)
+ggsave_hess(filename = here('paper','coarsen_plot', 'nitrate_thinning.png'),
+            height = HESS_DOUBLE_COL_CM * 1.2)

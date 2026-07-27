@@ -8,6 +8,7 @@ library(RiverLoad)
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
 
 # create calcium figure #####
 ## set watershed attributes ####
@@ -65,77 +66,34 @@ plot_tbl <- out_tbl %>%
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n/4)
 
-## set names and breaks #####
-method_names <- c(
-    `pw` = "Linear Interpolation",
-    `beale` = "Beale",
-    `rating` = "Rating",
-    `composite` = "Composite"
-)
-
+## set breaks #####
 breaks <- c(1,24,96,192,384,768)
-
 x_labels <- c('Hourly', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
-
 y_min = -20
 y_max = 20
 
 ## generate plot with legend ####
-
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
     geom_rect(alpha = .25,
-              aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = 5,
-                  fill = 'band_5pct')) +
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = 5,
-                  ymax = 20,
-                  fill = 'band_20pct'),
-              alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = -20,
-                  fill = 'band_20pct'),
-              alpha = 0.50)+
-    scale_fill_manual(name = 'Error',
-                      values = c('band_5pct' = 'chartreuse4', 'band_20pct' = 'gold1'),
-                      labels = c('band_5pct' = '+/-5%', 'band_20pct' = '+/-20%'),
-                      guide = guide_legend())+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
+              aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = 'band_5pct')) +
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = 'band_20pct'), alpha = 0.5)+
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = -20, fill = 'band_20pct'), alpha = 0.50)+
+    scale_fill_error_bands(guide = guide_legend())+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
     geom_line(aes(y = min), linewidth = .75)+
-    #geom_point()+
-    #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
-    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
-    #scale_y_reverse(limits = c(100,0)) +
-    labs(x = 'Frequency',
-         y = 'Error (%)'
-         # y = 'Estimate (kg/hr/yr)',
-         # caption = '15 minute NO3 data from HBEF W3 2016 WY resampled by every nth measurement, compared to truth using every sample and the composite method.
-         # \n Vertical bars indicate hourly, daily, weekly, biweekly, monthly, and bimonthly intervals, black line is the median prediction and grey area the range of possible predictions.'
-    )+
-    theme_classic()+
-    scale_x_continuous(breaks = breaks, labels = x_labels,guide = guide_axis(check.overlap = TRUE)
-    )+
+    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_labels))+
+    labs(x = 'Frequency', y = 'Error (%)', title = '(a) Calcium Load Accuracy')+
+    theme_rsfme()+
+    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
     scale_y_continuous(limits = c(y_min, y_max))+
-    theme(text = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-          panel.spacing = unit(.25,'lines'))+
-    labs(title = 'Calcium Load Accuracy')
-ggsave(filename = here('paper','coarsen_plot', 'ca_annual_legend.png'), width = 13, height = 6)
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+ggsave_hess(filename = here('paper','coarsen_plot', 'ca_annual_legend.png'))
 
 # create nitrate figure #####
 ## set watershed attributes ####
@@ -186,76 +144,29 @@ plot_tbl <- out_tbl %>%
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n/4)
 
-## set names and breaks #####
-method_names <- c(
-    `pw` = "Linear Interpolation",
-    `beale` = "Beale",
-    `rating` = "Rating",
-    `composite` = "Composite"
-)
-
+## generate nitrate plot ####
 breaks <- c(1,24,96,192,384,768)
-
 x_labels <- c('Hourly', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 
-y_min = -100
-y_max = 150
-
-## generate plot ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = 5,
-                  fill = 'band_5pct'),
-              alpha = 0.5) +
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = 5,
-                  ymax = 20,
-                  fill = 'band_20pct'),
-              alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf,
-                  xmax = Inf,
-                  ymin = -5,
-                  ymax = -20,
-                  fill = 'band_20pct'),
-              alpha = 0.50)+
-    scale_fill_manual(name = 'Error',
-                      values = c('band_5pct' = 'chartreuse4', 'band_20pct' = 'gold1'),
-                      labels = c('band_5pct' = '+/-5%', 'band_20pct' = '+/-20%'),
-                      guide = guide_legend(override.aes = list(alpha = 1)))+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
-    # annotate('rect', xmin = -Inf, xmax = Inf,
-    #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = 'band_5pct'), alpha = 0.5) +
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = 'band_20pct'), alpha = 0.5)+
+    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = -20, fill = 'band_20pct'), alpha = 0.50)+
+    scale_fill_error_bands(guide = guide_legend(override.aes = list(alpha = 1)))+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
     geom_line(aes(y = min), linewidth = .75)+
-    #geom_point()+
-    #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
-    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
-    #scale_y_reverse(limits = c(100,0)) +
-    labs(x = 'Frequency',
-         y = 'Error (%)'
-         # y = 'Estimate (kg/hr/yr)',
-         # caption = '15 minute NO3 data from HBEF W3 2016 WY resampled by every nth measurement, compared to truth using every sample and the composite method.
-         # \n Vertical bars indicate hourly, daily, weekly, biweekly, monthly, and bimonthly intervals, black line is the median prediction and grey area the range of possible predictions.'
-    )+
-    theme_classic()+
-    scale_x_continuous(breaks = breaks, labels = x_labels,guide = guide_axis(check.overlap = TRUE)
-    )+
-    scale_y_continuous(limits = c(y_min, y_max))+
-    theme(text = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-          panel.spacing = unit(.25,'lines'))+
-    labs(title = 'Nitrate Load Accuracy')+
+    facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_labels))+
+    labs(x = 'Frequency', y = 'Error (%)', title = '(b) Nitrate Load Accuracy')+
+    theme_rsfme()+
+    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     coord_cartesian(ylim = c(-50,50))
 
-ggsave(filename = here('paper','coarsen_plot', 'nitrate_annual_legend.png'), width = 13, height = 6)
+ggsave_hess(filename = here('paper','coarsen_plot', 'nitrate_annual_legend.png'))
 

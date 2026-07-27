@@ -1,14 +1,14 @@
 library(tidyverse)
 library(here)
-library(ggthemes)
 
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
 
 # sp cond plots ####
 ## make file list ####
-files <- list.files(here('paper', 'neon_discussion'), pattern="spCond")
+files <- list.files(here('paper', 'neon_discussion'), pattern="spCond.*\\.RData$")
 
 files_years <- files %>%
     tools::file_path_sans_ext() %>%
@@ -57,54 +57,29 @@ for(i in c('pw', 'beale', 'rating', 'composite')){
 error_table %>%
     filter(method == i) %>%
     group_by(site_code, n) %>%
-    mutate(max = max(error),
-           min = min(error),
-           median = median(error)) %>%
+    mutate(max = max(error), min = min(error), median = median(error)) %>%
     ggplot(aes(x = n, shape = wy))+
     geom_line(aes(y = max))+
     geom_line(aes(y = min))+
     geom_line(aes(y = median), linewidth = 1.5)+
     coord_cartesian(ylim = c(-30,30))+
-    scale_fill_manual(name = 'Error',
-                      values = c('chartreuse4','gold1'),
-                      labels = c('+/-5%', '+/-20%'),
-                      guide = guide_legend())+
-    annotate('rect', xmin = -Inf,
-             xmax = Inf,
-             ymin = -5,
-             ymax = 5,
-             fill = 'chartreuse4',
-             alpha = .2)+
-    annotate('rect', xmin = -Inf,
-         xmax = Inf,
-         ymin = 5,
-         ymax = 20,
-         fill = 'gold1',
-         alpha = .2)+
-    annotate('rect', xmin = -Inf,
-             xmax = Inf,
-             ymin = -20,
-             ymax = -5,
-             fill = 'gold1',
-             alpha = .2)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .2)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .2)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .2)+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
-    labs(x = 'Frequency',
-         y = 'Error (%)')+
-    theme_few()+
-    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE)
-    )+
-    theme(text = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-          panel.spacing = unit(.25,'lines'))+
-    facet_wrap(~site_code, ncol = 1)+
-    labs(title = 'Conductivity Load Accuracy')
+    labs(x = 'Frequency', y = 'Error (%)',
+         title = paste0('Conductivity Load Accuracy - ', method_labels[i]))+
+    theme_rsfme()+
+    scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
+    facet_wrap(~site_code, ncol = 1)
 
-ggsave(here('paper', 'neon_discussion', paste0('cond_figure_', i,'.png')))
+ggsave_hess(here('paper', 'neon_discussion', paste0('cond_figure_', i,'.png')))
 }
 
 # turb plots ####
 ## make file list ####
-files <- list.files(here('paper', 'neon_discussion'), pattern="turb")
+files <- list.files(here('paper', 'neon_discussion'), pattern="turb.*\\.RData$")
 
 files_years <- files %>%
     tools::file_path_sans_ext() %>%
@@ -153,47 +128,22 @@ for(i in c('pw', 'beale', 'rating', 'composite')){
     error_table %>%
         filter(method == i) %>%
         group_by(site_code, n) %>%
-        mutate(max = max(error),
-               min = min(error),
-               median = median(error)) %>%
+        mutate(max = max(error), min = min(error), median = median(error)) %>%
         ggplot(aes(x = n, shape = wy))+
         geom_line(aes(y = max))+
         geom_line(aes(y = min))+
         geom_line(aes(y = median), linewidth = 1.5)+
         coord_cartesian(ylim = c(-30,30))+
-        scale_fill_manual(name = 'Error',
-                          values = c('chartreuse4','gold1'),
-                          labels = c('+/-5%', '+/-20%'),
-                          guide = guide_legend())+
-        annotate('rect', xmin = -Inf,
-                 xmax = Inf,
-                 ymin = -5,
-                 ymax = 5,
-                 fill = 'chartreuse4',
-                 alpha = .2)+
-        annotate('rect', xmin = -Inf,
-                 xmax = Inf,
-                 ymin = 5,
-                 ymax = 20,
-                 fill = 'gold1',
-                 alpha = .2)+
-        annotate('rect', xmin = -Inf,
-                 xmax = Inf,
-                 ymin = -20,
-                 ymax = -5,
-                 fill = 'gold1',
-                 alpha = .2)+
+        annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .2)+
+        annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .2)+
+        annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .2)+
         geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
-        labs(x = 'Frequency',
-             y = 'Error (%)')+
-        theme_few()+
-        scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE)
-        )+
-        theme(text = element_text(size = 20),
-              axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 20),
-              panel.spacing = unit(.25,'lines'))+
-        facet_wrap(~site_code, ncol = 1)+
-        labs(title = 'Turbidity Load Accuracy')
+        labs(x = 'Frequency', y = 'Error (%)',
+             title = paste0('Turbidity Load Accuracy - ', method_labels[i]))+
+        theme_rsfme()+
+        scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
+        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
+        facet_wrap(~site_code, ncol = 1)
 
-    ggsave(here('paper', 'neon_discussion', paste0('turb_figure_', i,'.png')))
+    ggsave_hess(here('paper', 'neon_discussion', paste0('turb_figure_', i,'.png')))
 }

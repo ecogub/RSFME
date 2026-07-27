@@ -4,6 +4,7 @@
 .Ruserdata
 ~$*
 w3_sensor_wdisch.feather
+edi.*.zip
 
 /streamlined/data/*
 /streamlined/out_ms/*

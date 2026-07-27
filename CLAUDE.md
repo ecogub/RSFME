@@ -61,6 +61,10 @@ RSFME/
 - R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, forecast, zoo, ggthemes, cowplot
 - External data: `w3_sensor_wdisch.feather` (HBEF high-freq sensor data, in repo root, gitignored — proprietary)
 
+### R Configuration
+- R 4.4.1 is installed at `C:\Program Files\R\R-4.4.1\bin\Rscript.exe` but is NOT on the system PATH.
+- To run R scripts from the command line, prepend the path or set: `export PATH="$PATH:/c/Program Files/R/R-4.4.1/bin"`
+
 ## M0 Review: Areas of Improvement
 
 ### Code Quality Issues

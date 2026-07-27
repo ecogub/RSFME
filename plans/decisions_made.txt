@@ -102,3 +102,16 @@ Update this file whenever a non-trivial choice is made.
 2026-07-27 | Code Review Before Push Convention Added
 - Decision: Do not push code without running /code-review first for feedback.
 - Context: User requested quality control step before changes reach remote.
+
+2026-07-27 | M4 Plan Written and Partial Execution
+- Decision: M4 plan created at plans/m4_writing.md. All paper edits go to
+  paper/paper_HESS_draft_v2_claude.docx (copy of v2). Original drafts never touched.
+- Docx skill installed: read via pandoc or XML extraction, edit via unzip/edit/rezip.
+- Completed M4a-1 (heading rename), M4a-2 (figure renumbering 1-12), M4a-4 (Table 1
+  verified), M4a-5 (MacroSheds clarification), M4c-1 (typo fixes), M4c-4 (repetition
+  analysis).
+- Resolved: equations are inline images (not broken OMML), rendering fine in Word.
+- Resolved: Figs 7/8/13 were numbering gaps — renumbered sequentially, no content missing.
+- Decision: Decision flowchart is now Fig 12 (was Fig 15 before renumbering).
+- Remaining M4 work blocked on M2/M3 completion (quantitative claims audit, NEON
+  expansion, Conclusions draft, caption updates, final read-through).

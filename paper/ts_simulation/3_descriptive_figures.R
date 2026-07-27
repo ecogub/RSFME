@@ -7,6 +7,8 @@ library(lubridate)
 set.seed(53045)
 
 source(here('source/flux_methods.R'))
+source(here('source/plot_theme.R'))
+load(here('paper','ts_simulation', 'simulated_series.Rdata'))
 # read in data ######
 d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
@@ -24,7 +26,6 @@ monthly <- read_csv(here('paper','ts_simulation', 'monthlyFreq_100Reps20221221.c
     mutate(freq = 'Monthly')
 loop_out <- rbind(weekly, biweekly, monthly) %>%
     mutate(freq = factor(freq, levels = c('Weekly', 'Biweekly', 'Monthly')))
-#loop_out$cq[loop_out$cq == 'broken_dilution'] = 'dilution'
 
 
 ### make hydrologic regime plots #####
@@ -42,10 +43,8 @@ tibble(date = dn$date,
     mutate(Treatment = factor(Treatment, levels = c('Input Data', 'Unaltered', 'Stormflow Enhanced', 'Baseflow Enhanced'))) %>%
     ggplot(aes(x = date))+
     geom_line(aes(y = val)) +
-    theme_classic()+
-    theme(axis.title.x=element_blank(),
-          text = element_text(size = 15),
-          axis.text.y = element_text(size = 15))+
+    theme_rsfme()+
+    theme(axis.title.x=element_blank())+
     labs(y = 'Q (Lps)')+
     scale_y_log10(limits = c(side_ymin,side_ymax),
                   breaks = side_breaks,
@@ -54,7 +53,7 @@ tibble(date = dn$date,
                        labels = c('10/2015', '4/2016', '10/2016')) +
     facet_wrap(~Treatment, ncol = 1)
 
-ggsave(filename = here('paper','ts_simulation', 'hydro_regime.png'), width = 6, height = 6)
+ggsave_hess(filename = here('paper','ts_simulation', 'hydro_regime.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)
 
 ### make cq plots ####
 top_row_breaks <- c(1e-2, 1, 1e2)
@@ -72,9 +71,7 @@ tibble(date = dn$date,
     mutate(cq = factor(cq, levels = c('Chemostatic', 'No Pattern', 'Enriching', 'Diluting'))) %>%
     ggplot(aes(x = Q))+
     geom_point(aes(y = val)) +
-    theme_classic()+
-    theme(text = element_text(size = 15),
-          axis.text.y = element_text(size = 15))+
+    theme_rsfme()+
     labs(x = 'Q (Lps)',
          y = 'C (mg/L)')+
     scale_x_log10(breaks = side_breaks,
@@ -84,4 +81,4 @@ tibble(date = dn$date,
                   labels = top_row_labels)+
     facet_wrap(~cq, ncol = 2)
 
-ggsave(filename = here('paper','ts_simulation', 'cq_regime.png'), width = 6, height = 6)
+ggsave_hess(filename = here('paper','ts_simulation', 'cq_regime.png'), width = HESS_SINGLE_COL_CM, height = HESS_SINGLE_COL_CM)

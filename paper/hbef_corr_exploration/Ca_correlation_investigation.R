@@ -2,7 +2,7 @@
 library(here)
 library(tidyverse)
 library(lfstat)
-library(ggthemes)
+source(here('source/plot_theme.R'))
 
 # read in chemistry data ####
 simple_chem_and_Q <- read_csv(here("paper","hbef_corr_exploration", "HBEFdata_All_2022-11-17.csv")) %>%
@@ -33,10 +33,8 @@ fit$coefficients[[1]]
 ca_sc_plot <- ggplot(simple_chem_and_Q, aes(x = spCond, y = Ca))+
                          geom_point()+
                          geom_smooth(method = 'lm')+
-                         theme_few()+
+                         theme_rsfme()+
                          labs(y = 'Ca (mg/L)',
-                              x = 'SC (uS/cm)')+
-                        theme(text = element_text(size = 20),
-                              plot.title = element_text(size = 30))
+                              x = 'SC (uS/cm)')
 
 ca_sc_plot
