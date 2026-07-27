@@ -1,13 +1,8 @@
 library(tidyverse)
-library(forecast)
 library(feather)
-library(xts)
-library(imputeTS)
 library(here)
 library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
 library(RiverLoad)
 
 set.seed(53045)
@@ -92,7 +87,7 @@ for(solute_var in c('IS_NO3', 'IS_spCond')){
             names(coarse_chem)[loopid] <- paste0('sample_',n)
 
     ## Start method application loop ####
-    out_tbl <- tibble(method = as.character(), estimate = as.numeric(), n = as.integer())
+    out_list <- list()
     for(k in 2:length(coarse_chem)){
 
         n <- as.numeric(str_split_fixed(names(coarse_chem[k]), pattern = 'sample_', n = 2)[2])
@@ -106,11 +101,11 @@ for(solute_var in c('IS_NO3', 'IS_spCond')){
             select(date, con) %>%
             mutate(site_code = 'w3', wy = target_wy)
 
-        out_tbl <- apply_methods_coarse(chem_df, q_df) %>%
-            mutate(n = n) %>%
-            rbind(., out_tbl)
+        out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_df) %>%
+            mutate(n = n)
                                 }
 
+    out_tbl <- bind_rows(out_list)
     ## save/load data from previous runs #####
     if(target_solute == 'IS_spCond'){save(out_tbl, file = here('paper','coarsen_plot', '100reps_annual_Ca.RData'))}
     if(target_solute == 'IS_NO3'){save(out_tbl, file = here('paper','coarsen_plot', '100reps_annual_NO3.RData'))}

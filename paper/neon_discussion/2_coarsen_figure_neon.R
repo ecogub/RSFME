@@ -1,14 +1,5 @@
 library(tidyverse)
-library(forecast)
-library(feather)
-library(xts)
-library(imputeTS)
 library(here)
-library(lfstat)
-library(lubridate)
-library(ggpubr)
-library(patchwork)
-library(macrosheds)
 library(ggthemes)
 
 set.seed(53045)
@@ -72,7 +63,7 @@ error_table %>%
     ggplot(aes(x = n, shape = wy))+
     geom_line(aes(y = max))+
     geom_line(aes(y = min))+
-    geom_line(aes(y = median), lwd = 1.5)+
+    geom_line(aes(y = median), linewidth = 1.5)+
     coord_cartesian(ylim = c(-30,30))+
     scale_fill_manual(name = 'Error',
                       values = c('chartreuse4','gold1'),
@@ -96,7 +87,7 @@ error_table %>%
              ymax = -5,
              fill = 'gold1',
              alpha = .2)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
+    geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     labs(x = 'Frequency',
          y = 'Error (%)')+
     theme_few()+
@@ -168,7 +159,7 @@ for(i in c('pw', 'beale', 'rating', 'composite')){
         ggplot(aes(x = n, shape = wy))+
         geom_line(aes(y = max))+
         geom_line(aes(y = min))+
-        geom_line(aes(y = median), lwd = 1.5)+
+        geom_line(aes(y = median), linewidth = 1.5)+
         coord_cartesian(ylim = c(-30,30))+
         scale_fill_manual(name = 'Error',
                           values = c('chartreuse4','gold1'),
@@ -192,7 +183,7 @@ for(i in c('pw', 'beale', 'rating', 'composite')){
                  ymax = -5,
                  fill = 'gold1',
                  alpha = .2)+
-        geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
+        geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
         labs(x = 'Frequency',
              y = 'Error (%)')+
         theme_few()+

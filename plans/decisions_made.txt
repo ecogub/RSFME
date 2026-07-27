@@ -59,3 +59,27 @@ Update this file whenever a non-trivial choice is made.
   loop variable modification. Code is inefficient but correct.
 - Error band labels in 2_coarsen_figure.R are visually correct (two swaps cancel).
   Will clean up naming in M2c.
+
+2026-07-27 | M2c Refactoring Completed
+- Performance: Moved data read, ARIMA fit, source() call, and function definitions
+  outside the rep loop in 1_ts_simulation_analysis.R (was re-doing all 100x per freq).
+  Removed debug plot() call from inside rep loop.
+- rbind-in-loop: Converted to list accumulation + bind_rows() in 5 scripts:
+  ts_simulation, ms_application_compare, coarsen HBEF/Plynlimon/NEON.
+- Deprecated ggplot2: size→linewidth in all line geoms (5 files), lwd→linewidth in
+  NEON figure.
+- Unused libraries: Swept 15 scripts, removed ~60 unused library() calls. Added
+  missing RiverLoad/lubridate where needed by sourced flux_methods.R. Added zoo to
+  misc_figs.R (needed for na.approx, was getting it transitively from xts).
+- Error band labels: Renamed confusing fill keys in 2_coarsen_figure.R to descriptive
+  band_5pct/band_20pct with explicit named color/label mapping.
+- Bug fix: Plynlimon site_code was hardcoded as 'w3' instead of using the site_code
+  variable (should be 'UHF'). Fixed.
+- Typo: "Enchanced" → "Enhanced" in 3_descriptive_figures.R.
+- Deferred: Large-scale code deduplication (HBEF/Plynlimon/NEON share ~300 lines but
+  refactoring is too risky before verification). Shared config.R also deferred.
+- Deferred: ts_simulation/defunct/ cleanup (low priority).
+
+2026-07-27 | Code Review Before Push Convention Added
+- Decision: Do not push code without running /code-review first for feedback.
+- Context: User requested quality control step before changes reach remote.

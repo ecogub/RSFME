@@ -57,8 +57,8 @@ RSFME/
 7. `misc_figure_creation/` - Supporting plots
 
 ### Key Dependencies
-- R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, imputeTS, forecast, zoo
-- External data: `w3_sensor_wdisch.feather` (HBEF high-freq sensor data, currently only on desktop - needs to be moved into repo/data)
+- R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, forecast, zoo, ggthemes, cowplot
+- External data: `w3_sensor_wdisch.feather` (HBEF high-freq sensor data, in repo root, gitignored — proprietary)
 
 ## M0 Review: Areas of Improvement
 
@@ -71,18 +71,22 @@ RSFME/
 4. ~~Undefined variables~~ — Fixed: removed `flag` from misc_figs.R, changed `test` to `n_frame` in ms_application_compare.R.
 5. ~~File format mismatch~~ — Fixed: Plynlimon analysis now saves `.csv` matching figure script.
 
-**Structural (M2c TODO):**
-6. **Massive code duplication** - HBEF/Plynlimon/NEON analysis scripts are near-copies. The coarsen analysis, figure generation, and C:Q plotting code is repeated 3x with minor parameter changes.
-7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files.
-8. **Row-by-row `rbind()` in loops** - Severe performance anti-pattern in coarsen_analysis (HBEF, Plynlimon, NEON) and ms_application_compare.R. Should use list accumulation + `bind_rows()`.
+**Structural (M2c — mostly fixed):**
+6. **Massive code duplication** - HBEF/Plynlimon/NEON analysis scripts are near-copies. Deferred to avoid risk before verification — will revisit after M2d.
+7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files. Deferred — low risk and low urgency.
+8. ~~Row-by-row `rbind()` in loops~~ — Fixed: converted to list accumulation + `bind_rows()` in 5 scripts (ts_simulation, ms_application_compare, coarsen HBEF/Plynlimon/NEON).
 9. ~~Global variable dependencies~~ — Fixed: `calculate_truth_ts.R` now takes `dn` and `target_wy` as explicit parameters. Monthly branch `q_df` vs `q_df_add` bug also fixed.
 10. **No data pipeline** - Data files in various locations, no clear way to reproduce from scratch. `w3_sensor_wdisch.feather` now in repo root (gitignored, proprietary).
+11. ~~Performance: data re-read inside rep loop~~ — Fixed: `1_ts_simulation_analysis.R` now reads data, fits ARIMA, and defines functions once outside the loop.
 
-**Minor:**
-11. **Deprecated ggplot2 usage** - `size` should be `linewidth` for line-based geoms throughout all plotting scripts.
-12. **Unused package imports** everywhere (forecast, xts, imputeTS loaded in plotting scripts that don't use them).
-13. **Error band labels possibly swapped** in `2_coarsen_figure.R` (5% and 20% fill labels reversed).
-14. **Defunct scripts** in `ts_simulation/defunct/` should be cleaned up or clearly archived.
+**Minor (all fixed in M2c):**
+12. ~~Deprecated ggplot2 usage~~ — Fixed: `size` → `linewidth` for line-based geoms in all plotting scripts. Also fixed `lwd` → `linewidth` in NEON figure.
+13. ~~Unused package imports~~ — Fixed: removed unused `library()` calls across 15 scripts. Added missing RiverLoad/lubridate where needed for sourced flux_methods.R.
+14. ~~Error band labels swapped~~ in `2_coarsen_figure.R` — Fixed: renamed fill keys to descriptive `band_5pct`/`band_20pct` with explicit named mapping.
+15. **Defunct scripts** in `ts_simulation/defunct/` should be cleaned up or clearly archived.
+16. ~~Plynlimon site_code hardcoded as 'w3'~~ — Fixed: now uses the `site_code` variable (set to 'UHF').
+17. ~~"Enchanced" typo~~ in `3_descriptive_figures.R` — Fixed: → "Enhanced".
+18. ~~Debug `plot()` call~~ inside ts_simulation rep loop — Removed.
 
 ### Paper Text Issues
 

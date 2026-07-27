@@ -1,17 +1,9 @@
 library(tidyverse)
-library(forecast)
-library(feather)
-library(xts)
-library(imputeTS)
 library(here)
 library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
 library(RiverLoad)
 library(macrosheds)
-
-library(neonUtilities)
 
 small_sites <- read_csv(here('paper', 'neon_discussion', 'ms_stream_order.csv')) %>%
     left_join(ms_site_data, by = 'site_code') %>%
@@ -122,7 +114,7 @@ for(target_solute in c('turbid_FNU')){
         }
 
             ## Start method application loop ####
-            out_tbl <- tibble(method = as.character(), estimate = as.numeric(), n = as.integer())
+            out_list <- list()
             for(k in 2:length(coarse_chem)){
 
                 n <- as.numeric(str_split_fixed(names(coarse_chem[k]), pattern = 'sample_', n = 2)[2])
@@ -136,12 +128,12 @@ for(target_solute in c('turbid_FNU')){
                     select(date, con) %>%
                     mutate(site_code = target_site, wy = target_wy)
 
-                out_tbl <- apply_methods_coarse(chem_df, q_df) %>%
-                    mutate(n = n) %>%
-                    rbind(., out_tbl)
+                out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_df) %>%
+                    mutate(n = n)
             }
     }
 
+            out_tbl <- bind_rows(out_list)
             ## save/load data from previous runs #####
             if(target_solute == 'spCond'){save(out_tbl, file = here('paper','neon_discussion', paste0('TEST100reps_annual_spCond_', target_wy, '_', target_site, '.RData') ))}
             if(target_solute == 'turbid_FNU'){save(out_tbl, file = here('paper','neon_discussion', paste0('TEST100reps_annual_turb', target_wy, '_', target_site, '.RData')))}

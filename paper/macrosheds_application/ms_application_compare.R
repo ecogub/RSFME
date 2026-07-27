@@ -3,16 +3,9 @@ library(feather)
 library(here)
 library(patchwork)
 
-# iniitalize
-out_tbl <- tibble(domain = as.character(),
-                  site = as.character(),
-                  solute = as.character(),
-                  year = as.integer(),
-                  ms_rec = as.numeric(),
-                  max_val = as.numeric(),
-                  min_val = as.numeric(),
-                  mean_val = as.numeric(),
-                  rec_method = as.character())
+# initialize
+out_list <- list()
+out_idx <- 0L
 
 # gather domains
 domain_list <- list.files(here('paper', 'ms_application', 'ms_flux_12162022'))
@@ -64,13 +57,16 @@ site_list <- list.files(here('paper', 'ms_application', 'ms_flux_12162022', d, '
                           mean_val = mean_val,
                           rec_method = rec_method)
 
-                   out_tbl <- rbind(out_tbl, loop_tbl)
+                   out_idx <- out_idx + 1L
+                   out_list[[out_idx]] <- loop_tbl
 
            } # end year
         } # end solute
         }# end else
     } # end site
 } # end domain
+
+out_tbl <- bind_rows(out_list)
 
 # make method range plot #####
 n_frame <- out_tbl %>%
@@ -90,7 +86,7 @@ p_box <- n_frame %>%
     pivot_longer(cols = -solute, names_to = 'var', values_to = 'val') %>%
     filter(var == 'pct_range') %>%
     ggplot(aes(x = solute, y = val, color = solute))+
-    geom_boxplot(size = 2)+
+    geom_boxplot(linewidth = 2)+
     scale_y_log10()+
     labs(x = 'Solute',
          y = 'Method Range (%)')+
@@ -108,7 +104,7 @@ p_den <- out_tbl  %>%
                 solute == 'GN_Ca') %>%
      select(ms_rec, solute) %>%
      ggplot(aes(x = ms_rec, color = solute))+
-     geom_density(size = 2)+
+     geom_density(linewidth = 2)+
     scale_x_log10(breaks = c(1e-2, 1, 1e2),
                   labels = c('0.01', '1', '100'))+
     scale_color_manual(labels = c('Calcium', 'Nitrate (as N)'),

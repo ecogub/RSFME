@@ -1,16 +1,7 @@
 library(tidyverse)
-library(forecast)
 library(feather)
-library(xts)
-library(imputeTS)
 library(here)
-library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
-library(RiverLoad)
-library(cowplot)
-library(zoo)
 
 set.seed(53045)
 
@@ -44,10 +35,10 @@ side_labels <- c('0.1', '10', '1,000')
 tibble(date = dn$date,
             `Input Data` = dn$IS_discharge,
             Unaltered = simulated_series[[1]],
-            `Stormflow Enchanced` = simulated_series[[2]],
-            `Baseflow Enchanced` = simulated_series[[3]]) %>%
+            `Stormflow Enhanced` = simulated_series[[2]],
+            `Baseflow Enhanced` = simulated_series[[3]]) %>%
     pivot_longer(., cols = -date, names_to = 'Treatment', values_to = 'val') %>%
-    mutate(Treatment = factor(Treatment, levels = c('Input Data', 'Unaltered', 'Stormflow Enchanced', 'Baseflow Enchanced'))) %>%
+    mutate(Treatment = factor(Treatment, levels = c('Input Data', 'Unaltered', 'Stormflow Enhanced', 'Baseflow Enhanced'))) %>%
     ggplot(aes(x = date))+
     geom_line(aes(y = val)) +
     theme_classic()+

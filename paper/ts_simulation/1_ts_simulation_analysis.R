@@ -2,33 +2,109 @@ library(tidyverse)
 library(forecast)
 library(feather)
 library(xts)
-library(imputeTS)
 library(here)
 library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
 library(RiverLoad)
-library(cowplot)
 library(zoo)
 
 set.seed(53045)
 
 
 source(here('source/flux_methods.R'))
+source(here('paper','ts_simulation','calculate_truth_ts.R'))
+
 # make random sampling function
 rtnorm <- function(n, mean, sd, a = 0, b = 5){
     qnorm(runif(n, pnorm(a, mean, sd), pnorm(b, mean, sd)), mean, sd)
 }
 
+# daily q aggregation function
+make_q_daily <- function(q_df){
+    out <- q_df %>%
+        group_by(lubridate::yday(datetime)) %>%
+        summarize(date = date(datetime),
+                  q_lps = mean(q_lps)) %>%
+        ungroup() %>%
+        unique() %>%
+        select(date, q_lps)
+}
+
+# apply methods function
+apply_methods <- function(chem_df, q_df, period = period, flow_regime = NULL, cq = NULL){
+    if(period == 'annual'){
+    out <- tibble(method = as.character(), estimate = as.numeric(),
+                  flow = as.character(), cq = as.character())
+    out[1,2] <- calculate_pw(chem_df, q_df)
+    out[2,2] <- calculate_beale(chem_df, q_df)
+    out[3,2] <- calculate_rating(chem_df, q_df)
+    out[4,2] <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
+        rename(datetime = date) %>%
+        calculate_composite_from_rating_filled_df() %>%
+        pull(flux)
+
+    out$method <- c('pw', 'beale', 'rating', 'composite')
+    out$flow <- flow_regime
+    out$cq <- cq
+    }
+    if(period == 'month'){
+    out <- tibble(method = as.character(), date = as_date(NA), estimate = as.numeric(),
+                  flow = as.character(), cq = as.character())
+    out_pw <- calculate_pw(chem_df, q_df, datecol = 'date', period = 'month') %>%
+        mutate(method = 'pw') %>%
+        select(method, date, estimate = flux)
+    out_beale <- calculate_beale(chem_df, q_df, datecol = 'date', period = 'month') %>%
+        mutate(method = 'beale')%>%
+        select(method, date = date, estimate = flux)
+    out_rating <- calculate_rating(chem_df, q_df, datecol = 'date', period = 'month') %>%
+        mutate(method = 'rating')%>%
+        select(method, date, estimate = flux)
+    out_comp <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
+        select(datetime = date, q_lps, con, con_com, wy) %>%
+        calculate_composite_from_rating_filled_df(., period = 'month') %>%
+        mutate(method = 'composite',
+               date_fixed = paste0(
+                   str_split_fixed(as.character(date), '-', n = 3)[,1],
+                   '-',
+                   str_split_fixed(as.character(date), '-', n = 3)[,2]
+                                      )
+               ) %>%
+        ungroup()%>%
+        select(method, date = date_fixed,
+               estimate = flux)
+
+    out <- rbind(out_pw, out_beale, out_rating, out_comp) %>%
+        mutate(date)
+
+    out$flow <- flow_regime
+    out$cq <- cq
+    }
+
+    return(out)
+}
+
 # Set watershed attributes
 area <- 42.4
 site_code = 'w3'
+
+# Read data once
+d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
+    mutate(wy = water_year(datetime, origin = 'usgs'))
+
+target_wy <- 2016
+dn <- d %>%
+    filter(wy == target_wy)
+
+dn$IS_discharge[dn$datetime > ymd_hms('2016/01/02 18:00:00') & dn$datetime < ymd_hms('2016/01/10 5:00:00')] <- NA
+
+# Fit ARIMA once
+fit <- auto.arima(xts(dn$IS_discharge, order.by = dn$datetime))
+sum_q <- sum(dn$IS_discharge)
+
 # Thinning Frequency Loop Start #####
 thin_freqs <- c('weekly','biweekly', 'monthly')
 for(n in 1:3){
 thin_freq = thin_freqs[n]
-#period <- 'month'
 period <- 'annual'
 reps = 100
 
@@ -67,30 +143,8 @@ if(thin_freq == 'monthly'){
 }
 
 # Repitition Loop Start #####
-# Initialize output by aggregation period
-if(period == 'annual'){
-loop_out <- tibble(method = as.character(), estimate = as.numeric(),
-                  flow = as.character(), cq = as.character(), runid = as.integer())
-}
-if(period == 'month'){
-    loop_out <- tibble(method = as.character(), date = as.character(), estimate = as.numeric(),
-                       flow = as.character(), cq = as.character(), runid = as.integer())
-}
+loop_out_list <- list()
 for(i in 1:reps){
-# Read in data
-d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
-    mutate(wy = water_year(datetime, origin = 'usgs'))
-
-## Subset to 2016 wy
-target_wy <- 2016
-dn <- d %>%
-    filter(wy == target_wy)
-
-dn$IS_discharge[dn$datetime > ymd_hms('2016/01/02 18:00:00') & dn$datetime < ymd_hms('2016/01/10 5:00:00')] <- NA
-
-## fit ARIMA model to series ####
-fit <- auto.arima(xts(dn$IS_discharge, order.by = dn$datetime))
-
 ## resample residuals ####
 resampled_residuals = sample(fit$residuals,
                              #size = ts_len,
@@ -98,9 +152,6 @@ resampled_residuals = sample(fit$residuals,
 
 # Initialize output of simulated series
 simulated_series = list()
-
-# sum total q for hold factor ####
-sum_q <- sum(dn$IS_discharge)
 
 ## Flow series creation #####
 ### unaltered #####
@@ -148,7 +199,6 @@ en_base <- simulated_series[[9]]
 error_vec <- rnorm(length(simulated_series[[1]]), mean = 1, sd = 0.1)
 simulated_series[[7]] <- (10^((log10(simulated_series[[1]])*-1)+1.25))*error_vec*hold_factor
 di_unalt <- simulated_series[[7]]
-plot(log10(simulated_series[[7]])~log10(simulated_series[[1]]))
 
 simulated_series[[10]] <- (10^((log10(simulated_series[[2]])*-1)+1.25))*error_vec*hold_factor
 di_storm <- simulated_series[[10]]
@@ -157,84 +207,6 @@ simulated_series[[11]] <- (10^((log10(simulated_series[[3]])*-1)+1.25))*error_ve
 di_base <- simulated_series[[11]]
 
 # Estimate flux #####
-## daily q aggregation function #####
-make_q_daily <- function(q_df){
-out <- q_df %>%
-    group_by(lubridate::yday(datetime)) %>%
-    summarize(date = date(datetime),
-              q_lps = mean(q_lps)) %>%
-    ungroup() %>%
-    unique() %>%
-    select(date, q_lps)
-}
-
-# truth calculation function
-source(here('paper','ts_simulation','calculate_truth_ts.R'))
-
-
-# apply methods function
-apply_methods <- function(chem_df, q_df, period = period, flow_regime = NULL, cq = NULL){
-    if(period == 'annual'){
-    out <- tibble(method = as.character(), estimate = as.numeric(),
-                  flow = as.character(), cq = as.character())
-    #pw
-    out[1,2] <- calculate_pw(chem_df, q_df)
-    #beale
-    out[2,2] <- calculate_beale(chem_df, q_df)
-    #rating
-    out[3,2] <- calculate_rating(chem_df, q_df)
-    #comp
-    out[4,2] <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
-        rename(datetime = date) %>%
-        calculate_composite_from_rating_filled_df() %>%
-        pull(flux)
-
-    out$method <- c('pw', 'beale', 'rating', 'composite')
-    out$flow <- flow_regime
-    out$cq <- cq
-    }
-    if(period == 'month'){
-    out <- tibble(method = as.character(), date = as_date(NA), estimate = as.numeric(),
-                  flow = as.character(), cq = as.character())
-    #pw
-    out_pw <- calculate_pw(chem_df, q_df, datecol = 'date', period = 'month') %>%
-        mutate(method = 'pw') %>%
-        select(method, date, estimate = flux)
-    #beale
-    out_beale <- calculate_beale(chem_df, q_df, datecol = 'date', period = 'month') %>%
-        mutate(method = 'beale')%>%
-        select(method, date = date, estimate = flux)
-    #rating
-    out_rating <- calculate_rating(chem_df, q_df, datecol = 'date', period = 'month') %>%
-        mutate(method = 'rating')%>%
-        select(method, date, estimate = flux)
-    #comp
-    out_comp <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
-        select(datetime = date, q_lps, con, con_com, wy) %>%
-        calculate_composite_from_rating_filled_df(., period = 'month') %>%
-        mutate(method = 'composite',
-               date_fixed = paste0(
-                   str_split_fixed(as.character(date), '-', n = 3)[,1],
-                   '-',
-                   str_split_fixed(as.character(date), '-', n = 3)[,2]
-                                      )
-               ) %>%
-        ungroup()%>%
-        select(method, date = date_fixed,
-               estimate = flux)
-
-    out <- rbind(out_pw, out_beale, out_rating, out_comp) %>%
-        mutate(date)
-
-    out$flow <- flow_regime
-    out$cq <- cq
-    }
-
-
-    return(out)
-
-
-}
 # initialize output for load estimates
 if(period == 'annual'){
 run_out <- tibble(method = as.character(), estimate = as.numeric(),
@@ -439,10 +411,10 @@ run_out <- rbind(
     run_out)
 
 ### save out ####
-loop_out <- run_out %>%
-        mutate(runid = i) %>%
-        rbind(., loop_out)
+loop_out_list[[i]] <- run_out %>%
+        mutate(runid = i)
 }
+loop_out <- bind_rows(loop_out_list)
 write_csv(loop_out, file = here('paper','ts_simulation', paste0(thin_freq,'Freq_',reps,'Reps20221221.csv')))
 print(paste(thin_freq, ' done'))
 }

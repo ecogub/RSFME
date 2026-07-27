@@ -1,13 +1,8 @@
 library(tidyverse)
-library(forecast)
-library(feather)
-library(xts)
-library(imputeTS)
 library(here)
 library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
+library(RiverLoad)
 
 set.seed(53045)
 
@@ -101,10 +96,10 @@ plot_tbl %>%
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
+    geom_line(linewidth = 1.5)+
+    geom_line(aes(y = max), linewidth = .75)+
+    geom_line(aes(y = min), linewidth = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -186,10 +181,10 @@ plot_tbl %>%
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
+    geom_line(linewidth = 1.5)+
+    geom_line(aes(y = max), linewidth = .75)+
+    geom_line(aes(y = min), linewidth = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+

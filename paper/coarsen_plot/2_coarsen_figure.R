@@ -1,13 +1,9 @@
 library(tidyverse)
-library(forecast)
 library(feather)
-library(xts)
-library(imputeTS)
 library(here)
 library(lfstat)
 library(lubridate)
-library(ggpubr)
-library(patchwork)
+library(RiverLoad)
 
 set.seed(53045)
 
@@ -96,32 +92,31 @@ plot_tbl %>%
                   xmax = Inf,
                   ymin = -5,
                   ymax = 5,
-                  fill = '+/-20%')) +
+                  fill = 'band_5pct')) +
     geom_rect(aes(xmin = -Inf,
                   xmax = Inf,
                   ymin = 5,
                   ymax = 20,
-                  fill = '+/-5%'),
+                  fill = 'band_20pct'),
               alpha = 0.5)+
     geom_rect(aes(xmin = -Inf,
                   xmax = Inf,
                   ymin = -5,
                   ymax = -20,
-                  fill = '+/-5%'),
-              #fill = 'test2',
+                  fill = 'band_20pct'),
               alpha = 0.50)+
     scale_fill_manual(name = 'Error',
-                      values = c('chartreuse4','gold1'),
-                      labels = c('+/-5%', '+/-20%'),
+                      values = c('band_5pct' = 'chartreuse4', 'band_20pct' = 'gold1'),
+                      labels = c('band_5pct' = '+/-5%', 'band_20pct' = '+/-20%'),
                       guide = guide_legend())+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
+    geom_line(linewidth = 1.5)+
+    geom_line(aes(y = max), linewidth = .75)+
+    geom_line(aes(y = min), linewidth = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+
@@ -216,34 +211,32 @@ plot_tbl %>%
                   xmax = Inf,
                   ymin = -5,
                   ymax = 5,
-                  fill = '+/-20%'),
-              #fill = 'test',
+                  fill = 'band_5pct'),
               alpha = 0.5) +
     geom_rect(aes(xmin = -Inf,
                   xmax = Inf,
                   ymin = 5,
                   ymax = 20,
-                  fill = '+/-5%'),
+                  fill = 'band_20pct'),
               alpha = 0.5)+
     geom_rect(aes(xmin = -Inf,
                   xmax = Inf,
                   ymin = -5,
                   ymax = -20,
-                  fill = '+/-5%'),
-              #fill = 'test2',
+                  fill = 'band_20pct'),
               alpha = 0.50)+
     scale_fill_manual(name = 'Error',
-                      values = c('chartreuse4','gold1'),
-                      labels = c('+/-5%', '+/-20%'),
+                      values = c('band_5pct' = 'chartreuse4', 'band_20pct' = 'gold1'),
+                      labels = c('band_5pct' = '+/-5%', 'band_20pct' = '+/-20%'),
                       guide = guide_legend(override.aes = list(alpha = 1)))+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = 20, ymax = Inf, fill = 'red', alpha = .1)+
     # annotate('rect', xmin = -Inf, xmax = Inf,
     #          ymin = -Inf, ymax = -20, fill = 'red', alpha = .1)+
-    geom_hline(yintercept = 0, linetype = 'dashed', size = .25)+
-    geom_line(size = 1.5)+
-    geom_line(aes(y = max), size = .75)+
-    geom_line(aes(y = min), size = .75)+
+    geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
+    geom_line(linewidth = 1.5)+
+    geom_line(aes(y = max), linewidth = .75)+
+    geom_line(aes(y = min), linewidth = .75)+
     #geom_point()+
     #geom_ribbon(aes(ymin = min, ymax = max), alpha = .2 )+
     facet_wrap(vars(method), ncol = 2, labeller = as_labeller(method_names))+

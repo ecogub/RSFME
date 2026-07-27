@@ -1,8 +1,5 @@
 library(tidyverse)
-library(feather)
 library(here)
-library(patchwork)
-library(ggthemes)
 
 data <- read.csv(here('paper', 'macrosheds_application', 'load_annual.csv'))
 

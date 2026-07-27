@@ -28,15 +28,18 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 - [x] Verified error band labels in `2_coarsen_figure.R` — fill keys are confusingly named but visual output is correct (two swaps cancel out). Will clean up in M2c.
 
 ### M2c: Refactor for maintainability
-- [ ] Extract shared configuration into a single `config.R` or top-of-script block: watershed areas, water years, site codes, Ca conversion coefficient (0.06284158)
-- [ ] Refactor HBEF/Plynlimon/NEON coarsen analysis scripts to share a common `run_coarsen_experiment()` function — currently ~300 lines duplicated 3x
-- [ ] Refactor HBEF/Plynlimon/NEON figure scripts similarly — duplicated plotting code
-- [ ] Replace `rbind()` inside loops with list accumulation + `bind_rows()` (3+ scripts)
-- [ ] Remove unused `library()` calls across all scripts
-- [ ] Update deprecated `size` → `linewidth` in all ggplot2 line geoms
-- [ ] Remove or archive `ts_simulation/defunct/` scripts
-- [ ] Stop re-reading data and re-fitting ARIMA inside the rep loop in `1_ts_simulation_analysis.R`
-- [ ] Stop re-sourcing `calculate_truth_ts.R` inside loops
+- [x] Replace `rbind()` inside loops with list accumulation + `bind_rows()` (5 scripts)
+- [x] Remove unused `library()` calls across all scripts (15 scripts swept)
+- [x] Update deprecated `size` → `linewidth` in all ggplot2 line geoms (5 files)
+- [x] Stop re-reading data and re-fitting ARIMA inside the rep loop in `1_ts_simulation_analysis.R`
+- [x] Stop re-sourcing `calculate_truth_ts.R` inside loops
+- [x] Clean up error band label naming in `2_coarsen_figure.R` (descriptive keys + explicit mapping)
+- [x] Fix Plynlimon `site_code = 'w3'` bug → now uses `site_code` variable
+- [x] Fix "Enchanced" typo → "Enhanced" in `3_descriptive_figures.R`
+- [x] Remove debug `plot()` call from inside ts_simulation rep loop
+- [ ] Extract shared configuration (deferred — low urgency)
+- [ ] Refactor HBEF/Plynlimon/NEON code duplication (deferred — too risky before verification)
+- [ ] Remove or archive `ts_simulation/defunct/` scripts (deferred — low priority)
 
 ### M2d: Verification
 - [ ] Run each script in order (per `Run Order.txt`) and confirm it completes without error

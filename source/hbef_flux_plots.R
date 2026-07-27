@@ -1,4 +1,3 @@
-library(plotly)
 library(ggplot2)
 library(GGally)
 library(dplyr)
