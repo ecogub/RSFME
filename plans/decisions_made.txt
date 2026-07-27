@@ -89,6 +89,16 @@ Update this file whenever a non-trivial choice is made.
   to parse as a complete R script. Fixed by adding braces matching the Plynlimon
   version's structure.
 
+2026-07-27 | M3a: Unified Figure Style Established
+- Created source/plot_theme.R with theme_rsfme(), method/solute/season palettes,
+  error band scales, and ggsave_hess() helper.
+- Based on HESS submission requirements: 300 DPI, sans-serif (Helvetica), single-col
+  8cm / double-col 17.4cm, colorblind-safe (Paul Tol qualitative scheme).
+- Method palette: blue=#4477AA (LI), red=#EE6677 (Beale), green=#228833 (Rating),
+  yellow=#CCBB44 (Composite), black=#000000 (Truth).
+- Error bands: green=#228833 (±5%), yellow=#CCBB44 (±20%).
+- Panel labels should use lowercase (a), (b) per HESS style.
+
 2026-07-27 | Code Review Before Push Convention Added
 - Decision: Do not push code without running /code-review first for feedback.
 - Context: User requested quality control step before changes reach remote.

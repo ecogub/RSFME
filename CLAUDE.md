@@ -28,7 +28,8 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 ```
 RSFME/
 ├── source/
-│   └── flux_methods.R          # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
+│   ├── flux_methods.R          # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
+│   └── plot_theme.R            # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
 ├── ms_overwrites.R             # Unit/molecule conversion utilities for MacroSheds data
 ├── paper/
 │   ├── paper_HESS_draft_v2.docx  # Current working draft

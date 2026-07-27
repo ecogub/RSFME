@@ -53,10 +53,10 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 The goal is publication-quality figures with a consistent style, regenerated from the fixed code.
 
 ### M3a: Establish a unified figure style
-- [ ] Define a shared `theme_rsfme()` ggplot2 theme — font sizes, axis styling, legend placement, consistent margins
-- [ ] Define a consistent color palette for methods (LI, Beale, Rating, Composite) used across all figures
-- [ ] Define consistent error-band styling (green = ±5%, yellow = ±20%)
-- [ ] Put the theme and palette in a shared file (e.g., `source/plot_theme.R`)
+- [x] Define a shared `theme_rsfme()` ggplot2 theme — sans-serif Helvetica, base_size 10, HESS-compliant
+- [x] Define a consistent color palette for methods — Paul Tol colorblind-friendly (blue/red/green/yellow/black)
+- [x] Define consistent error-band styling — green ±5%, yellow ±20% with scale_fill_error_bands()
+- [x] Put the theme and palette in `source/plot_theme.R` with ggsave_hess() helper
 
 ### M3b: Regenerate main figures
 - [ ] Fig 1 (method illustration): Assess whether this needs to be redrawn or if the current PNG is acceptable
