@@ -16,7 +16,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M0:** Initial codebase and paper review — complete
 - **M1:** Plan creation — complete (see `plans/m1_planning.md`)
 - **M2:** Fix the codebase — complete (M2a–M2d all done, except shared config and defunct cleanup)
-- **M3:** Improve figures — complete (M3a–M3c done; M3d figure-to-text numbering check remains)
+- **M3:** Improve figures — complete (M3a–M3d all done)
 - **M4:** Reconcile narrative text — mostly complete (structure fixes, NEON expansion, Conclusions all done; quantitative audit + Nic tasks remain)
 - **M5:** Organize repo — M5a/M5b/M5c/M5d complete; old subdir cleanup done; end-to-end test of `00_run_all.R` remains
 
@@ -49,8 +49,10 @@ RSFME/
 │   ├── load_annual.csv          # Computed annual loads (output of calculate_annual_flux.R)
 │   └── load_annual_diagnostics.csv
 ├── paper/
-│   ├── paper_HESS_draft_v2.docx # Current working draft
-│   ├── source/                  # All analysis + figure scripts, numbered in execution order (01–15)
+│   ├── paper_HESS_draft_v2.docx          # Original draft (READ-ONLY)
+│   ├── paper_HESS_draft_v2_claude_final.docx  # Working copy with all edits applied
+│   ├── source/                  # All analysis + figure scripts, numbered in execution order (00–15)
+│   │   ├── 00_run_all.R         # Pipeline runner: sources 01–15 in order with timing and error handling
 │   │   ├── 01–15_*.R            # Numbered scripts (see Script Run Order below)
 │   │   ├── coarsen_helpers.R    # Shared coarsening experiment function
 │   │   ├── calculate_truth_ts.R # Truth computation helper
@@ -64,6 +66,7 @@ RSFME/
 ### Script Run Order (all in `paper/source/`)
 | # | Script | Produces |
 |---|--------|----------|
+| 00 | `00_run_all.R` | Pipeline runner — sources 01–15 in order; accepts `start_from` arg |
 | 01 | `01_ts_simulation_analysis.R` | Simulated time series, coarsening CSVs → `data/ts_simulation/` |
 | 02 | `02_ts_simulation_figure.R` | `fig_supp_ts_simulation.png` (supplement) |
 | 03 | `03_ts_descriptive_figures.R` | `fig_hydro_regime.png`, `fig_cq_regime.png` |

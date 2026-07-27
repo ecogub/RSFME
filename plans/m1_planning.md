@@ -73,7 +73,7 @@ The goal is publication-quality figures with a consistent style, regenerated fro
 - [x] ts_simulation figure: Regenerated as `fig_supp_ts_simulation.png` (supplement)
 
 ### M3d: Review and finalize
-- [ ] Check all figure numbering matches the paper text
+- [x] Check all figure numbering matches the paper text — found and fixed 3 cross-reference bugs (7/10→7/8, 9/12→9/10, 8/12→8/10)
 - [x] Ensure all figures are saved at appropriate resolution for HESS submission (300 DPI via ggsave_hess())
 - [x] Create a `paper/figures/` directory with final versions, clearly named by figure number — 30 figures consolidated
 
@@ -144,7 +144,7 @@ Helper scripts (not numbered, moved to `paper/source/`):
 
 - [x] Rename and move all scripts to `paper/source/`
 - [x] Update all `source()` and `here()` paths within scripts to reflect new locations
-- [ ] Delete emptied subdirectories (keep `ts_simulation/defunct/` as-is or archive)
+- [x] Delete emptied subdirectories — removed coarsen_plot, plynlimon_discussion, neon_discussion, macrosheds_application, hbef_comparison_fig, hbef_corr_exploration, misc_figure_creation. Kept ts_simulation/defunct/, method_illustration/, flowchart/
 
 ### M5b: Consolidate figure output to `paper/figures/`
 
@@ -157,7 +157,7 @@ Intermediate data files (`.RData`, `.csv` results) go to `paper/data/` instead.
 
 - [x] Create `paper/figures/` directory (data outputs go to `data/` subdirs instead of `paper/data/`)
 - [x] Update all output paths in scripts 01–15
-- [ ] Remove orphaned figure files from old subdirectories
+- [x] Remove orphaned figure files from old subdirectories — deleted with parent dirs
 - [x] Verify all figures land in `paper/figures/` after a full run — 30 figures confirmed
 
 ### M5c: Write runner script (`paper/source/00_run_all.R`)
@@ -186,7 +186,7 @@ Contents:
 - Contact info
 
 - [x] Write `README.md` — paper overview, repo structure, reproduction instructions, script table
-- [ ] Remove or replace `paper/Run Order.txt` (superseded by `00_run_all.R`)
+- [x] Remove `paper/Run Order.txt` (superseded by `00_run_all.R`)
 
 ---
 
