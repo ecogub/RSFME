@@ -1,0 +1,24 @@
+RSFME Decisions Log
+====================
+This file tracks all significant decisions made during the improvement of the paper and codebase.
+Update this file whenever a non-trivial choice is made.
+
+---
+
+2026-07-27 | M0 Review Complete
+- Decision: Conducted full codebase and paper review as M0.
+- Context: Project dormant for >1 year. Needed fresh assessment before making changes.
+- Key findings documented in CLAUDE.md under "M0 Review: Areas of Improvement."
+- Next step: M1 will define a plan and subsequent milestones collaboratively.
+
+2026-07-27 | Milestone-Driven Development Adopted
+- Decision: Use milestone-driven development with CLAUDE.md as living documentation.
+- Context: Large number of interrelated code and text improvements needed. Breaking work
+  into milestones prevents scope creep and ensures alignment between author and AI assistant.
+- M0 = review, M1 = plan, future milestones TBD in M1.
+
+2026-07-27 | Git Permissions Updated for Dropbox Project
+- Decision: Added project-specific allow rules to user-level Claude Code settings to enable
+  tool access to C:\Users\gubbi\Dropbox\RSFME while keeping broader Dropbox deny rules.
+- Context: User settings blocked all Dropbox access. Since the project lives in Dropbox,
+  specific exceptions were needed.

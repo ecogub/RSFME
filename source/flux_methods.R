@@ -285,7 +285,7 @@ calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date',
 generate_residual_corrected_con <- function(chem_df, q_df, datecol = 'date', sitecol = 'site_no'){
         # first make c:q rating
         paired_df <- q_df %>%
-            full_join(chem_df, by = c(datecol, sitecol, 'wy')) %>%
+            full_join(chem_df, by = c(eval(datecol), sitecol, 'wy'), relationship = 'many-to-many') %>%
             na.omit() %>%
             filter(q_lps > 0,
                    is.finite(q_lps))
@@ -309,12 +309,12 @@ generate_residual_corrected_con <- function(chem_df, q_df, datecol = 'date', sit
         rating_filled_df <- q_df %>%
           mutate(con_reg = 10^(intercept+(slope*log10(q_lps)))) %>%
           select(all_of(datecol), con_reg, q_lps) %>%
-          full_join(., chem_df, by = datecol) %>%
+          full_join(., chem_df, by = datecol, relationship = 'many-to-many') %>%
           select(site_code, all_of(datecol), con, con_reg, q_lps, wy)  %>%
             mutate(res = con_reg-con,
                    res = imputeTS::na_interpolation(res),
                    con_com = con_reg-res,
-                   site_code = !!get(sitecol),
+                   site_code = get(sitecol),
                    wy = water_year(get(datecol), origin = 'usgs'))
 
         rating_filled_df$con_com[!is.finite(rating_filled_df$con_com)] <- 0
