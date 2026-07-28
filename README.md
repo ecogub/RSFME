@@ -29,8 +29,7 @@ RSFME/
 │   ├── source/                  # Numbered analysis scripts (01–12)
 │   │   └── 00_run_all.R         #   Runner script for full pipeline
 │   └── figures/                 # All output figures (PNGs)
-├── plans/                       # Development plans and decisions log
-└── CLAUDE.md                    # Detailed project documentation
+└── README.md                    # This file
 ```
 
 ## Reproducing the Analysis
