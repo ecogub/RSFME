@@ -26,3 +26,6 @@ Rplots.pdf
 # internal development notes — kept locally, not published
 CLAUDE.md
 plans/
+
+# editor / tooling config
+.claude/
