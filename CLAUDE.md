@@ -37,7 +37,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 RSFME/
 ├── source/
 │   ├── config.R                 # Shared constants (watershed areas, site codes, target water years, Ca conversion coefficients)
-│   ├── flux_methods.R           # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
+│   ├── flux_methods.R           # Core flux computation functions (LI/method6, Beale, Rating, Composite, WRTDS)
 │   ├── plot_theme.R             # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
 │   └── calculate_annual_flux.R  # MacroSheds annual load estimation (reads data/macrosheds/, writes data/load_annual.csv)
 ├── ms_overwrites.R              # Unit/molecule conversion utilities for MacroSheds data
@@ -72,13 +72,13 @@ RSFME/
 |---|--------|----------|
 | 00 | `00_run_all.R` | Pipeline runner — sources 01–12 in order; accepts `start_from` arg |
 | 01 | `01_coarsen_analysis_hbef.R` | HBEF coarsening results → `data/coarsen_hbef/` |
-| 02 | `02_coarsen_figure_hbef.R` | `fig07_hbef_ca_coarsening.png`, `fig08_hbef_no3_coarsening.png` |
+| 02 | `02_coarsen_figure_hbef.R` | `fig07_hbef_no3_coarsening.png`, `fig08_hbef_ca_coarsening.png` |
 | 03 | `03_coarsen_example_figure.R` | `fig06_coarsen_example.png` |
 | 04 | `04_coarsen_analysis_plynlimon.R` | Plynlimon coarsening results → `data/coarsen_plynlimon/` |
-| 05 | `05_coarsen_figure_plynlimon.R` | `fig09_plynlimon_ca_coarsening.png`, `fig10_plynlimon_no3_coarsening.png` |
+| 05 | `05_coarsen_figure_plynlimon.R` | `fig09_plynlimon_no3_coarsening.png`, `fig10_plynlimon_ca_coarsening.png` |
 | 06 | `06_coarsen_analysis_neon.R` | NEON coarsening results → `data/coarsen_neon/` |
 | 07 | `07_coarsen_figure_neon.R` | `figa_neon_cond_*.png`, `figa_neon_turb_*.png` (8 supplement figs) |
-| 08 | `08_macrosheds_compare.R` | `figa9_macrosheds_density.png`, `figa9_macrosheds_method_comp.png` |
+| 08 | `08_macrosheds_compare.R` | `figa9_macrosheds_density.png` (paper Fig A10), `figa9_macrosheds_method_comp.png` (paper Fig A11) |
 | 09 | `09_macrosheds_descriptive.R` | `figa9_macrosheds_load_hist.png` |
 | 10 | `10_ca_correlation.R` | Ca–SpCond regression (sourced by 11, no standalone output) |
 | 11 | `11_misc_figures.R` | `fig02–fig05` raw data and C:Q plots (8 PNGs) |
