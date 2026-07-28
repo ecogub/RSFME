@@ -94,7 +94,7 @@ plot_tbl %>%
     scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     coord_cartesian(ylim = c(-25,25))
-ggsave_hess(filename = here('paper','figures', 'fig09_plynlimon_ca_coarsening.png'))
+ggsave_hess(filename = here('paper','figures', 'fig10_plynlimon_ca_coarsening.png'))
 
 # create nitrate figure #####
 target_solute = 'NO3-N mg/l'
@@ -159,4 +159,4 @@ plot_tbl %>%
     scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
     coord_cartesian(ylim = c(-25,25))
-ggsave_hess(filename = here('paper','figures', 'fig10_plynlimon_no3_coarsening.png'))
+ggsave_hess(filename = here('paper','figures', 'fig09_plynlimon_no3_coarsening.png'))

@@ -95,7 +95,7 @@ plot_tbl %>%
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
           panel.spacing.y = unit(1.2, 'lines'))+
     coord_cartesian(ylim = c(-25, 25))
-ggsave_hess(filename = here('paper','figures', 'fig07_hbef_ca_coarsening.png'))
+ggsave_hess(filename = here('paper','figures', 'fig08_hbef_ca_coarsening.png'))
 
 # create nitrate figure #####
 ## set watershed attributes ####
@@ -175,5 +175,5 @@ plot_tbl %>%
           panel.spacing.y = unit(1.2, 'lines'))+
     coord_cartesian(ylim = c(-50, 50))
 
-ggsave_hess(filename = here('paper','figures', 'fig08_hbef_no3_coarsening.png'))
+ggsave_hess(filename = here('paper','figures', 'fig07_hbef_no3_coarsening.png'))
 

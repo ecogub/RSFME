@@ -258,7 +258,23 @@ Findings from the 2026-07-28 adversarial review of the manuscript against the re
 - [x] **Restored `'spCond'` to the NEON solute loop** (`06_coarsen_analysis_neon.R:32`). This became mandatory rather than optional: the existing conductivity `.RData` files store `method='pw'`, so with the figure scripts now looping over `'li'`, Figures a1–a4 would have rendered empty. Also fixes the M9a-4 reproducibility gap.
 - [x] Pre-rerun outputs backed up to scratchpad (`pre_li_backup/`) so old-vs-new deltas can be quantified for the text updates.
 
-#### M9a-2: Rerun and regeneration — IN PROGRESS
+#### M9a-2: Rerun and regeneration — COMPLETE (2026-07-28, 80.8 min, exit 0, zero failures)
+`calculate_annual_flux.R` wrote 133,425 load estimates across 146 sites; all 12 pipeline scripts completed; all 20 NEON `.RData` regenerated (12 spCond + 8 turbidity). **Sanity checks on the delta table both passed:** Beale/rating/composite median errors moved by exactly 0.00 at every frequency in all four site-solutes (only LI changed, as intended), and truth values were identical old vs new.
+
+**Delta — linear interpolation median % error, old (method1) → new (method6):**
+
+| | daily | weekly | ~37d | ~68d |
+|---|---|---|---|---|
+| HBEF Ca | +20.1 → **−0.5** | +7.6 → **+3.8** | +12.5 → **+5.6** | −5.7 → **+7.8** |
+| HBEF NO₃ | −36.9 → **+0.3** | −40.1 → **−16.9** | −48.9 → **−23.0** | −51.9 → **−26.5** |
+| PLYN Ca | +22.6 → **+0.4** | +20.1 → **+0.7** | +18.1 → **+10.0** | +1.4 → **+15.6** |
+| PLYN NO₃ | +7.4 → **+0.1** | +4.8 → **+0.6** | +4.3 → **+9.9** | −5.1 → **+8.5** |
+
+**Two latent bugs surfaced during regeneration:**
+- Script 07 names its output `figa_neon_{var}_{method}.png`, so the `pw`→`li` rename produced new `_li` files and orphaned the old `_pw` ones. The figure-refresh tool caught this by reporting the LI panels as "unchanged"; stale `_pw` files deleted and the mapping corrected.
+- `07_coarsen_figure_neon.R` carried two unused `method_names` vectors still keyed on `pw`. Dead code (titles use `method_labels` from `plot_theme.R`), removed.
+
+<details><summary>Original M9a-2 checklist</summary>
 Running as a chained background job: `calculate_annual_flux.R` first (Figs 11 and a9 depend on `load_annual.csv`), then `00_run_all.R` for scripts 01–12. Expect ≥45 min for the pipeline plus unknown time for the MacroSheds job; NEON now runs both solutes so script 06 will take roughly double its previous 21.6 min.
 - [ ] `source/calculate_annual_flux.R` → regenerates `data/load_annual.csv` (133,425 rows) and `load_annual_diagnostics.csv`
 - [ ] Script 01 → `data/coarsen_hbef/` ; Script 02 → Figs 7–8
@@ -266,10 +282,27 @@ Running as a chained background job: `calculate_annual_flux.R` first (Figs 11 an
 - [ ] Script 06 → `data/coarsen_neon/` (**both spCond and turbidity**) ; Script 07 → Figs a1–a8
 - [ ] Scripts 08, 09 → MacroSheds appendix figures ; Script 12 → Fig 11
 - [ ] Confirm all 12 scripts exit clean and no figure panel is empty (the `li` key must resolve in every facet)
-- [ ] Diff new vs `pre_li_backup/` and tabulate the change in median % error per method × frequency × site-solute — this table drives every text edit in M9a-3
+- [x] Diff new vs `pre_li_backup/` and tabulate the change in median % error per method × frequency × site-solute
+</details>
 
-#### M9a-3: Text and conclusions to update after the rerun
-Every "linear interpolation" number in the paper changes. Work through these once the delta table exists:
+#### M9a-3: Text and conclusions — COMPLETE (2026-07-28)
+
+**The fix resolved more claims than it broke.** Two statements that were false under the averaging estimator became true with genuine interpolation and were kept (with numbers added): *"Linear interpolation performed comparably with sub-weekly data"* (was −36.9% at daily, now +0.3%) and *"linear interpolation becomes less accurate than the composite method"* as sampling coarsens (LI −26.5% vs composite −16.0% at bimonthly). The Aulenbach-guidelines sentence was **reframed rather than deleted**: his recommendation of LI/averaging for weak C:Q now holds at daily sampling and only breaks down when data coarsen — a more useful finding than the flat contradiction it replaced.
+
+**Claims that were wrong and are now corrected:**
+- Figure 8 caption's *"persistent positive bias (~20%)"* for LI — an artifact of the averaging estimator.
+- HBEF Ca paragraph claimed composite's residual corrections *"compensated for"* the rating method's −5% bias; in fact composite converges to −5.3% at coarse sampling, essentially identical to rating's −5.2%. The correction only works at daily sampling (composite < 1%).
+- Figure 8 caption claimed composite had *"near-zero bias across sampling frequencies"*; **Beale** is actually least biased at coarse frequencies (+0.06%, +2.13%).
+- Conclusions claimed LI and Beale were more reliable for weak C:Q; it is **composite and Beale** that degrade gracefully — LI and rating do not.
+- Appendix a6 claimed Beale was *"very robust"* for turbidity; its median error reaches −41% at monthly with over half of repetitions exceeding 50%.
+- Appendix a4 claimed composite had *"more constrained"* errors than rating; the spread is comparable at the coarsest frequencies.
+- Discussion's *"up to ~50 percent"* method spread → **over 30% for HBEF/Plynlimon (max 35.5%) and over 70% for turbidity**.
+
+**Figure 11 improved materially and is now reported honestly.** R² rose 0.74 → **0.79**, the slope moved from 1.59 ± 0.55 to **1.15 ± 0.34** (much nearer 1:1), and p fell from 0.063 to **0.042** — significant at α = 0.05. LI's mean bias vs sensor truth collapsed from +49.5% to **+3.2%**. But the *recommended* method still sits **+16%** above sensor truth while rating (−0.7%) and Beale (+1.2%) land within ~1%, so the text now reports n = 5, the p-value, and that residual bias rather than claiming the framework picks the best method.
+
+**Claims verified as still correct, no edit needed:** the Abstract's "~10%" bound for daily/informative-C:Q (all methods ≤5% at HBEF Ca daily) and its ">50%" bound for coarse/complex C:Q (42–69% of turbidity repetitions exceed 50% at biweekly); the Conclusions' "within ~5%" for composite at weekly or finer; all NEON conductivity claims including *"prone to high errors at the COMO and WALK sites"* (LI reaches +30% at COMO and +15% at WALK by bimonthly); and both turbidity paragraphs.
+
+<details><summary>Original M9a-3 checklist</summary>
 - [ ] **Abstract** — re-check "errors within ~10%" for daily/informative-C:Q and the ">50%" claim for coarse/complex-C:Q. LI was previously the main driver of the >10% daily errors; both bounds may tighten.
 - [ ] **Results, HBEF nitrate** — "Linear interpolation performed comparably with sub-weekly data" was false under `method1` (−36.9% at daily). Re-evaluate against the new numbers; it will likely now be *true*, which resolves the contradiction rather than requiring a rewrite.
 - [ ] **Results, HBEF nitrate** — the follow-on claim that LI "becomes less accurate than the composite method" as sampling coarsens and that autocorrelation-leveraging methods "outperform all others" at high frequency should now be genuinely supportable. Verify and keep.
@@ -281,7 +314,14 @@ Every "linear interpolation" number in the paper changes. Work through these onc
 - [ ] **Appendix captions a1 and a5** — both describe linear-interpolation behaviour ("prone to high errors at the COMO and WALK sites"; "does a poor job of handling the variability in turbidity data"). Re-check both.
 - [ ] **Figure 11** — the method comparison changes: LI previously showed +49.5% mean bias vs sensor truth, by far the worst of the seven series. Recompute all per-method biases and the recommended-method R². This interacts with the M9b Figure 11 overclaim item.
 - [ ] **Methods, LI section** — the text already says `method6`, so it becomes correct on its own. Add the RiverLoad citation once M10a resolves the missing Nava et al. (2019) entry.
-- [ ] **Released dataset** — `load_annual.csv` changes (both the `li` load values and any `ms_recommended` flags on LI-recommended site-years). Re-upload to figshare and mint a new DOI version; update the DOI in Data Availability, Results, and the Figure a9 caption.
+- [ ] **Released dataset** — `load_annual.csv` changes (both the `li` load values and any `ms_recommended` flags on LI-recommended site-years). Re-upload to figshare and mint a new DOI version; update the DOI in Data Availability, Results, and the Figure a9 caption. **Nic-owned — the only M9 item still outstanding.** DOI standardisation (`.v2` vs bare, 3 places) folds into this.
+</details>
+
+#### M9a-5 code cleanup — COMPLETE
+- [x] Removed the orphaned 145-line `method1_month` inline definition from `source/flux_methods.R`; file re-parses clean.
+- [x] Removed two unused `method_names` vectors keyed on the stale `pw` from `07_coarsen_figure_neon.R`; file re-parses clean.
+- [x] Verified no `'pw'`, `calculate_pw`, or `method1(` reference remains anywhere in the codebase.
+- [x] Figure files renamed to match paper numbering (`fig07`=NO₃, `fig08`=Ca, `fig09`=PLYN NO₃, `fig10`=PLYN Ca) via `git mv`; scripts 02 and 05 updated. Orphaned `figa_neon_*_pw.png` deleted.
 
 #### M9a-4: Decision-framework branch collapse — now resolved in principle
 - [x] ~~"Linear interpolation" and "simple average" branches were the same estimator~~ — Resolved by the switch. `li` is now genuine interpolation (`method6`) and `average` remains mean(C) × mean(Q over all days) (equivalent to RiverLoad `method4`). The two branches are now substantively different.
@@ -351,12 +391,25 @@ Goal is a clean section split **without rewriting content or breaking narrative 
 - [x] ~~**Merge the orphan NEON sentence.**~~ APPLIED — deleted "Results from the analysis of NEON data are available in the Appendix as Figures a1-a8"; the following two paragraphs already cite Figures a1–a4 and a5–a8 directly.
 
 **Deliberately sequenced into M9a-3 rather than done here** (all three touch paragraphs whose linear-interpolation numbers change with the rerun, so doing them now would mean editing the same text twice):
-- [ ] Sentence-level moves out of Results: the Aulenbach (2016) comparison and Fazekas (2021) citation in the HBEF nitrate paragraph, and the Beale recommendation sentence ("Users with coarse data… should consider using Beale derived estimates"). Both require splitting runs mid-paragraph; fold them into the rewrite.
-- [ ] **Give Figure 11 a Methods and Results home.** It currently debuts in the Discussion as a wholly new analysis with a new statistic. Needs a short Methods subsection (grab-sample source, water years covered, origin of the "Published Hubbard Brook values", how sensor truth is computed) plus the figure and a result paragraph in Results, keeping interpretation in the Discussion. Its numbers change with the rerun, so write it once, afterwards.
+- [x] ~~Sentence-level moves out of Results~~ APPLIED 2026-07-28 ~15:40, after the delta table made the rewrite possible. Three sentences lifted from Results into the Discussion's "Insights on load estimation uncertainty" paragraph: the Aulenbach (2016) guidelines comparison (**reframed** — see below), the Fazekas (2021) citation (verbatim), and the Beale recommendation (verbatim). The receiving paragraph was rebuilt to absorb them coherently.
+  - **The Aulenbach sentence had to be reframed, not just moved.** It previously read "This is contrary to the guidelines suggested by Aulenbach et al. (2016)…" — true under the old averaging estimator, where LI was −36.9% at daily. With genuine interpolation the picture inverts: Aulenbach's recommendation of LI/averaging for weak C:Q now *holds* at daily sampling (LI +0.3%, matching composite) and only breaks down as data coarsen (LI −26.5% vs composite −16.0%). The Discussion now says exactly that, which is a more useful finding than a flat contradiction.
+  - Same paragraph's opening claim ("users should rely on linear interpolation or averaging methods" for weak C:Q) was corrected to add the frequency condition.
+  - Also tightened the moved synthesis paragraph: "composite… produce accurate estimates across all sampling frequencies" → "within about 5% of truth", since composite settles near −5% for Ca at coarse frequencies rather than staying near zero.
+- [x] ~~**Give Figure 11 a Methods and Results home.**~~ APPLIED 2026-07-28. Three-way split, done after the rerun so the numbers only had to be written once:
+  - **Methods** gains a Heading3 "Comparison with a sensor-derived record" stating the provenance that was previously missing entirely — grab samples come from the MacroSheds record for the site (~52 Ca samples/water-year), the sensor reference converts 15-min specific conductance via the regression then sums C×Q per timestep, published values are HBWatER (2023), and the comparison spans the five water years (2013–2017) where both records are complete.
+  - **Results** gains a Heading2 "Sensor-derived load comparison" holding the figure, its caption, and a purely factual paragraph (R² 0.79, slope 1.15 ± 0.34, p = 0.04, recommended +16%, rating/Beale within ~1%, composite +21%, LI +3%).
+  - **Discussion** keeps only interpretation, and now closes on the honest point: "the residual bias in the recommended estimates is a reminder that a defensible choice is not always the most accurate one."
+  - Body 279 → 283 elements; the two headings were deliberately given different titles so Methods and Results don't collide.
 
 **Still open, independent of the rerun:**
-- [ ] **Split the MacroSheds methods paragraph.** ~400 words covering method application, decision-tree thresholds, and QA filters in one block. Splitting requires dividing a `<w:t>` run and cloning the `<w:pPr>` — mechanically fine but a different operation from the moves above. The decision rules would read far better as a short table or an explicit pointer to Figure 12's logic.
-- [ ] **Consider a "Study sites and data" subsection.** The Methods carry four figures' worth of descriptive statistics and fitted regressions (Figures 2–5). Low priority — do only if it does not disturb the flow.
+- [x] ~~**Split the MacroSheds methods paragraph.**~~ APPLIED (Option B, chosen by Nic). The 308-word / 14-sentence block became three paragraphs plus a new **Table 2**:
+  - **P1** — what MacroSheds is (dataset, EDI link, 93 studies).
+  - **P2** — what we applied and at what level, ending with a new lead-in: "Each solute year was then assigned a recommended method using cutoffs of 0.30 for the model R-squared and 0.20 for autocorrelation, as summarized in Table 2."
+  - **Table 2** — the four classification rules, replacing 118 words of nested prose. Caption: "Simplified application of the Aulenbach et al. (2016) decision framework, used to assign a recommended load estimation method to each solute site-year. R-squared is from a log-log linear model of concentration against discharge; both autocorrelations are absolute values at lag one."
+  - **P3** — the QA filters (85% discharge coverage, one chemistry sample per water-year quarter), previously buried as the last clause of the block.
+  - Table styled to match Table 1 (TableGrid, 12 pt centred header, 9 pt body, same 7287 total width). Body 275 → 279 elements; re-split of the rebuilt XML asserts exactly 2 tables.
+  - Two pre-existing errors were eliminated with the replaced sentences: "Solute years with **a** … C:Q **fits**" (article/plural disagreement) and a present/past tense inconsistency ("**are** recommended" vs "were recommended" elsewhere).
+- ~~**Consider a "Study sites and data" subsection.**~~ — Dropped per Nic 2026-07-28: the rest of the manuscript covers the site and data description well enough; not worth disturbing the flow.
 
 ### M9e: Smaller items
 
@@ -367,7 +420,7 @@ Goal is a clean section split **without rewriting content or breaking narrative 
 - [x] ~~"enriching trend at high flows"~~ APPLIED → "**diluting relationship** at high flows" (HBEF Ca log-log slope is −0.12). Note the same paragraph's LI bias figure still needs the M9a-3 pass.
 - [x] ~~Figure 2 caption documents no inset~~ APPLIED — caption now ends "…grab samples of calcium; that regression is shown inset."
 - [ ] Figure 2 is cited for both HBEF and Plynlimon chemistry, but its caption describes HBEF only (Plynlimon has its own Figure 4). Fix the reference or the caption. Same issue for discharge, which is cited to Figures 2 and 4 whose captions are chemistry time series.
-- [ ] figshare DOI is inconsistent: `…24975504.v2` in Data Availability vs bare `10.6084/m9.figshare.24975504` in Results and the Figure a9 caption. **Deferred to M9a-3** — the rerun changes `load_annual.csv`, so a new figshare version and DOI are coming; standardize all three references then.
+- [x] ~~figshare DOI is inconsistent~~ APPLIED — all three now read `https://doi.org/10.6084/m9.figshare.24975504.v2`. The three references were in three different forms: full versioned URL (Data Availability), bare inline text (Results), and a bare string inside its own 9 pt run (Figure a9 caption), which needed a separate anchor. **Nic must bump the version in all three after re-uploading `load_annual.csv`.**
 - [x] ~~Figure a9 content mismatch~~ APPLIED — `09_macrosheds_descriptive.R:13` filters `var %in% c('Ca','NO3_N')` and facets into two panels, so the body text was correct and the caption was under-specified. Caption now reads "Histograms of annual calcium and nitrate-N load estimates in the MacroSheds dataset."
 - [ ] MacroSheds EDI link is hardcoded to `revision=1` while the text says "the latest version is linked at macrosheds.org" — pin to the revision actually used.
 - ~~Add HESS-required sections (Author contributions, Competing interests, Acknowledgements)~~ — Dropped per Nic 2026-07-28: handled at submission.
@@ -407,7 +460,20 @@ Nic-owned, pre-submission. Reference management is handled in Mendeley.
 - [ ] Three of those (Godsey 2009, Koger 2018, Moatar) are C:Q/chemostasis papers, while the paper uses "chemostatic", "enriching", "diluting", and "no pattern" as load-bearing terms — including in Figure 12 — **without ever defining or citing any of them**. This looks like a deleted Introduction paragraph on C:Q behaviour; consider restoring a short one, which would also give Figure 12's branches their grounding.
 - [ ] Attributable claims lacking citations: "archetypal of the array methods commonly used in small-watershed ecosystem studies"; "linear interpolation is commonly used in studies"; "The composite method has become a premier choice for many loading analyses"; the HBEF instrumentation description (sonde, UV-VIS nitrate analyzer, v-notch weir, stage recorder — HBWatER 2023 is cited elsewhere but never attached here); "the underlying assumption of covariance of discharge variance and concentration variance" (→ Beale 1962 / Meals 2013); "COMO, a snowmelt-dominated system in Colorado"; "reinforce previous findings that generally, when there is not a strong C:Q relationship…" ("previous findings" with no citation); "(which is common with nonevent supplemented sampling)"; "baseflow-quickflow separation methods"; and the MacroSheds R package, recommended by name with no package citation.
 
-### M10d: Formatting and final pass
+### M10d: Manual figure replacement in Word
+
+Every other figure was refreshed in place by overwriting the embedded image bytes (`scratchpad/refresh_figures.py`, which keeps `wp:extent` so page layout is preserved). **These two could not be**, because each embeds a *single composed image* covering both chemistry and streamflow while the scripts emit them as two separate files — dropping one file into the single slot would silently delete the streamflow panel.
+
+- [ ] **Figure 2** ← `paper/figures/fig02_hbef_chem_ts.png` (this one already carries the Ca–SpCond regression inset the caption now mentions) **+** `paper/figures/fig03_hbef_streamflow.png`
+- [ ] **Figure 4** ← `paper/figures/fig02_plynlimon_chem_ts.png` **+** `paper/figures/fig03_plynlimon_streamflow.png`
+
+Notes for whoever does this:
+- Compose them the same way the current versions are laid out (chemistry above, streamflow below) so the captions still read correctly.
+- Both source files were regenerated in the 2026-07-28 rerun, so the *current* embedded versions are stale — Figure 2's inset still shows the old no-intercept regression and Figure 4's companion streamflow panel still reflects the old Plynlimon discharge conversion.
+- ~~Figure 1 and Figure 12~~ are hand-made illustrations with no script output; leave them as they are.
+- After replacing, re-run `scratchpad/figmap.py` — it lists any embedded image that no longer matches a file on disk, so a clean run means nothing stale is left.
+
+### M10e: Formatting and final pass
 - [ ] Retitle "Works Cited" → "**References**" per HESS convention.
 - [ ] Standardize reference formatting via Mendeley (DOIs present/absent, mixed date formats).
 - [ ] Replace the "FINAL VERSION LINK" placeholder in Data Availability with the repo URL.
@@ -505,7 +571,10 @@ The M7 fixes change computed values in multiple code paths. Simulation scripts (
 | M9c | Figures and captions | M9a (figures regenerated) |
 | M9d | Results/Discussion reorganization | M9b (text settled first) |
 | M9e | Smaller items | — (can run in parallel) |
-| M10 | References + final read-through (Nic-owned) | All other milestones |
+| M9a | LI method fix + figure axes | M8 |
+| M10a-c | References (Nic-owned) | — |
+| M10d | Manual replacement of Figures 2 and 4 in Word | M9 (figures regenerated) |
+| M10e | Formatting + final read-through (Nic-owned) | All other milestones |
 
 ## Resolved Questions
 

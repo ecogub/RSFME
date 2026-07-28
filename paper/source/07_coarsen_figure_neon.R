@@ -40,12 +40,6 @@ for(i in 1:length(files)){
 }
 
 ## set names and breaks #####
-method_names <- c(
-    `pw` = "Linear Interpolation",
-    `beale` = "Beale",
-    `rating` = "Rating",
-    `composite` = "Composite"
-)
 
 breaks <- c(1,3,7,14,30,60)
 
@@ -117,12 +111,6 @@ for(i in 1:length(files)){
 }
 
 ## set names and breaks #####
-method_names <- c(
-    `pw` = "Linear Interpolation",
-    `beale` = "Beale",
-    `rating` = "Rating",
-    `composite` = "Composite"
-)
 
 breaks <- c(1,3,7,14,30,60)
 

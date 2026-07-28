@@ -381,6 +381,48 @@ Update this file whenever a non-trivial choice is made.
 - Full rerun launched: calculate_annual_flux.R (29 domains) then 00_run_all.R scripts 01-12.
   Pre-rerun outputs backed up so old-vs-new deltas can be quantified for the text pass.
 
+2026-07-28 | M9a-2/M9a-3: Rerun complete, LI text pass done
+- Rerun finished clean: 80.8 min, exit 0, zero script failures, 133,425 load estimates,
+  all 20 NEON files regenerated.
+- Delta table sanity checks BOTH passed: beale/rating/composite median errors moved by
+  exactly 0.00 at every frequency in all four site-solutes, and truth values were identical
+  old vs new. Confirms only LI changed.
+- LI median error, old -> new (daily/weekly/~37d/~68d):
+    HBEF Ca   +20.1/+7.6/+12.5/-5.7   ->  -0.5/+3.8/+5.6/+7.8
+    HBEF NO3  -36.9/-40.1/-48.9/-51.9 ->  +0.3/-16.9/-23.0/-26.5
+    PLYN Ca   +22.6/+20.1/+18.1/+1.4  ->  +0.4/+0.7/+10.0/+15.6
+    PLYN NO3   +7.4/+4.8/+4.3/-5.1    ->  +0.1/+0.6/+9.9/+8.5
+- Key outcome: the fix RESOLVED more claims than it broke. "Linear interpolation performed
+  comparably with sub-weekly data" and "LI becomes less accurate than composite as sampling
+  coarsens" were both false under method1 and are now true. The Aulenbach-guidelines sentence
+  was reframed rather than deleted: his LI/averaging recommendation for weak C:Q holds at
+  daily sampling and breaks down only when data coarsen.
+- Claims corrected: Fig 8's "persistent positive bias (~20%)" for LI (an artifact of the
+  averaging estimator); the claim that composite's residual corrections "compensated for" the
+  rating bias (composite converges to -5.3% at coarse, essentially equal to rating's -5.2%);
+  Fig 8's "near-zero bias across sampling frequencies" for composite (Beale is least biased
+  when coarse); the Conclusions' weak-C:Q guidance (composite and Beale hold up, not LI);
+  appendix a6's "very robust" Beale claim for turbidity (-41% median at monthly); appendix
+  a4's "more constrained" composite claim; and the "up to ~50 percent" method spread
+  (now >30% for HBEF/Plynlimon, >70% for turbidity).
+- Figure 11 improved materially: R2 0.74 -> 0.79, slope 1.59+/-0.55 -> 1.15+/-0.34, p 0.063 ->
+  0.042 (now significant), LI mean bias vs sensor truth +49.5% -> +3.2%. But the RECOMMENDED
+  method still sits +16% above sensor truth while rating (-0.7%) and Beale (+1.2%) land within
+  ~1%, so the text now reports n=5, the p-value and that residual bias instead of claiming the
+  framework picks the best method.
+- Two latent bugs surfaced during regeneration: (1) script 07 names output by method key, so
+  the pw->li rename created new _li figures and orphaned the _pw ones - caught because the
+  figure-refresh tool reported the LI panels as "unchanged"; (2) script 07 carried two unused
+  method_names vectors still keyed on 'pw'. Both cleaned up, along with the orphaned 145-line
+  method1_month block in flux_methods.R.
+- Figure files renamed to match paper numbering (fig07=NO3, fig08=Ca, fig09=PLYN NO3,
+  fig10=PLYN Ca). 19 of 23 embedded figures refreshed in place; Figures 1 and 12 are hand-made
+  illustrations, and Figures 2 and 4 each embed ONE composed image covering both chemistry and
+  streamflow where the scripts emit two separate files - those two need manual replacement in
+  Word rather than a byte swap that would silently drop the streamflow panel.
+- Only M9 item still outstanding: re-upload load_annual.csv to figshare, mint a new DOI, and
+  standardise the three DOI references (Nic-owned).
+
 2026-07-28 | Figure 11 Truth Calculation Changed
 - Decision: Changed Figure 11's "true" Ca load from daily-averaged composite method
   (via calculate_truth()) to direct 15-minute integration: sum(Ca_conc * Q_lps * 900 / area * 1e-6).
@@ -430,3 +472,20 @@ Update this file whenever a non-trivial choice is made.
      12 = flowchart, neither are coarsening results).
 - Context: These are all stale-text issues — values that were correct before M7 changes
   (model unification, script renumbering) but were never updated in the paper text.
+
+2026-07-28 | M9d: Figure 11 relocated; DOI standardised (M9 complete)
+- Figure 11 previously debuted in the Discussion as a wholly new analysis with a new statistic
+  and no stated provenance - a Results-in-Discussion violation a HESS reviewer would flag.
+  Split three ways: Methods gains a Heading3 "Comparison with a sensor-derived record" giving
+  the provenance that was entirely absent (grab samples from the MacroSheds record, ~52 Ca
+  samples/water-year; sensor reference = 15-min spCond converted via the regression then summed
+  as C*Q per timestep; published values = HBWatER 2023; five water years 2013-2017 where both
+  records are complete). Results gains a Heading2 "Sensor-derived load comparison" with the
+  figure, caption and a purely factual paragraph. Discussion keeps interpretation only.
+- The two new headings were given different titles so Methods and Results do not collide.
+- figshare DOI standardised: the three references were in three different forms (full versioned
+  URL, bare inline text, and a bare string inside its own 9pt run needing a separate anchor).
+  All now read https://doi.org/10.6084/m9.figshare.24975504.v2 - Nic must bump the version in
+  all three after re-uploading load_annual.csv.
+- M9 is now complete apart from two Nic-owned items: the figshare re-upload/DOI bump, and
+  manual replacement of Figures 2 and 4 in Word.
