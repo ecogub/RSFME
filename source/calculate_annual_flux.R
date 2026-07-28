@@ -34,8 +34,8 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
     results <- list()
     diags <- list()
 
-    raw_data_con <- domain_chem %>%
-        filter(site_code == sc, ms_interp == 0, val > 0, var == target_solute) %>%
+    raw_data_con <- raw_data_con_in %>%
+        filter(var == target_solute, val > 0) %>%
         select(datetime, val) %>%
         na.omit()
 
@@ -143,7 +143,11 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
         rating_filled_df <- generate_residual_corrected_con(
             chem_df = chem_df, q_df = q_df_yr,
             datecol = 'datetime', sitecol = 'site_code')
-        flux_annual_comp <- calculate_composite_from_rating_filled_df(rating_filled_df)
+        if (is.data.frame(rating_filled_df)) {
+            flux_annual_comp <- calculate_composite_from_rating_filled_df(rating_filled_df)
+        } else {
+            flux_annual_comp <- tibble(flux = NA_real_)
+        }
 
         # recommended method selection (Aulenbach et al 2016)
         paired_df <- q_df_yr %>%
@@ -187,7 +191,7 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
                     flux_annual_rating, flux_annual_comp$flux[1]),
             site_code = sc, var = target_solute,
             method = c('average', 'pw', 'beale', 'rating', 'composite')) %>%
-            mutate(ms_recommended = ifelse(method == ideal_method, 1, 0))
+            mutate(ms_recommended = if (!is.na(ideal_method)) as.integer(method == ideal_method) else 0L)
         results[[length(results) + 1]] <- year_out
 
         diags[[length(diags) + 1]] <- tibble(
@@ -251,7 +255,8 @@ process_domain <- function(nwk, site_info, flux_vars) {
                 compute_site_solute_fluxes(sc, target_solute, raw_data_q, domain_chem,
                                            raw_data_con_in, area, lat, long, site_info, nwk),
                 error = function(e) {
-                    cat(sprintf("    ERROR %s/%s: %s\n", sc, target_solute, e$message))
+                    warning(sprintf("    ERROR %s/%s: %s", sc, target_solute, e$message),
+                            call. = FALSE, immediate. = TRUE)
                     list(results = NULL, diags = NULL)
                 }
             )
@@ -267,7 +272,8 @@ process_domain <- function(nwk, site_info, flux_vars) {
     )
 }
 
-# --- run all domains sequentially (swap lapply -> parLapply for parallelism) ---
+# --- run all domains sequentially ---
+# NOTE: parallelism not safe — flux_methods.R reads 'area' from .GlobalEnv
 cat(sprintf("Processing %d domains...\n", length(domains)))
 
 all_domain_results <- lapply(domains, process_domain,

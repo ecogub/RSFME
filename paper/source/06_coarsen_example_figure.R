@@ -47,9 +47,9 @@ for(i in loop_vec){
 
     for(j in 1:reps){
         loopid <- loopid+1
-        start_pos <- sample(1:n, size = 1) # take a random starting position from inside the interval
-        coarse_chem[[loopid]] <- tibble(date =  nth_element(dn$datetime, 1, n = start_pos),
-                                        con = nth_element(dn$con, 1, n = start_pos))
+        start_pos <- sample(1:n, size = 1)
+        coarse_chem[[loopid]] <- tibble(date =  nth_element(dn$datetime, start_pos, n = n),
+                                        con = nth_element(dn$con, start_pos, n = n))
         names(coarse_chem)[loopid] <- paste0('sample_',n)
     }
 }

@@ -108,6 +108,7 @@ calculate_pw <- function(chem_df, q_df, datecol = 'date', period = NULL){
               daymonths <- as.numeric(round(diff(seq(as.POSIXct(datemonth[1],
                                                                 tz = "CET"), as.POSIXct(dateplus, tz = "CET"), "month")),
                                             digits = 0))
+              good_months <- seq_len(maximum)
               if(length(good_months) < 12){
                   daymonths <- daymonths[good_months]
               }
@@ -285,7 +286,7 @@ calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date',
 generate_residual_corrected_con <- function(chem_df, q_df, datecol = 'date', sitecol = 'site_no'){
         # first make c:q rating
         paired_df <- q_df %>%
-            full_join(chem_df, by = c(eval(datecol), sitecol, 'wy'), relationship = 'many-to-many') %>%
+            full_join(chem_df, by = c(datecol, sitecol, 'wy'), relationship = 'many-to-many') %>%
             na.omit() %>%
             filter(q_lps > 0,
                    is.finite(q_lps))

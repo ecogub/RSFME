@@ -194,6 +194,52 @@ Update this file whenever a non-trivial choice is made.
 - All HBEF descriptive stats verified correct: NO3 mean/sd, Ca mean/sd, Q mean/sd,
   missing days, C:Q slopes and R² values all match.
 
+2026-07-27 | M4b-1: Quantitative Audit — All Fixes Applied
+- Nic approved all 4 judgment-call fixes:
+  Issue 3: Ca-SpCond R² 0.92→0.98 (go with data)
+  Issue 4: Plynlimon C:Q — text was simply incorrect, never matched data. Checked all
+    3 sites (CR, LHF, UHF) × all water years (2007-2009): no combination produces
+    paper's claimed values. Ca slope -0.05→-0.26, R² 0.40→0.82. Rewrote "both fits
+    are less explanatory" to note Ca is similarly strong at both sites.
+  Issue 5: MacroSheds counts updated to current data: 26,685 site-years, 146 sites,
+    100 solutes (in Abstract, Methods, and Conclusions).
+  Issue 6: Plynlimon incomplete days 20/37→28/40.
+- Combined with earlier trivial fixes (Issues 1, 2, 7), all 7 audit issues resolved.
+- 16 XML edits applied to paper_HESS_draft_v2_claude_final.docx.
+
+2026-07-28 | Code Review Fixes — 10 Findings Addressed
+- All 10 code review findings fixed:
+  1. nth_element argument swap (coarsen_helpers.R, 06_coarsen_example_figure.R):
+     Pre-existing bug — start_pos was used as step-size instead of starting position.
+     Fixed: nth_element(ts_df$date, start_pos, n = coarse_n). This changes coarsening
+     results — error envelopes now measure phase uncertainty at fixed frequency instead
+     of random frequency variation. All coarsening analyses (04, 07, 09) being rerun.
+  2. O(n²) inner loop (coarsen_helpers.R): coarse_chem accumulated across iterations.
+     Fixed: simplified to single-pass accumulation.
+  3. NA composite crash (calculate_annual_flux.R): guarded with is.data.frame() check.
+  4. ifelse(method == NA) → explicit is.na() guard.
+  5. Unused raw_data_con_in parameter → now used instead of re-filtering domain_chem.
+  6. Removed unsafe parallelism suggestion comment.
+  7. Undefined good_months → derived from data length.
+  8. No-op eval(datecol) → removed eval() wrapper.
+  9. rbind in ts_simulation inner loop → list accumulation + bind_rows().
+  10. Blanket tryCatch → now uses warning() instead of cat() for visibility.
+
+2026-07-28 | Post-Fix Coarsening Audit — Paper Text Corrections
+- Reran audit of all coarsening quantitative claims after nth_element bug fix.
+- Key finding: HBEF Ca results changed significantly. Under old buggy code, PW
+  appeared to be the best method due to random frequency variation. With corrected
+  phase-offset coarsening, composite is clearly the best method (near 0% bias at
+  all sub-weekly frequencies), while PW has a persistent +20% positive bias.
+- Updated para 146: "linear interpolation performed best" → composite is best,
+  consistent with Aulenbach et al. (2016) recommendation.
+- Updated para 150: "C:Q model fit does not accurately describe the relationship"
+  → composite leverages C:Q fit effectively for Ca; both solutes benefit from
+  residual-corrected approaches.
+- Conclusions claim (para 208) verified correct as-is: "composite within ~5% at
+  weekly for informative C:Q" holds (HBEF Ca median -4.7% at weekly, Plynlimon
+  Ca median -1.4%).
+
 2026-07-27 | M5: End-to-End Pipeline Test
 - Running 00_run_all.R for full end-to-end test. Scripts 01-03 completed successfully.
   Script 04 (HBEF coarsening, 100 reps) is the first long-running script, currently

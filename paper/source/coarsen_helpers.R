@@ -3,10 +3,15 @@ apply_methods_coarse <- function(chem_df, q_df){
     out[1,2] <- calculate_pw(chem_df, q_df)
     out[2,2] <- calculate_beale(chem_df, q_df)
     out[3,2] <- calculate_rating(chem_df, q_df)
-    out[4,2] <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
-        rename(datetime = date) %>%
-        calculate_composite_from_rating_filled_df() %>%
-        pull(flux)
+    comp_df <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code')
+    if (is.data.frame(comp_df)) {
+        out[4,2] <- comp_df %>%
+            rename(datetime = date) %>%
+            calculate_composite_from_rating_filled_df() %>%
+            pull(flux)
+    } else {
+        out[4,2] <- NA_real_
+    }
     out$method <- c('pw', 'beale', 'rating', 'composite')
     return(out)
 }
@@ -55,39 +60,36 @@ run_coarsening_experiment <- function(ts_df, site_code, target_wy, area,
             mutate(site_code = site_code, wy = target_wy)
     }
 
-    truth_val <- generate_residual_corrected_con(
-        chem_df = chem_daily, q_df = q_daily, sitecol = 'site_code') %>%
+    truth_df <- generate_residual_corrected_con(
+        chem_df = chem_daily, q_df = q_daily, sitecol = 'site_code')
+    if (!is.data.frame(truth_df)) {
+        warning(sprintf("Truth computation failed for %s WY%s (too few paired obs), skipping",
+                        site_code, target_wy), call. = FALSE, immediate. = TRUE)
+        return(tibble(method = character(), estimate = numeric(), n = numeric()))
+    }
+    truth_val <- truth_df %>%
         rename(datetime = date) %>%
         calculate_composite_from_rating_filled_df() %>%
         pull(flux)
 
-    coarse_chem <- list()
-    loopid <- 0
+    out_list <- list()
 
     for (coarse_n in loop_vec) {
-        n <- coarse_n
         for (j in 1:reps) {
-            loopid <- loopid + 1
-            start_pos <- sample(1:n, size = 1)
-            coarse_chem[[loopid]] <- tibble(
-                date = nth_element(ts_df$date, 1, n = start_pos),
-                con  = nth_element(ts_df$con,  1, n = start_pos))
-            names(coarse_chem)[loopid] <- paste0('sample_', n)
-        }
+            start_pos <- sample(1:coarse_n, size = 1)
+            coarse_data <- tibble(
+                date = nth_element(ts_df$date, start_pos, n = coarse_n),
+                con  = nth_element(ts_df$con,  start_pos, n = coarse_n))
 
-        out_list <- list()
-        for (k in 2:length(coarse_chem)) {
-            n <- as.numeric(str_split_fixed(names(coarse_chem[k]),
-                                            pattern = 'sample_', n = 2)[2])
-            chem_df <- coarse_chem[[k]] %>%
+            chem_df <- coarse_data %>%
                 group_by(lubridate::yday(date)) %>%
                 summarize(date = lubridate::date(date), con = mean(con), .groups = 'drop') %>%
                 unique() %>%
                 select(date, con) %>%
                 mutate(site_code = site_code, wy = target_wy)
 
-            out_list[[k - 1]] <- apply_methods_coarse(chem_df, q_daily) %>%
-                mutate(n = n)
+            out_list[[length(out_list) + 1]] <- apply_methods_coarse(chem_df, q_daily) %>%
+                mutate(n = coarse_n)
         }
     }
 

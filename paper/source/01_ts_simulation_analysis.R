@@ -207,15 +207,7 @@ simulated_series[[11]] <- (10^((log10(simulated_series[[3]])*-1)+1.25))*error_ve
 di_base <- simulated_series[[11]]
 
 # Estimate flux #####
-# initialize output for load estimates
-if(period == 'annual'){
-run_out <- tibble(method = as.character(), estimate = as.numeric(),
-                  flow = as.character(), cq = as.character())
-}
-if(period == 'month'){
-    run_out <- tibble(method = as.character(), date = as.character(), estimate = as.numeric(),
-                      flow = as.character(), cq = as.character())
-}
+run_parts <- list()
 # Each set of estimates is generated with the same method
 # First the truth is calculated  from the full simulated series
 # Then each estimate is calculated from the corasened series
@@ -230,36 +222,24 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = simulated_series[[4
     mutate(site_code = 'w3', wy = target_wy)
 
 #### unaltered flow ####
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic', dn = dn, target_wy = target_wy),
-    run_out)
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic', dn = dn, target_wy = target_wy)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'chemostatic')
 
 ##### under storm flow ####
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'storm', cq = 'chemostatic', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'storm', cq = 'chemostatic', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'chemostatic'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'chemostatic')
 
 ##### under base flow ####
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'base', cq = 'chemostatic', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[4]], q_df, period = period, flow_regime = 'base', cq = 'chemostatic', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period,flow_regime = 'base', cq = 'chemostatic'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period,flow_regime = 'base', cq = 'chemostatic')
 
 ### no pattern ####
 chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = simulated_series[[5]])) %>%
@@ -271,37 +251,25 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = simulated_series[[5
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'unaltered', cq = 'none', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'unaltered', cq = 'none', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period,flow_regime = 'unaltered', cq = 'none'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period,flow_regime = 'unaltered', cq = 'none')
 
 #### under storm flow ####
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'storm', cq = 'none', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'storm', cq = 'none', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'none'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'none')
 
 #### under base flow ####
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'base', cq = 'none', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = simulated_series[[5]], q_df, period = period, flow_regime = 'base', cq = 'none', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'none'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'none')
 
 ### strong enrich ####
 
@@ -314,13 +282,9 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = en_unalt)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = en_unalt, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = en_unalt, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'enrich')
 
 #### under storm flow ####
 chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = en_storm)) %>%
@@ -331,13 +295,9 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = en_storm)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = en_storm, period = period, q_df, flow_regime = 'storm', cq = 'enrich', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = en_storm, period = period, q_df, flow_regime = 'storm', cq = 'enrich', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'enrich'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'enrich')
 
 #### under base flow ####
 chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = en_base)) %>%
@@ -348,13 +308,9 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = en_base)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = en_base, q_df, period = period, flow_regime = 'base', cq = 'enrich', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = en_base, q_df, period = period, flow_regime = 'base', cq = 'enrich', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'enrich'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'enrich')
 
 ### simple dilution ####
 #simple dilution
@@ -368,13 +324,9 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = di_unalt)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[1]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = di_unalt, period = period, q_df, flow_regime = 'unaltered', cq = 'dilution', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = di_unalt, period = period, q_df, flow_regime = 'unaltered', cq = 'dilution', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'dilution'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'unaltered', cq = 'dilution')
 
 #### under storm flow ####
 chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = di_storm)) %>%
@@ -385,13 +337,9 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = di_storm)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[2]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = di_storm, period = period, q_df, flow_regime = 'storm', cq = 'dilution', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = di_storm, period = period, q_df, flow_regime = 'storm', cq = 'dilution', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'dilution'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'storm', cq = 'dilution')
 
 ##### under base flow ####
 chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = di_base)) %>%
@@ -402,16 +350,12 @@ chem_df <- coarsen_data(tibble(datetime = dn$datetime, con = di_base)) %>%
 q_df <- make_q_daily(tibble(datetime = dn$datetime, q_lps = simulated_series[[3]])) %>%
     mutate(site_code = 'w3', wy = target_wy)
 #truth
-run_out <- rbind(
-    calculate_truth(raw_chem_list = di_base, q_df, period = period, flow_regime = 'base', cq = 'dilution', dn = dn, target_wy = target_wy),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- calculate_truth(raw_chem_list = di_base, q_df, period = period, flow_regime = 'base', cq = 'dilution', dn = dn, target_wy = target_wy)
 # apply
-run_out <- rbind(
-    apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'dilution'),
-    run_out)
+run_parts[[length(run_parts) + 1]] <- apply_methods(chem_df, q_df, period = period, flow_regime = 'base', cq = 'dilution')
 
 ### save out ####
-loop_out_list[[i]] <- run_out %>%
+loop_out_list[[i]] <- bind_rows(run_parts) %>%
         mutate(runid = i)
 }
 loop_out <- bind_rows(loop_out_list)

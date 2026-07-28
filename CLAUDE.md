@@ -105,7 +105,7 @@ RSFME/
 **Structural (M2c — mostly fixed):**
 6. ~~Massive code duplication~~ — Fixed: extracted `run_coarsening_experiment()` into `paper/source/coarsen_helpers.R`, reducing HBEF/Plynlimon/NEON scripts from ~110 lines each to ~35.
 7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files. Deferred — low risk and low urgency.
-8. ~~Row-by-row `rbind()` in loops~~ — Fixed: converted to list accumulation + `bind_rows()` in 5 scripts (ts_simulation, ms_application_compare, coarsen HBEF/Plynlimon/NEON).
+8. ~~Row-by-row `rbind()` in loops~~ — Fixed: converted to list accumulation + `bind_rows()` in 6 scripts (ts_simulation inner loop, ts_simulation outer loop, ms_application_compare, coarsen HBEF/Plynlimon/NEON).
 9. ~~Global variable dependencies~~ — Fixed: `calculate_truth_ts.R` now takes `dn` and `target_wy` as explicit parameters. Monthly branch `q_df` vs `q_df_add` bug also fixed.
 10. ~~No data pipeline~~ — Fixed: all data consolidated under `data/`, all scripts in `paper/source/`, all figures in `paper/figures/`. See `data/README.md` for provenance.
 11. ~~Performance: data re-read inside rep loop~~ — Fixed: `01_ts_simulation_analysis.R` now reads data, fits ARIMA, and defines functions once outside the loop.
@@ -120,6 +120,17 @@ RSFME/
 18. ~~Debug `plot()` call~~ inside ts_simulation rep loop — Removed.
 19. ~~Copy-paste bug~~ in `1_ts_simulation_analysis.R`: "no pattern / base flow" truth used `simulated_series[[4]]` (chemostatic) instead of `[[5]]` (no-pattern). Fixed.
 20. ~~Missing closing braces~~ in `1_coarsen_analysis.R`: j and coarse_n loops were never closed. Pre-existing since before M2. Fixed to match Plynlimon version structure.
+
+**Code review findings (fixed post-M5):**
+21. ~~`nth_element` argument swap~~ in `coarsen_helpers.R` and `06_coarsen_example_figure.R` — Pre-existing bug: `start_pos` was passed as step-size `n` instead of starting position. Each rep randomly varied sampling frequency instead of phase offset. Fixed: swapped to `nth_element(ts_df$date, start_pos, n = coarse_n)`. All coarsening analyses (04, 07, 09) rerun.
+22. ~~O(n²) inner loop~~ in `coarsen_helpers.R` — `coarse_chem` accumulated across all outer iterations and was reprocessed each pass; first element skipped (k=2). Fixed: simplified to single-pass list accumulation within each `coarse_n` iteration.
+23. ~~NA crash in composite method~~ in `calculate_annual_flux.R` — `generate_residual_corrected_con()` returns NA with ≤2 paired observations, crashing `calculate_composite_from_rating_filled_df()`. Fixed: guard with `is.data.frame()` check.
+24. ~~`ifelse(method == NA)` returns NA~~ in `calculate_annual_flux.R` — `ms_recommended` column got NA instead of 0 when `ideal_method` was NA. Fixed: explicit `is.na()` guard.
+25. ~~Unused parameter~~ `raw_data_con_in` in `calculate_annual_flux.R` — function re-filtered `domain_chem` instead of using the pre-filtered parameter. Fixed: now uses `raw_data_con_in`.
+26. ~~Unsafe parallelism comment~~ in `calculate_annual_flux.R` — removed `swap lapply -> parLapply` suggestion; `.GlobalEnv` area assignment makes this unsafe.
+27. ~~Undefined `good_months`~~ in `flux_methods.R` — dead monthly code path would crash. Fixed: derived from available data length.
+28. ~~No-op `eval(datecol)`~~ in `flux_methods.R` — `eval()` on a character string is a no-op. Fixed: removed `eval()` wrapper.
+29. ~~Post-fix coarsening audit~~ — After nth_element fix, HBEF Ca results changed: composite is now clearly the best method (near 0% bias), PW has +20% bias. Updated paper paras 146 and 150 to reflect corrected results. Conclusions claim (para 208) verified correct as-is.
 
 ### Paper Text Issues
 

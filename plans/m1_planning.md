@@ -94,7 +94,7 @@ The goal is a paper whose text accurately describes the results from M2/M3, with
 ### M4b: Update results text to match regenerated figures
 - [x] Fixed 3 cross-reference bugs from renumbering: "Figures 7 and 10" → "7 and 8", "Figures 9 and 12" → "9 and 10", "Figures 8 and 12" → "8 and 10"
 - [x] Applied repetition fix: removed "defensible" judgment sentence from NO3 Results paragraph
-- [x] Review all quantitative claims against the actual results — audit complete, 3 trivial fixes applied, 4 proposals for Nic in `plans/m4b_quantitative_audit_proposals.md`
+- [x] Review all quantitative claims against the actual results — audit complete, all 7 fixes applied (3 trivial + 4 judgment-call, all approved by Nic)
 - [ ] Ensure figure captions match what the figures actually show — minor (theme changed but content identical)
 
 ### M4c: Clean up writing
@@ -190,6 +190,29 @@ Contents:
 
 ---
 
+## M6: Improve Figure 11 — Method Comparison Panel Figure
+
+The goal is to replace the standalone 1:1 scatter plot (`fig11_hbef_method_comparison.png`) with a two-panel figure that better communicates method accuracy relative to truth.
+
+### M6a: Add difference-from-truth bar chart (panel B)
+- [ ] In `15_hbef_method_comparison.R`, compute `Ca_diff = Ca_estimated - Ca_true` for each method × water year
+- [ ] Build a bar chart (`geom_col`) of difference from truth, centered around zero (y = 0 reference line)
+- [ ] Color bars by method using existing `fluxpal` palette
+- [ ] Facet or group by water year on the x-axis
+- [ ] Use `theme_rsfme()` and consistent axis labels (e.g., "Difference from Sensor-Derived Load (kg/ha/yr)")
+
+### M6b: Combine into labeled A/B panel figure
+- [ ] Label the existing 1:1 scatter as panel **(A)** and the new bar chart as panel **(B)**
+- [ ] Combine with `patchwork` (`p_comp + p_diff + plot_annotation(tag_levels = 'A')`)
+- [ ] Share a single legend between the two panels
+- [ ] Save as `fig11_hbef_method_comparison.png` (replaces existing file)
+
+### M6c: Update caption and paper text
+- [ ] Update the Figure 11 caption in `paper_HESS_draft_v2_claude_final.docx` to reference panel (A) for the 1:1 comparison and panel (B) for the difference-from-truth bar chart
+- [ ] Check any in-text references to Figure 11 still make sense with the two-panel layout
+
+---
+
 ## Milestone Timeline
 
 | Milestone | Scope | Depends on |
@@ -209,6 +232,9 @@ Contents:
 | M5b | Consolidate figure output | M5a |
 | M5c | Runner script | M5a + M5b |
 | M5d | README | M5c (repo structure finalized) |
+| M6a | Diff-from-truth bar chart | M3d (figures finalized) |
+| M6b | A/B panel layout | M6a |
+| M6c | Caption and text update | M6b |
 
 ## Resolved Questions
 

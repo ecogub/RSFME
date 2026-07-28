@@ -159,7 +159,7 @@ For sub-milestones that need Nic's input before editing (e.g., which figure to i
 | M4a-3 | **DONE** | 3 paragraphs expanding NEON results (conductivity, turbidity, synthesis) in `_claude_final.docx`. |
 | M4a-4 | **DONE** | Table 1 content verified intact in XML (paras 109–129). |
 | M4a-5 | **DONE** | Added quality-filter clarification after "210,058 site-years" in para 165. |
-| M4b-1 | **IN PROGRESS** | Quantitative audit complete. 3 trivial fixes applied (yield exponent, Ca-SpCond slope, Ca sd). 4 judgment-call proposals written to `plans/m4b_quantitative_audit_proposals.md` for Nic review: Plynlimon C:Q values, Ca-SpCond R², MacroSheds counts, Plynlimon missing days. |
+| M4b-1 | **DONE** | All 7 quantitative fixes applied to `_claude_final.docx`: yield exponent, Ca-SpCond slope/R², Plynlimon C:Q (slopes, R², narrative rewrite), MacroSheds counts (3 locations), Plynlimon missing days, Ca sd. See `plans/m4b_quantitative_audit_proposals.md`. |
 | M4b-2 | Deferred | Caption content unchanged; only theme styling changed. |
 | M4b-3 | Deferred | Simulation results go to supplement, not main text. Minimal text impact. |
 | M4c-1 | **DONE** | Fixed typos. "FINAL VERSION LINK" still needs URL from Nic. |

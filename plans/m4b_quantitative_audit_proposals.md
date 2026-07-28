@@ -28,8 +28,7 @@ Claims that matched the data are not listed. Only discrepancies are documented b
 **Note:** The value 0.0063 is exactly 10× too small. Likely a decimal point transcription error.
 **Proposed fix:** Change "0.0063" to "0.063" (or more precisely, "0.060" to match the current data, or "0.063" to match the pipeline's hardcoded coefficient).
 
-**Response:**
-
+**Response:** APPLIED — trivial fix, already in docx.
 
 ---
 
@@ -41,8 +40,7 @@ Claims that matched the data are not listed. Only discrepancies are documented b
 **Note:** This is a meaningful difference. Possible explanations: (a) the original regression used a different subset of grab samples, (b) a model with intercept was originally fit (vs. the code's no-intercept model), or (c) the value was rounded from a prior analysis.
 **Proposed fix:** Verify which model form was intended (with or without intercept), rerun on the correct data subset, and update. If the no-intercept model from the code is authoritative, change to "0.98."
 
-**Response:**
-
+**Response:** APPLIED — go with data-derived R² = 0.98.
 
 ---
 
@@ -65,8 +63,9 @@ These values are consistent across all subsetting approaches (raw 7-hourly data,
 
 **Proposed fix:** Update Figure 5 caption, paras 92 and 95 with the correct slopes and R² values. Revise the narrative in para 92 to reflect that Ca at Plynlimon has a *stronger* diluting relationship than at HBEF, while NO3 has a steeper diluting trend (-0.11 vs HBEF's +0.11 enriching trend). The "both fits are less explanatory" statement needs revision.
 
-**Response:**
+**Investigation results:** Checked all 3 Plynlimon sites (CR, LHF, UHF) across all water years (2007–2009). No combination produces the paper's values. The text was simply incorrect — not a data change. Conductivity C:Q (slope=-0.01, R²=0.01) vaguely resembles the old NO3 values, suggesting a possible column mix-up in a prior draft.
 
+**Response:** APPLIED — text was incorrect, updated to match data. Rewrote "both fits are less explanatory" to "Ca fit is similarly strong at Plynlimon (R²=0.82) as at Hubbard Brook (R²=0.79), while NO3 fit remains weak at both sites."
 
 ---
 
@@ -88,8 +87,7 @@ These values are consistent across all subsetting approaches (raw 7-hourly data,
 
 **Proposed fix:** Re-run `source/calculate_annual_flux.R` on the current MacroSheds data and update all three locations with consistent, correct numbers. The Abstract and Conclusions should use the *filtered* counts; Methods should state both the pre- and post-filter counts.
 
-**Response:**
-
+**Response:** APPLIED — go with the data. Updated all three locations (Abstract, Methods, Conclusions) to 26,685 site-years, 146 sites, 100 solutes.
 
 ---
 
@@ -101,8 +99,7 @@ These values are consistent across all subsetting approaches (raw 7-hourly data,
 **Note:** This could depend on the definition of "incomplete." At 7-hour sampling, there are ~3.4 observations per day. The paper may use a different threshold (e.g., days with <2 observations rather than <max observations). This is a minor issue.
 **Proposed fix:** Verify the definition of "incomplete day" and update if needed. If the current values (28/40) are correct with the intended definition, update the text.
 
-**Response:**
-
+**Response:** APPLIED — 28/40 is correct. Updated text.
 
 ---
 
@@ -115,19 +112,19 @@ These values are consistent across all subsetting approaches (raw 7-hourly data,
 **Data shows:** sd = 0.228... → rounds to 0.23 at 2 decimal places
 **Proposed fix:** Change caption value from 0.22 to 0.23 for consistency.
 
-**Response:**
+**Response:** APPLIED — trivial fix, already in docx.**
 
 
 ---
 
 ## Summary
 
-| Issue | Severity | Type | Recommended action |
-|-------|----------|------|-------------------|
-| 1. Q yield exponent | High | Clear typo | Fix: 10^10 → 10^8 |
-| 2. Ca-SpCond slope | High | Clear typo | Fix: 0.0063 → 0.063 |
-| 3. Ca-SpCond R² | Medium | Data version | Verify and update |
-| 4. Plynlimon C:Q | High | Wrong values | Verify, update text + caption |
-| 5. MacroSheds counts | High | Data version | Re-run and update |
-| 6. Plynlimon missing days | Low | Definition | Verify definition |
-| 7. Ca sd rounding | Low | Rounding | Fix: 0.22 → 0.23 |
+| Issue | Severity | Type | Status |
+|-------|----------|------|--------|
+| 1. Q yield exponent | High | Clear typo | **APPLIED** — 10^10 → 10^8, 2.6→2.8 |
+| 2. Ca-SpCond slope | High | Clear typo | **APPLIED** — 0.0063 → 0.063 |
+| 3. Ca-SpCond R² | Medium | Data version | **APPLIED** — 0.92 → 0.98 |
+| 4. Plynlimon C:Q | High | Wrong values | **APPLIED** — text was incorrect, updated slopes/R²/narrative |
+| 5. MacroSheds counts | High | Data version | **APPLIED** — 26,685 site-years, 146 sites, 100 solutes |
+| 6. Plynlimon missing days | Low | Definition | **APPLIED** — 20/37 → 28/40 |
+| 7. Ca sd rounding | Low | Rounding | **APPLIED** — 0.22 → 0.23 |
