@@ -63,19 +63,23 @@ plot_tbl <- out_tbl %>%
     unique() %>%
     mutate(error = ((estimate-truth$estimate[1])/truth$estimate[1])*100,
            error_abs = abs(error),
-           method = factor(method, levels = c('pw', 'beale', 'rating', 'composite')),
+           method = factor(method, levels = c('li', 'beale', 'rating', 'composite')),
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n*7)
 
 ## set breaks #####
-breaks <- c(24,96,192,384,768)
+# True sampling intervals in hours: weekly=168, biweekly=336, monthly=730 (30.44 d),
+# bimonthly=1461 (60.9 d). The previous values (96/192/384/768) were 4/8/16/32 days
+# and mislabelled every tick coarser than daily. Plynlimon data end at 1344 h (56 d),
+# so the bimonthly break falls outside the plotted range and is not drawn.
+breaks <- c(24, 168, 336, 730, 1461)
 x_labels <- c('Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 
 ## generate Ca plot ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
-    filter(hours <= 899) %>%
+    filter(hours <= 1400) %>%
     ggplot(., aes(x = hours, y = median))+
     annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+
@@ -132,7 +136,7 @@ plot_tbl <- out_tbl %>%
     unique() %>%
     mutate(error = ((estimate-truth$estimate[1])/truth$estimate[1])*100,
            error_abs = abs(error),
-           method = factor(method, levels = c('pw', 'beale', 'rating', 'composite')),
+           method = factor(method, levels = c('li', 'beale', 'rating', 'composite')),
            percent_coverage = (nrow(dn)/n)/nrow(dn),
            hours = n*7)
 
@@ -140,7 +144,7 @@ plot_tbl <- out_tbl %>%
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
-    filter(hours <= 899) %>%
+    filter(hours <= 1400) %>%
     ggplot(., aes(x = hours, y = median))+
     annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
     annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+

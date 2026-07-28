@@ -27,7 +27,7 @@ theme_rsfme <- function(base_size = 10, base_family = "Helvetica") {
 
 # Colorblind-friendly method palette (Paul Tol's qualitative scheme)
 method_colors <- c(
-    "pw"        = "#4477AA",
+    "li"        = "#4477AA",
     "beale"     = "#EE6677",
     "rating"    = "#228833",
     "composite" = "#CCBB44",
@@ -35,7 +35,7 @@ method_colors <- c(
 )
 
 method_labels <- c(
-    "pw"        = "Linear Interpolation",
+    "li"        = "Linear Interpolation",
     "beale"     = "Beale",
     "rating"    = "Rating",
     "composite" = "Composite",

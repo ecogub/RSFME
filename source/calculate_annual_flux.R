@@ -136,7 +136,7 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
             mutate(flux = con*q_lps*3.154e+7*(1/area)*1e-6) %>%
             pull(flux)
 
-        flux_annual_pw <- calculate_pw(chem_df, q_df_yr, datecol = 'datetime')
+        flux_annual_li <- calculate_li(chem_df, q_df_yr, datecol = 'datetime')
         flux_annual_beale <- calculate_beale(chem_df, q_df_yr, datecol = 'datetime')
         flux_annual_rating <- calculate_rating(chem_df, q_df_yr, datecol = 'datetime')
 
@@ -177,7 +177,7 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
                     ideal_method <- if(r_squared > 0.3) {
                         ifelse(resid_acf > 0.2, 'composite', 'rating')
                     } else {
-                        ifelse(con_acf > 0.20, 'pw', 'average')
+                        ifelse(con_acf > 0.20, 'li', 'average')
                     }
                 } else {
                     ideal_method <- NA
@@ -187,10 +187,10 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
 
         year_out <- tibble(
             wy = target_year,
-            val = c(flux_annual_average, flux_annual_pw, flux_annual_beale,
+            val = c(flux_annual_average, flux_annual_li, flux_annual_beale,
                     flux_annual_rating, flux_annual_comp$flux[1]),
             site_code = sc, var = target_solute,
-            method = c('average', 'pw', 'beale', 'rating', 'composite')) %>%
+            method = c('average', 'li', 'beale', 'rating', 'composite')) %>%
             mutate(ms_recommended = if (!is.na(ideal_method)) as.integer(method == ideal_method) else 0L)
         results[[length(results) + 1]] <- year_out
 

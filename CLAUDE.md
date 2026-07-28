@@ -17,12 +17,13 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M1:** Plan creation — complete (see `plans/m1_planning.md`)
 - **M2:** Fix the codebase — complete (M2a–M2d all done; shared config extracted to `source/config.R`; defunct cleanup deferred)
 - **M3:** Improve figures — complete (M3a–M3d all done)
-- **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M9)
+- **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M10)
 - **M5:** Organize repo — complete (M5a–M5d done; end-to-end `00_run_all.R` test struck)
 - **M6:** Figure 11 panel improvement — complete (A/B panel with 1:1 scatter + difference bar chart; caption updated)
 - **M7:** Adversarial code review — 24/25 fixes applied. Ca~SpCond model unified (free intercept, HBEF CSV data, config constants). Self-referential truth confirmed deliberate. Simulation scripts (01–03) removed from repo and paper; remaining scripts renumbered 01–12. Only remaining: global `area` variable (deferred — requires function signature refactor). **All analysis scripts need rerun (M7e).**
 - **M8:** Figure improvements (post-rerun) — complete (HBEF crop/color fix, NEON dynamic y-axis per method, facet spacing, stale data cleanup, Figure 11 truth recalculated as direct 15-min integration, captions updated, accuracy sweep done: 7 text fixes applied)
-- **M9:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
+- **M9:** Pre-submission adversarial review fixes — 2026-07-28 review graded the manuscript **65/100**. **M9a-1 done:** linear interpolation switched from RiverLoad `method1` (a mean-C × mean-Q averaging estimator) to `method6` (true interpolation), and `calculate_pw` renamed **`calculate_li`**; method key `'pw'` → `'li'` across 9 files; `'spCond'` restored to the NEON solute loop. **M9a-2 in progress:** full rerun of `calculate_annual_flux.R` + scripts 01–12. Still open: Figs 7–10 x-axis tick labels are wrong (the "Weekly" tick is 4-day sampling, "Monthly" is 16-day), the post-rerun text pass, quantitative corrections, figure/caption work, and a Results/Discussion reorganization. See `plans/m1_planning.md` M9a–M9e.
+- **M10:** Final tasks — Nic-owned: references (Appling 2015, Nava 2019, Colin/Neal 2013, and NEON all missing from Works Cited), FINAL VERSION LINK, final read-through
 
 ### Important Conventions
 - **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push

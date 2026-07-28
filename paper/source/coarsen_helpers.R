@@ -1,6 +1,6 @@
 apply_methods_coarse <- function(chem_df, q_df){
     out <- tibble(method = as.character(), estimate = as.numeric())
-    out[1,2] <- calculate_pw(chem_df, q_df)
+    out[1,2] <- calculate_li(chem_df, q_df)
     out[2,2] <- calculate_beale(chem_df, q_df)
     out[3,2] <- calculate_rating(chem_df, q_df)
     comp_df <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code')
@@ -12,7 +12,7 @@ apply_methods_coarse <- function(chem_df, q_df){
     } else {
         out[4,2] <- NA_real_
     }
-    out$method <- c('pw', 'beale', 'rating', 'composite')
+    out$method <- c('li', 'beale', 'rating', 'composite')
     return(out)
 }
 

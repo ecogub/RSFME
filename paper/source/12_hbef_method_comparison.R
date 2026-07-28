@@ -74,7 +74,7 @@ w3_all <- bind_rows(w3_flux_methods, w3_flux_pub, w3_true, w3_recc)
 
 # look at flux time series
 fluxpal <- c('#332288', '#117733','#44AA99', '#88CCEE', '#DDCC77', '#CC6677', '#AA4499', '#000000')
-breaks <- c('average', 'pw', 'beale', 'rating','composite', 'true', 'published', 'recommended')
+breaks <- c('average', 'li', 'beale', 'rating','composite', 'true', 'published', 'recommended')
 labels <- c('Average', 'LI', 'Beale', 'Rating','Composite', 'True', 'Published', 'Recommended')
 
 p_ts <- w3_all %>%

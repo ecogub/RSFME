@@ -53,7 +53,7 @@ x_labels <- c('Daily', 'Twice Weekly', 'Weekly', 'Biweekly', 'Monthly', 'Bimonth
 
 ## generate plots####
 
-for(i in c('pw', 'beale', 'rating', 'composite')){
+for(i in c('li', 'beale', 'rating', 'composite')){
     method_data <- error_table %>% filter(method == i)
     y_ext <- ceiling(max(abs(method_data$error[method_data$n <= 30]), na.rm = TRUE) / 10) * 10
     y_ext <- max(y_ext, 25)
@@ -130,7 +130,7 @@ x_labels <- c('Daily', 'Twice Weekly', 'Weekly', 'Biweekly', 'Monthly', 'Bimonth
 
 ## generate plots ####
 
-for(i in c('pw', 'beale', 'rating', 'composite')){
+for(i in c('li', 'beale', 'rating', 'composite')){
     method_data <- error_table %>% filter(method == i)
     n_cutoff <- if (i %in% c('beale', 'rating', 'composite')) 14 else 30
     y_ext <- ceiling(max(abs(method_data$error[method_data$n <= n_cutoff]), na.rm = TRUE) / 10) * 10

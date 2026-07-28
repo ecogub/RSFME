@@ -319,6 +319,68 @@ Update this file whenever a non-trivial choice is made.
 - Context: Simulation analysis was tangential to the paper's core contribution (coarsening
   experiments on real data). Removing simplifies the pipeline and repo.
 
+2026-07-28 | M9/M10: Adversarial Manuscript Review — Findings Triaged
+- Decision: Full adversarial review of the manuscript against regenerated data, figures, and
+  code. Graded 65/100 (major-revision territory). Findings split into M9 (Claude-owned) and
+  M10 (Nic-owned, references). Old M9 "Final Tasks" renumbered to M10.
+- Two blocking findings:
+  (1) The paper says linear interpolation uses RiverLoad's `method6`; the code calls
+      `method1`, which computes mean(C) x mean(Q) x duration and does no interpolation at
+      all. `method6` appears nowhere in the repo. This also makes the decision framework's
+      "linear interpolation" and "simple average" branches the same estimator. Needs a
+      decision from Nic: switch to method6 (requires full rerun) or rename the method.
+  (2) X-axis tick labels on Figs 7-10 are wrong. `hours = n/4` but breaks sit at 96/192/
+      384/768 h labeled Weekly/Biweekly/Monthly/Bimonthly, when those are actually 4/8/16/
+      32-day intervals. NEON figures use correct day-unit breaks. Every frequency claim in
+      the paper is keyed to mislabeled ticks.
+- Two review claims investigated and DISPROVED (no action needed):
+  - Figures 7/8 and 9/10 are NOT swapped. MD5-hashed every image embedded in the .docx
+    against paper/figures/; captions correctly match image content. Only the filenames are
+    numbered inversely (fig07_hbef_ca_coarsening.png is the paper's Figure 8).
+  - Plynlimon "auto-samplers" vs "grab samples" is not a contradiction per Nic — an
+    auto-sampler collects grab samples.
+- Also found: NEON conductivity is not reproducible (06_coarsen_analysis_neon.R line 32
+  loops over turbidity only, spCond save branch is dead code, .RData files orphaned from a
+  pre-M7 run); Figs 2-6 and a9 embedded in the .docx are stale; Fig 11 is overclaimed
+  (n=5, p=0.063, recommended method +13.5% biased vs Beale +1.2%); self-referential truth
+  is never disclosed; an orphaned Discussion claim survives from the deleted simulation.
+- Nic's directions for M9: add short in-text references for the three unreferenced figure
+  assets; fix Figure 12's category names in the text; reorganize Results/Discussion for a
+  cleaner split without major rewriting or breaking continuity; fix all smaller items.
+- M9 is written but NOT started — awaiting Nic's review of the plan.
+
+2026-07-28 | M9a: Switched Linear Interpolation to RiverLoad method6 (Option A)
+- Decision: Nic chose Option A — use method6 (true linear interpolation) instead of method1
+  (averaging). Function renamed calculate_pw -> calculate_li for clarity.
+- Rationale: the paper's architecture depends on linear interpolation being one of the four
+  archetypal methods — it appears in the title framing, Figure 1's illustration, Equation 2,
+  the Aulenbach framework being tested, and the decision tree. Options B (method3,
+  period-weighted) and C (keep method1, rename to averaging) would each have required
+  rewriting the Methods, dropping the Appling/Aulenbach citations that justify linear
+  interpolation, and would have left the paper evaluating three methods plus two variants
+  of averaging.
+- Diagnostic evidence that method1 was wrong: the sign of the old 'pw' bias tracked the
+  inverse of the C:Q slope in every series (diluting Ca overestimated ~+20%, enriching NO3
+  underestimated ~-37%) — the signature of an estimator that discards cov(C,Q). At zero
+  coarsening on Plynlimon it was still +22.6% off, which is impossible for an interpolating
+  estimator holding the complete record.
+- Smoke test confirms the fix: on a complete daily HBEF series calculate_li returns exactly
+  the hand-computed sum(C*Q*86400) and 0.00% error vs truth for Ca, against method1's
+  +19.57%. For NO3 it returns -0.86% where a naive paired sum gives -11.20%, the difference
+  being method6 correctly interpolating the 4-day June gap.
+- Method key renamed 'pw' -> 'li' across 9 files including plot_theme.R colour/label maps
+  and the load_annual.csv method column.
+- Side effect that forced a scope expansion: the existing NEON conductivity .RData files
+  store method='pw', so with figure scripts now looping over 'li', Figures a1-a4 would have
+  rendered empty. Restoring 'spCond' to the NEON solute loop (06_coarsen_analysis_neon.R)
+  became mandatory rather than optional, which also closes the reproducibility gap where
+  conductivity results could not be regenerated from the checked-in code.
+- Also resolves the decision-framework branch collapse: 'li' is now genuine interpolation
+  while 'average' remains mean(C) x mean(Q over all days), so the two branches are
+  substantively different for the first time.
+- Full rerun launched: calculate_annual_flux.R (29 domains) then 00_run_all.R scripts 01-12.
+  Pre-rerun outputs backed up so old-vs-new deltas can be quantified for the text pass.
+
 2026-07-28 | Figure 11 Truth Calculation Changed
 - Decision: Changed Figure 11's "true" Ca load from daily-averaged composite method
   (via calculate_truth()) to direct 15-minute integration: sum(Ca_conc * Q_lps * 900 / area * 1e-6).

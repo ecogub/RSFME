@@ -29,7 +29,7 @@ loop_vec <- c(seq(from = 1, to = 13, by = 1),
 for (target_site in unique(c_dat$site_code)) {
     area <- ms_sites %>% filter(site_code == target_site) %>% pull(ws_area_ha)
 
-    for (target_solute in c('turbid_FNU')) {
+    for (target_solute in c('spCond', 'turbid_FNU')) {
         gc()
         q_data_in <- q_dat %>%
             filter(site_code == target_site) %>%

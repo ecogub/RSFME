@@ -26,12 +26,17 @@ prep_raw_for_riverload <- function(chem_df, q_df, datecol = 'date'){
 
 
 # FLUX CALCS
-###### calculate period weighted#########
-calculate_pw <- function(chem_df, q_df, datecol = 'date', period = NULL){
+###### calculate linear interpolation #########
+# RiverLoad::method6 linearly interpolates concentration and discharge to a
+# daily series (approx(), rule = 2) and sums C * Q * 86400. This is the method
+# described in the paper. Do NOT use method1 here: it computes
+# mean(C) * mean(Q) * duration, an averaging estimator that discards the
+# covariance between concentration and discharge.
+calculate_li <- function(chem_df, q_df, datecol = 'date', period = NULL){
   rl_data <- prep_raw_for_riverload(chem_df = chem_df, q_df = q_df, datecol = datecol)
 
   if(is.null(period)){
-  flux_from_pw <- method1(rl_data, ncomp = 1) %>%
+  flux_from_li <- method6(rl_data, ncomp = 1) %>%
     sum(.)/(1000*area)
   }else{
 
@@ -182,16 +187,18 @@ calculate_pw <- function(chem_df, q_df, datecol = 'date', period = NULL){
 
       ##### apply #####
 
-      flux_from_pw <- method1_month(rl_data, ncomp = 1, period = period)
+      # NOTE: the inline method1_month() defined above is now unused dead code
+      # (it implements averaging, not interpolation). Remove in cleanup.
+      flux_from_li <- method6(rl_data, ncomp = 1, period = period)
 
-      flux_from_pw <- tibble(date = rownames(flux_from_pw),
-                          flux = (flux_from_pw[,1]/(1000*area)))
+      flux_from_li <- tibble(date = rownames(flux_from_li),
+                          flux = (flux_from_li[,1]/(1000*area)))
 
 
   }
   }
 
-  return(flux_from_pw)
+  return(flux_from_li)
 }
 
 ###### calculate beale ######
