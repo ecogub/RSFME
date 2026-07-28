@@ -358,13 +358,13 @@ Running as a chained background job: `calculate_annual_flux.R` first (Figs 11 an
 - [x] **Data-gap counts.** HBEF nitrate: text says 3 incomplete days, actual is **14** (the 4 zero-data days, 6/19–6/22, are correct). Plynlimon: text says Ca 28 / NO₃ 40 incomplete days, actual is **41 / 52**.
 - [x] ~~**Truth is computed on daily means, not the full high-frequency series.**~~ APPLIED — now reads "applying the composite method to **daily means of** the full, high-frequency time series".
 - [x] ~~**Decision-framework thresholds.**~~ APPLIED — "greater than or equal to 0.30" → "greater than 0.30" (the string spanned a `<w:lastRenderedPageBreak />` marker), "lower than 0.30" → "of 0.30 or lower", `(>=0.20)` → `(>0.20)` ×2, `(<0.20)` → `(≤0.20)` ×2, and a new sentence discloses that "Both autocorrelations were evaluated as absolute values at lag one." Also fixed the "Rsquared" typo.
-- [ ] **WRTDS is undocumented.** It is computed and written to `data/load_annual.csv` (`calculate_annual_flux.R:105-111, 207-214`) but never described in Methods. Either add a short Methods paragraph or drop it from the released dataset.
+- [x] ~~**WRTDS is undocumented.**~~ RESOLVED, no text needed. `calculate_wrtds` is attempted for every site-solute-year but fails for all of them (the pipeline log is full of "ERROR: WRTDS failed to run"), so the `wrtds` branch at `calculate_annual_flux.R:207-213` never fires and the released `load_annual.csv` contains only `average, beale, composite, li, rating`. There is nothing in the dataset to document. **Code-level cleanup opportunity for later:** the WRTDS call still runs on every site-year and contributes materially to the MacroSheds runtime for no output. It is computed and written to `data/load_annual.csv` (`calculate_annual_flux.R:105-111, 207-214`) but never described in Methods. Either add a short Methods paragraph or drop it from the released dataset.
 - [x] **Accuracy-threshold wording is inconsistent.** Abstract says "daily or better… errors within ~10%"; Conclusions say composite "within ~5% of truth at weekly or finer". Discussion says method selection shifts accuracy "by up to ~50 percent" — the median spread is closer to **~38%** (max 37.8 points, HBEF NO₃ at daily); ~50% holds only for min–max envelopes. Pick one framing and state which quantity is meant.
 
 ### M9c: Figures and captions
 
 - [x] **Re-insert stale figures.** MD5-hashing the `.docx` images against `paper/figures/` shows Figures 7–11 and a1–a8 match the regenerated files byte-for-byte, but **Figures 2, 3, 4, 5, 6 and a9 match nothing on disk** — they predate the current versions. Figure 5 (Plynlimon C:Q) would still show the 100×-wrong discharge axis and Figure 2's inset the old no-intercept regression. Re-insert all six. (Re-verify against the latest `.docx` save first.)
-- [ ] **Add short in-text references for unreferenced figures.** Three assets exist but are never cited in the text:
+- [x] ~~**Add short in-text references for unreferenced figures.**~~ APPLIED — the three orphaned assets are now **Figures A10, A11 and A12**, each added as a real embedded figure (new media part, relationship and drawing XML cloned from the Figure A9 template, extents recomputed from the PNG aspect ratio) with a caption and an in-text pointer. A10 = distribution of recommended-method load estimates for Ca and NO3-N; A11 = percentage spread between the highest and lowest methods per solute site-year; A12 = the Figure 11 comparison shown as an annual time series. Every appendix figure A1-A12 is now referenced in the text. Three assets exist but are never cited in the text:
   - `figa9_macrosheds_density.png` and `figa9_macrosheds_method_comp.png` — only one "Figure a9" (the load histogram) is referenced. Add brief references in the MacroSheds Results paragraph and give each its own appendix number.
   - `fig11_hbef_method_ts.png` — the Figure 11 caption describes only panels (A) scatter and (B) difference bars; the time-series panel is orphaned. Add a sentence referencing it, or fold it in as a panel.
 - [x] **Figure 12 category names — fix in the text.** The caption defines three bins (simple, medium, complex) but the surrounding text uses five names: "simple", "easy", "fair", "medium", "complex", and switches between "fair" and "medium" mid-thought ("Data binned as 'fair' should only be used for limited applications. For example, 'medium' rated estimates could be used…"). Standardize the text on the caption's three bins. The text also refers to "error ranges presented for each category" which the caption does not mention — either add them to the figure or drop the phrase.
@@ -408,20 +408,20 @@ Goal is a clean section split **without rewriting content or breaking narrative 
 ### M9e: Smaller items
 
 - [x] ~~Delete the raw Word XML tag `<w:t xml:space="preserve">`~~ — **WITHDRAWN, not a real defect.** The literal tag was an artifact of my *extraction* script, whose regex matched `<w:tab />` as an opening `<w:t>` tag. The actual paragraph contains only a space and a tab. No document change made.
-- [ ] Remove the stray image embedded inside the Likens et al. (1970) reference entry (`image29.png`, confirmed real by hashing the embedded media).
+- [x] ~~Remove the stray image embedded inside the Likens et al. (1970) reference entry~~ APPLIED (`image29.png`, confirmed real by hashing the embedded media).
 - [x] ~~"(Figures 7-12 …)"~~ — already fixed by M8b; now reads Figures 7-10.
 - [x] ~~"As shown in Figure 8"~~ APPLIED → **Figure 11** (the sensor-truth comparison).
 - [x] ~~"enriching trend at high flows"~~ APPLIED → "**diluting relationship** at high flows" (HBEF Ca log-log slope is −0.12). Note the same paragraph's LI bias figure still needs the M9a-3 pass.
 - [x] ~~Figure 2 caption documents no inset~~ APPLIED — caption now ends "…grab samples of calcium; that regression is shown inset."
-- [ ] Figure 2 is cited for both HBEF and Plynlimon chemistry, but its caption describes HBEF only (Plynlimon has its own Figure 4). Fix the reference or the caption. Same issue for discharge, which is cited to Figures 2 and 4 whose captions are chemistry time series.
+- [x] ~~Figure 2 cross-reference~~ VERIFIED, no change needed — Figure 2's caption does describe the streamflow record ("Streamflow was collected using a long-running rating, v-notch weir, and stage recorder"), so citing it for the HBEF discharge series is correct. Original concern, but its caption describes HBEF only (Plynlimon has its own Figure 4). Fix the reference or the caption. Same issue for discharge, which is cited to Figures 2 and 4 whose captions are chemistry time series.
 - [x] ~~figshare DOI is inconsistent~~ APPLIED — all three now read `https://doi.org/10.6084/m9.figshare.24975504.v2`. The three references were in three different forms: full versioned URL (Data Availability), bare inline text (Results), and a bare string inside its own 9 pt run (Figure a9 caption), which needed a separate anchor. **Nic must bump the version in all three after re-uploading `load_annual.csv`.**
 - [x] ~~Figure a9 content mismatch~~ APPLIED — `09_macrosheds_descriptive.R:13` filters `var %in% c('Ca','NO3_N')` and facets into two panels, so the body text was correct and the caption was under-specified. Caption now reads "Histograms of annual calcium and nitrate-N load estimates in the MacroSheds dataset."
-- [ ] MacroSheds EDI link is hardcoded to `revision=1` while the text says "the latest version is linked at macrosheds.org" — pin to the revision actually used.
+- [x] ~~MacroSheds EDI link~~ APPLIED — text now reads "&revision=1, the revision used here; the latest version is linked at macrosheds.org". Original concern while the text says "the latest version is linked at macrosheds.org" — pin to the revision actually used.
 - ~~Add HESS-required sections (Author contributions, Competing interests, Acknowledgements)~~ — Dropped per Nic 2026-07-28: handled at submission.
-- [ ] Move the Data Availability section from immediately after the Abstract to **after the Conclusions** (placement affects readability now, independent of submission formatting).
-- [ ] Renumber appendix figures `a1–a9` → **`A1–A9`** and label the appendix "Appendix A" per HESS style.
-- [ ] Verify the three study goals render as a numbered list (they extract as three separate one-sentence paragraphs).
-- [ ] Equation 2 defines load in kg/ha/yr from mg/L × L/s but never introduces watershed area into the equation — a genuine dimensional gap in the explanation, independent of image rendering.
+- [x] ~~Move the Data Availability section~~ APPLIED — Heading1 order is now Abstract | Introduction | Methods | Results | Discussion | Summary and Conclusions | Data Availability | Works Cited | Appendix A. Original item to **after the Conclusions** (placement affects readability now, independent of submission formatting).
+- [x] ~~Renumber appendix figures~~ APPLIED — all labels and range references are now A1-A12 (17 individual labels plus three ranges), and the appendix heading reads "Appendix A". Original item and label the appendix "Appendix A" per HESS style.
+- [x] ~~Verify the three study goals render as a numbered list~~ VERIFIED — all three paragraphs carry `<w:numPr>`, so they are a genuine Word numbered list. Original item (they extract as three separate one-sentence paragraphs).
+- [x] ~~Equation 2 dimensional gap~~ APPLIED — the explanatory sentence now adds "The summed product is divided by watershed area to give the areal load in kg/ha/year." Original item into the equation — a genuine dimensional gap in the explanation, independent of image rendering.
 - [x] Typos and spacing: "Miam FL" → Miami; "spread across the **county**" → country; "four common load methods **this** study" → for this study; "archetypal of the array methods" → of the array of methods; "(2016),which" → "(2016), which"; "'complex'have" → "'complex' have"; "Note that **All** sites" → all; "time series' standard deviation"; stray multi-space runs mid-sentence in the Introduction and the linear-interpolation Methods paragraph (tracked-change artifacts).
 
 ---
@@ -438,16 +438,16 @@ Nic-owned, pre-submission. Reference management is handled in Mendeley.
 - [ ] **`Likens et al. 1977`** — cited in the Introduction, absent (only Likens et al. 1970 and Likens & Buso 2006 are listed).
 - [ ] **NEON has no citation anywhere** — no data citation, no data product IDs (DP1.20016, DP1.20033, etc.), no DOI, no release version, and Table 1's watershed areas have no stated source. One of three primary data sources with zero provenance; this alone will trigger a HESS data-availability objection.
 
-### M10b: Year and name mismatches
-- [ ] `Richards and Holloway, 1986` (in text, 4×) vs **1987** in the list — both years used in text.
-- [ ] `Dodds et al., 2008` (text) vs **2009** (list).
-- [ ] `Newman et al., 2014` (text) vs **2015** (list).
-- [ ] `Coombs and Melack, 2012` (text) vs **2013** (list).
-- [ ] "Shilling et al., 2017" → **Schilling**.
-- [ ] "Aulenbauch et al., 2016" → **Aulenbach**.
-- [ ] "Appling et al., 2016" → **2015** (as used everywhere else).
-- [ ] "Likens et al., 2006" → **Likens & Buso** (two authors; "et al." is wrong).
-- [ ] "…Shilling et al., 2017; **etc.**)" — "etc." inside a citation parenthetical is not acceptable.
+### M10b: Year and name mismatches — COMPLETE (2026-07-28)
+- [x] `Richards and Holloway, 1986` (in text, 4×) vs **1987** in the list — both years used in text.
+- [x] `Dodds et al., 2008` (text) vs **2009** (list).
+- [x] `Newman et al., 2014` (text) vs **2015** (list).
+- [x] `Coombs and Melack, 2012` (text) vs **2013** (list).
+- [x] "Shilling et al., 2017" → **Schilling**.
+- [x] "Aulenbauch et al., 2016" → **Aulenbach**.
+- [x] "Appling et al., 2016" → **2015** (as used everywhere else).
+- [x] "Likens et al., 2006" → **Likens & Buso** (two authors; "et al." is wrong).
+- [x] "…Shilling et al., 2017; **etc.**)" — "etc." inside a citation parenthetical is not acceptable.
 
 ### M10c: Uncited entries and uncited claims
 - [ ] Five list entries are never cited: **Fuka 2014, Godsey 2009, Koger 2018, Moatar (n.d.), Zeileis (n.d.)**. Moatar and Zeileis also lack years.

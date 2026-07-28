@@ -507,3 +507,27 @@ Update this file whenever a non-trivial choice is made.
   appendix figures (images + captions + in-text pointers), which is a content decision.
 - Lesson: writing a completion summary above a checklist does not update the checklist.
   Tick items as they are done, not in a prose summary.
+
+2026-07-28 | M9 closed out; M10b complete
+- Figures A10, A11, A12 added for the three previously orphaned assets. These needed real
+  insertion (new media parts, relationships and drawing XML cloned from the A9 template with
+  extents recomputed from each PNG's aspect ratio), not the byte-swap used to refresh existing
+  figures. A10 = distribution of recommended-method load estimates for Ca and NO3-N;
+  A11 = percentage spread between highest and lowest methods per solute site-year;
+  A12 = the Figure 11 comparison as an annual time series. All of A1-A12 are now referenced.
+- WRTDS item RESOLVED without text: calculate_wrtds is attempted for every site-solute-year but
+  fails for all of them, so the wrtds branch never fires and load_annual.csv contains only
+  average/beale/composite/li/rating. Nothing in the dataset to document. Flagged as a code
+  cleanup opportunity - it still runs on every site-year for no output.
+- Figure 2 cross-reference VERIFIED as correct, not a defect: Figure 2's caption does describe
+  the streamflow record, so citing it for HBEF discharge is right.
+- Study goals VERIFIED as a genuine Word numbered list (all three carry <w:numPr>).
+- Applied: appendix relabelled A1-A12 with "Appendix A" heading; Data Availability moved to sit
+  after Summary and Conclusions (heading order is now Abstract | Introduction | Methods |
+  Results | Discussion | Summary and Conclusions | Data Availability | Works Cited | Appendix A);
+  stray image removed from the Likens (1970) entry; EDI revision pinned in the text; Equation 2
+  now states the watershed-area normalisation.
+- M10b complete: Richards and Holloway 1986->1987 (x4), Dodds 2008->2009, Newman 2014->2015,
+  Coombs and Melack 2012->2013, Shilling->Schilling, Aulenbauch->Aulenbach, Appling 2016->2015,
+  Likens et al. 2006 -> Likens and Buso 2006, and "etc." dropped from a citation parenthetical.
+- Only M9 item left is the Nic-owned figshare re-upload and DOI bump.
