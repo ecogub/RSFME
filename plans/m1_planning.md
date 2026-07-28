@@ -94,7 +94,7 @@ The goal is a paper whose text accurately describes the results from M2/M3, with
 ### M4b: Update results text to match regenerated figures
 - [x] Fixed 3 cross-reference bugs from renumbering: "Figures 7 and 10" → "7 and 8", "Figures 9 and 12" → "9 and 10", "Figures 8 and 12" → "8 and 10"
 - [x] Applied repetition fix: removed "defensible" judgment sentence from NO3 Results paragraph
-- [ ] Review all quantitative claims against the actual (potentially corrected) results — needs full re-run of analysis scripts
+- [x] Review all quantitative claims against the actual results — audit complete, 3 trivial fixes applied, 4 proposals for Nic in `plans/m4b_quantitative_audit_proposals.md`
 - [ ] Ensure figure captions match what the figures actually show — minor (theme changed but content identical)
 
 ### M4c: Clean up writing

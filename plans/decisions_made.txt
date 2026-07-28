@@ -176,3 +176,25 @@ Update this file whenever a non-trivial choice is made.
   for descriptive panels.
 - Analysis scripts (01, 04, 07, 09) are long-running and were not re-run; paths and
   syntax verified but full execution skipped.
+
+2026-07-27 | M4b-1: Quantitative Claims Audit
+- Recomputed all quantitative claims from raw data files (HBEF feather, Plynlimon CSV,
+  HBEF chemistry CSV, MacroSheds load_annual.csv). Compared against paper text.
+- 3 trivial fixes applied directly to paper_HESS_draft_v2_claude_final.docx:
+  (1) HBEF yield exponent: 10^10 → 10^8 (was ~100× too large)
+  (2) Ca-SpCond slope: 0.0063 → 0.063 (decimal point error, 10× too small)
+  (3) Ca sd in Fig 3 caption: 0.22 → 0.23 (to match text and data)
+- 4 judgment-call proposals written to plans/m4b_quantitative_audit_proposals.md:
+  Issue 3: Ca-SpCond R² (0.92 in paper vs 0.98 in data)
+  Issue 4: Plynlimon C:Q slopes/R² completely wrong (Ca slope -0.05 in paper vs -0.26
+    in data, R² 0.40 vs 0.82). Narrative about "weaker fits at Plynlimon" is incorrect.
+  Issue 5: MacroSheds site/solute/site-year counts don't match current data in any
+    section (Abstract, Methods, or Conclusions).
+  Issue 6: Plynlimon incomplete days count (20/37 in paper vs 28/40 in data).
+- All HBEF descriptive stats verified correct: NO3 mean/sd, Ca mean/sd, Q mean/sd,
+  missing days, C:Q slopes and R² values all match.
+
+2026-07-27 | M5: End-to-End Pipeline Test
+- Running 00_run_all.R for full end-to-end test. Scripts 01-03 completed successfully.
+  Script 04 (HBEF coarsening, 100 reps) is the first long-running script, currently
+  executing.
