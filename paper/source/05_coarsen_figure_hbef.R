@@ -7,13 +7,14 @@ library(RiverLoad)
 
 set.seed(53045)
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
 
 # create calcium figure #####
 ## set watershed attributes ####
-area <- 42.4
-site_code = 'w3'
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 target_solute = 'IS_spCond'
 
 
@@ -22,13 +23,13 @@ d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 #### subset to 2016 wy ####
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy) %>%
     select(date, all_of(target_solute), IS_discharge)
 colnames(dn)[2] <- 'con'
 #### convert from specific conductivity to calcium ####
-dn$con <- dn$con*0.06284158
+dn$con <- dn$con * CA_SPCOND_SLOPE
 
 load(file = here('data','coarsen_hbef', '100reps_annual_Ca.RData'))
 
@@ -40,7 +41,7 @@ chem_df <- dn %>%
     ungroup() %>%
     unique() %>%
     select(date, con) %>%
-    mutate(site_code = 'w3', wy = target_wy)
+    mutate(site_code = site_code, wy = target_wy)
 
 q_df <- dn %>%
     select(date, q_lps = IS_discharge)%>%
@@ -49,7 +50,7 @@ q_df <- dn %>%
               q_lps = mean(q_lps)) %>%
     ungroup() %>%
     unique() %>%
-    mutate(site_code = 'w3', wy = target_wy)
+    mutate(site_code = site_code, wy = target_wy)
 
 out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
     rename(datetime = date) %>%
@@ -97,14 +98,14 @@ ggsave_hess(filename = here('paper','figures', 'fig07_hbef_ca_coarsening.png'))
 
 # create nitrate figure #####
 ## set watershed attributes ####
-area <- 42.4
-site_code = 'w3'
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 target_solute = 'IS_NO3'
 
 ## read in and prep data ####
 load(file = here('data','coarsen_hbef', '100reps_annual_NO3.RData'))
 #### subset to 2016 wy ####
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy) %>%
     select(date, all_of(target_solute), IS_discharge)
@@ -118,7 +119,7 @@ chem_df <- dn %>%
     ungroup() %>%
     unique() %>%
     select(date, con) %>%
-    mutate(site_code = 'w3', wy = target_wy)
+    mutate(site_code = site_code, wy = target_wy)
 
 q_df <- dn %>%
     select(date, q_lps = IS_discharge)%>%
@@ -127,7 +128,7 @@ q_df <- dn %>%
               q_lps = mean(q_lps)) %>%
     ungroup() %>%
     unique() %>%
-    mutate(site_code = 'w3', wy = target_wy)
+    mutate(site_code = site_code, wy = target_wy)
 
 out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df, sitecol = 'site_code') %>%
     rename(datetime = date) %>%

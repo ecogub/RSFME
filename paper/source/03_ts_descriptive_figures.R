@@ -6,6 +6,7 @@ library(lubridate)
 
 set.seed(53045)
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
 load(here('data','ts_simulation', 'simulated_series.Rdata'))
@@ -14,7 +15,7 @@ d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 ## Subset to 2016 wy
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy)
 ## read in output from 1_ts_simulation_analysis.R####

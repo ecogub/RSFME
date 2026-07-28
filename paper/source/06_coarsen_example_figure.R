@@ -5,12 +5,13 @@ library(lfstat)
 library(patchwork)
 
 set.seed(53045)
+source(here('source/config.R'))
 source(here('paper','source','coarsen_helpers.R'))
 source(here('source/plot_theme.R'))
 
 # set watershed attributes #####
-area <- 42.4
-site_code = 'w3'
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 
 ##set solute #####
 target_solute = 'IS_NO3'
@@ -20,7 +21,7 @@ d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
 # subset to 2016 wy ####
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy) %>%
     select(datetime, con = all_of(target_solute))

@@ -247,3 +247,28 @@ Update this file whenever a non-trivial choice is made.
   fix applied) and all completed successfully. Figure scripts 05, 06, 08, 10 also
   rerun and regenerated all output PNGs.
 - A full uninterrupted 00_run_all.R end-to-end test has not been completed.
+
+2026-07-28 | M2c: Shared Config Extracted
+- Decision: Created `source/config.R` with all hardcoded constants (HBEF_AREA, PLYN_AREA,
+  site codes, target water years, CA_SPCOND_SLOPE, COARSEN_REPS, HBEF_SOLUTES).
+- All 13 scripts updated to `source(here('source/config.R'))` and use named constants.
+- NEON script (09) only uses COARSEN_REPS since it dynamically determines area/site/wy.
+
+2026-07-28 | M4b: Figure Caption Audit
+- Decision: Audited all figure captions against corrected data (post-nth_element fix).
+- 7 fixes applied: 3 method-ranking claims updated (Figs 7, 8, 9), 4 turbidity figure
+  labels corrected (Figs a5-a8 said "conductivity" but show turbidity).
+
+2026-07-28 | M6: Figure 11 Panel Improvement
+- Decision: Replaced standalone 1:1 scatter with two-panel figure using patchwork.
+  Panel A: 1:1 scatter (estimated vs sensor-derived load). Panel B: difference-from-truth
+  bar chart (dodged by method, grouped by water year).
+- Used shape=21 filled points in scatter so both panels use `fill` aesthetic, enabling
+  shared legend via `plot_layout(guides = 'collect')`.
+- Caption updated in docx to reference panels (A) and (B).
+
+2026-07-28 | M5c/M8: Struck End-to-End Test, Created M8
+- Decision: Struck the 00_run_all.R end-to-end test from the plan (individual scripts
+  verified independently; full run is 3+ hours and low value).
+- Created M8 "Final Tasks" milestone for Nic-owned items: FINAL VERSION LINK placeholder,
+  Works Cited formatting, final read-through. Moved from M4c.

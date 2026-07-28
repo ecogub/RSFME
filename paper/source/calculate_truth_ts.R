@@ -7,10 +7,10 @@ calculate_truth <- function(raw_chem_list, q_df, period, flow_regime = NULL, cq 
             ungroup() %>%
             unique() %>%
             select(date, con) %>%
-            mutate(site_code = 'w3', wy = target_wy)
+            mutate(site_code = HBEF_SITE_CODE, wy = target_wy)
 
         q_df_add <- q_df %>%
-            mutate(site_code = 'w3', wy = target_wy)
+            mutate(site_code = HBEF_SITE_CODE, wy = target_wy)
 
         out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df_add, sitecol = 'site_code') %>%
             rename(datetime = date) %>%
@@ -27,10 +27,10 @@ calculate_truth <- function(raw_chem_list, q_df, period, flow_regime = NULL, cq 
             ungroup() %>%
             unique() %>%
             select(date, con) %>%
-            mutate(site_code = 'w3', wy = target_wy)
+            mutate(site_code = HBEF_SITE_CODE, wy = target_wy)
 
         q_df_add <- q_df %>%
-            mutate(site_code = 'w3', wy = target_wy)
+            mutate(site_code = HBEF_SITE_CODE, wy = target_wy)
 
         out_val <- generate_residual_corrected_con(chem_df = chem_df, q_df = q_df_add, sitecol = 'site_code') %>%
             select(datetime = date, q_lps, con, con_com, wy) %>%

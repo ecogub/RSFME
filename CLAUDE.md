@@ -15,10 +15,12 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 
 - **M0:** Initial codebase and paper review — complete
 - **M1:** Plan creation — complete (see `plans/m1_planning.md`)
-- **M2:** Fix the codebase — complete (M2a–M2d all done, except shared config and defunct cleanup)
+- **M2:** Fix the codebase — complete (M2a–M2d all done; shared config extracted to `source/config.R`; defunct cleanup deferred)
 - **M3:** Improve figures — complete (M3a–M3d all done)
-- **M4:** Reconcile narrative text — mostly complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections all done; Nic tasks + captions + final read-through remain)
-- **M5:** Organize repo — M5a/M5b/M5c/M5d complete; old subdir cleanup done; end-to-end test of `00_run_all.R` remains
+- **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M8)
+- **M5:** Organize repo — complete (M5a–M5d done; end-to-end `00_run_all.R` test struck)
+- **M6:** Figure 11 panel improvement — complete (A/B panel with 1:1 scatter + difference bar chart; caption updated)
+- **M8:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
 
 ### Important Conventions
 - **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push
@@ -31,6 +33,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 ```
 RSFME/
 ├── source/
+│   ├── config.R                 # Shared constants (watershed areas, site codes, target water years, Ca conversion slope)
 │   ├── flux_methods.R           # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
 │   ├── plot_theme.R             # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
 │   └── calculate_annual_flux.R  # MacroSheds annual load estimation (reads data/macrosheds/, writes data/load_annual.csv)
@@ -104,7 +107,7 @@ RSFME/
 
 **Structural (M2c — mostly fixed):**
 6. ~~Massive code duplication~~ — Fixed: extracted `run_coarsening_experiment()` into `paper/source/coarsen_helpers.R`, reducing HBEF/Plynlimon/NEON scripts from ~110 lines each to ~35.
-7. **No shared configuration** - Watershed areas, water years, site codes, and the Ca conversion coefficient (0.06284158) are hardcoded as magic numbers across multiple files. Deferred — low risk and low urgency.
+7. ~~No shared configuration~~ — Fixed: extracted constants to `source/config.R` (HBEF_AREA, PLYN_AREA, site codes, target water years, CA_SPCOND_SLOPE, COARSEN_REPS, HBEF_SOLUTES); all 13 scripts now source it.
 8. ~~Row-by-row `rbind()` in loops~~ — Fixed: converted to list accumulation + `bind_rows()` in 6 scripts (ts_simulation inner loop, ts_simulation outer loop, ms_application_compare, coarsen HBEF/Plynlimon/NEON).
 9. ~~Global variable dependencies~~ — Fixed: `calculate_truth_ts.R` now takes `dn` and `target_wy` as explicit parameters. Monthly branch `q_df` vs `q_df_add` bug also fixed.
 10. ~~No data pipeline~~ — Fixed: all data consolidated under `data/`, all scripts in `paper/source/`, all figures in `paper/figures/`. See `data/README.md` for provenance.

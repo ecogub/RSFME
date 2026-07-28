@@ -7,13 +7,15 @@ library(lfstat)
 library(lubridate)
 library(here)
 library(RiverLoad)
+library(patchwork)
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
 source(here('paper','source','calculate_truth_ts.R'))
 
-area <- 42.4
-site_code = 'w3'
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 
 # HBEF Flux Method Comparison
 w3_chem <- read_csv(here('data', 'macrosheds', 'timeseries_hbef.csv'),
@@ -74,7 +76,7 @@ w3_flux_true <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(date, origin = 'usgs')) %>%
     group_by(wy) %>%
     summarise(Ca = sum(IS_spCond, na.rm = TRUE)*lm_fit$coef[[2]]) %>%
-    mutate(site_code = 'w3',
+    mutate(site_code = site_code,
            method = 'true') %>%
     select(-Ca, Ca)
 
@@ -147,30 +149,47 @@ p_ts
 
 ggsave_hess(filename = here('paper','figures', 'fig11_hbef_method_ts.png'))
 
-# make 1:1 line figure
-p_comp <- w3_all %>%
+# prepare comparison data
+comp_data <- w3_all %>%
     left_join(w3_true, by = 'wy') %>%
     filter(!is.na(Ca.y),
            method.x != 'true',
            method.x != 'wrtds') %>%
-    ggplot( aes(x = Ca.y, y= Ca.x)) +
-    geom_point(aes(color = method.x), size = 3) +
-    geom_abline(slope = 1)+
-    theme_rsfme() +
-    scale_color_manual(breaks = breaks,
-                       values = fluxpal,
-                       labels = labels)+
-    scale_x_continuous(breaks = c(4, 6, 8, 10))+
-    expand_limits( x = c(4,10))+
-    labs(y = 'Estimated Load', color = 'Method',
-         x = 'Sensor Derived Load')
+    mutate(diff = Ca.x - Ca.y)
 
-p_comp
-
-fit_check <- w3_all %>%
-    left_join(w3_true, by = 'wy') %>%
-    filter(!is.na(Ca.y),
-           method.x == 'recommended')
+fit_check <- comp_data %>% filter(method.x == 'recommended')
 summary(lm(Ca.y ~ Ca.x, data = fit_check))
 
-ggsave_hess(filename = here('paper','figures', 'fig11_hbef_method_comparison.png'))
+# Panel A: 1:1 scatter
+p_comp <- comp_data %>%
+    ggplot(aes(x = Ca.y, y = Ca.x)) +
+    geom_point(aes(fill = method.x), shape = 21, size = 2.5, color = 'black', stroke = 0.3) +
+    geom_abline(slope = 1, linetype = 'dashed') +
+    theme_rsfme() +
+    scale_fill_manual(name = 'Method', breaks = breaks,
+                      values = fluxpal, labels = labels) +
+    scale_x_continuous(breaks = c(4, 6, 8, 10)) +
+    expand_limits(x = c(4, 10)) +
+    labs(y = 'Estimated Load (kg/ha/yr)',
+         x = 'Sensor-Derived Load (kg/ha/yr)')
+
+# Panel B: Difference from truth
+p_diff <- comp_data %>%
+    ggplot(aes(x = wy, y = diff, fill = method.x)) +
+    geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    theme_rsfme() +
+    scale_fill_manual(name = 'Method', breaks = breaks,
+                      values = fluxpal, labels = labels) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = 'Water Year',
+         y = 'Difference from Sensor Load (kg/ha/yr)')
+
+# Combine panels
+p_combined <- p_comp + p_diff +
+    plot_layout(guides = 'collect') +
+    plot_annotation(tag_levels = 'A') &
+    theme(legend.position = 'bottom')
+
+ggsave_hess(filename = here('paper', 'figures', 'fig11_hbef_method_comparison.png'),
+            plot = p_combined)

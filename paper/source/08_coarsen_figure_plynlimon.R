@@ -6,13 +6,14 @@ library(RiverLoad)
 
 set.seed(53045)
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
 
 # read in shared data ####
-area <- 122
-site_code <- 'UHF'
-target_wy <- 2008
+area <- PLYN_AREA
+site_code <- PLYN_SITE_CODE
+target_wy <- PLYN_TARGET_WY
 
 d <- read_csv(here('data','plynlimon','PlynlimonHighFrequencyHydrochemistry.csv')) %>%
     filter(Site == site_code) %>%

@@ -2,13 +2,14 @@
 library(here)
 library(tidyverse)
 library(lfstat)
+source(here('source/config.R'))
 source(here('source/plot_theme.R'))
 
 # read in chemistry data ####
 simple_chem_and_Q <- read_csv(here('data','hbef','HBEFdata_All_2022-11-17.csv')) %>%
     mutate(wy = water_year(date, origin = 'usgs')) %>%
     filter(site == 'W3',
-           wy == 2016)
+           wy == HBEF_TARGET_WY)
 
 # run fit Ca and spCond ####
 complete_ds <- simple_chem_and_Q %>%

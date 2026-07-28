@@ -84,14 +84,15 @@ apply_methods <- function(chem_df, q_df, period, flow_regime = NULL, cq = NULL){
 }
 
 # Set watershed attributes
-area <- 42.4
-site_code = 'w3'
+source(here('source/config.R'))
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 
 # Read data once
 d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(datetime, origin = 'usgs'))
 
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy)
 
@@ -106,7 +107,7 @@ thin_freqs <- c('weekly','biweekly', 'monthly')
 for(n in 1:3){
 thin_freq = thin_freqs[n]
 period <- 'annual'
-reps = 100
+reps <- COARSEN_REPS
 
 # Set data coarsening function
 if(thin_freq == 'weekly'){

@@ -13,6 +13,7 @@ small_sites <- read_csv(here('data', 'neon', 'ms_stream_order.csv'),
 
 set.seed(53045)
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('paper','source','coarsen_helpers.R'))
 
@@ -55,7 +56,7 @@ for (target_site in unique(c_dat$site_code)) {
 
             out_tbl <- run_coarsening_experiment(
                 ts_df = ts_df, site_code = target_site, target_wy = target_wy,
-                area = area, loop_vec = loop_vec, reps = 100, daily_agg = FALSE)
+                area = area, loop_vec = loop_vec, reps = COARSEN_REPS, daily_agg = FALSE)
 
             if (target_solute == 'spCond') {
                 save(out_tbl, file = here('data','coarsen_neon',

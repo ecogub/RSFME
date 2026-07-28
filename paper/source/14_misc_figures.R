@@ -9,12 +9,13 @@ library(zoo)
 set.seed(53045)
 
 
+source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
 source(here('paper','source','13_ca_correlation.R'))
 
-area <- 42.4
-site_code = 'w3'
+area <- HBEF_AREA
+site_code <- HBEF_SITE_CODE
 
 # read in HBEF data ####
 d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
@@ -22,14 +23,14 @@ d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
 #slice(1:ts_len)
 
 # subset to 2016 wy
-target_wy <- 2016
+target_wy <- HBEF_TARGET_WY
 
 # clean HBEF data and convert conductivity to Ca ####
 dn <- d %>%
     filter(wy == target_wy) %>%
     mutate(IS_discharge = na.approx(IS_discharge),
            IS_NO3 = na.approx(IS_NO3),
-           IS_spCond = na.approx(IS_spCond)*0.06284158,
+           IS_spCond = na.approx(IS_spCond) * CA_SPCOND_SLOPE,
            season = 'Summer') %>%
     select(datetime, IS_spCond, IS_NO3, IS_discharge, season)
 dn$season[month(dn$datetime) %in% c(12,1,2)] <- 'Winter'
@@ -108,9 +109,9 @@ dn %>%
 ggsave_hess(filename = here('paper','figures', 'fig03_hbef_streamflow.png'))
 
 # read in Plynlimon data ####
-area <- 122
-site_code <- 'UHF'
-target_wy <- 2008
+area <- PLYN_AREA
+site_code <- PLYN_SITE_CODE
+target_wy <- PLYN_TARGET_WY
 
 d <- read_csv(here('data','plynlimon','PlynlimonHighFrequencyHydrochemistry.csv')) %>%
     filter(Site == site_code) %>%
