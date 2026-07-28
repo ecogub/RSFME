@@ -221,13 +221,15 @@ The goal is publication-ready figures after the M7e rerun. The rerun changed com
 - [x] Fix y-axis cropping across all coarsening figures — HBEF Ca switched from `scale_y_continuous(limits=)` (clips data) to `coord_cartesian(ylim=)` (zooms only); all figures now use `coord_cartesian`
 - [x] Unify color palette across all coarsening plots (HBEF, Plynlimon, NEON) — HBEF switched from `geom_rect`/`scale_fill_error_bands()` to `annotate()` matching Plynlimon/NEON style
 - [x] Make NEON figures taller — height now scales dynamically at 4cm per facet panel (6 sites × 4cm = 24cm for conductivity, 5 × 4cm = 20cm for turbidity)
+- [x] Fix HBEF facet label clipping — added `panel.spacing.y = unit(1.2, 'lines')` so "Rating"/"Composite" labels not cut off
+- [x] NEON dynamic y-axis per method — each plot's y-axis sized to fit data through a readable frequency (conductivity: monthly; turbidity pw: monthly; turbidity beale/rating/composite: biweekly). Lines allowed to depart view at coarser frequencies.
+- [x] Delete stale pre-M7 turbidity data files (`turb_*.RData` with underscore) that caused duplicate panels in NEON turbidity figures
 
 ### M8b: Paper text updates
 - [x] Update Figure 11 caption (PARA 173) — "with the composite method applied" → "and multiplied by discharge to compute instantaneous load at each 15-minute timestep, then summed annually"
 - [x] Update R-squared in PARA 174 — 0.63 → 0.74 (changed due to new truth calculation)
-
-### M8c: Additional figure issues
-*(To be populated as rerun proceeds — Nic will flag issues here.)*
+- [x] Add y-axis note to all 8 NEON captions (a1–a8) — "Note that the y-axis range varies between NEON figures to capture the full spread of error, which is greater than in the single-site HBEF and Plynlimon experiments."
+- [x] Accuracy sweep — 7 issues found and fixed: (1) stale "no intercept" in Ca~SpCond description, (2) stale R²=0.98/slope=0.063 → 0.66/0.059/intercept=0.013, (3) HBEF area 40.2→42.4 ha, (4) Plynlimon area 120→122 ha, (5) MacroSheds totals 210,058→133,425 and 16,000→26,685, (6) Figs 7-10 image/caption swap fixed, (7) "Figures 7-12"→"Figures 7-10" for coarsening ref
 
 ---
 

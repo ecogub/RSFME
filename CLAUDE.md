@@ -21,7 +21,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M5:** Organize repo — complete (M5a–M5d done; end-to-end `00_run_all.R` test struck)
 - **M6:** Figure 11 panel improvement — complete (A/B panel with 1:1 scatter + difference bar chart; caption updated)
 - **M7:** Adversarial code review — 24/25 fixes applied. Ca~SpCond model unified (free intercept, HBEF CSV data, config constants). Self-referential truth confirmed deliberate. Simulation scripts (01–03) removed from repo and paper; remaining scripts renumbered 01–12. Only remaining: global `area` variable (deferred — requires function signature refactor). **All analysis scripts need rerun (M7e).**
-- **M8:** Figure improvements (post-rerun) — coarsening figure crops/colors, plus additional issues as identified
+- **M8:** Figure improvements (post-rerun) — complete (HBEF crop/color fix, NEON dynamic y-axis per method, facet spacing, stale data cleanup, Figure 11 truth recalculated as direct 15-min integration, captions updated, accuracy sweep done: 7 text fixes applied)
 - **M9:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
 
 ### Important Conventions

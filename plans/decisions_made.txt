@@ -338,3 +338,33 @@ Update this file whenever a non-trivial choice is made.
      to annotate() to match.
   3. NEON figure height: With 5-6 sites stacked vertically in ncol=1 facets, default
      golden-ratio height squished panels. Now scales at 4cm per site panel.
+  4. HBEF facet label clipping: "Rating" descender cut off. Added panel.spacing.y =
+     unit(1.2, 'lines') to both Ca and NO3 plots.
+  5. NEON dynamic y-axis: each method×solute plot gets its own y-axis extent, computed
+     from data up to a readable frequency (monthly for conductivity and turb pw; biweekly
+     for turb beale/rating/composite). Lines allowed to depart view at coarser frequencies.
+     Minimum extent ±25%, rounded up to nearest 10%.
+  6. Stale turbidity data files: old turb_*.RData (with underscore, pre-M7) caused NEON
+     turbidity figures to show 10 panels (5 years + 5 sites) instead of 5 sites. Deleted.
+  7. NEON caption note: added to all 8 NEON captions (a1–a8): "Note that the y-axis range
+     varies between NEON figures to capture the full spread of error, which is greater than
+     in the single-site HBEF and Plynlimon experiments."
+
+2026-07-28 | M8b: Accuracy Sweep — 7 Text Fixes
+- Decision: Ran automated accuracy sweep comparing all quantitative claims in the docx
+  against current code, config, and data. Found and fixed 7 issues:
+  1. Ca~SpCond model: text said "with no intercept" but M7 unified model has intercept.
+     Removed "with no intercept" from description.
+  2. Ca~SpCond stats: R²=0.98, slope=0.063 were from old no-intercept model (inflated
+     uncentered R²). Updated to R²=0.66, slope=0.059, intercept=0.013 per config.R.
+  3. HBEF area: text said 40.2 ha, config.R uses 42.4 ha. Nic confirmed 42.4 is correct.
+  4. Plynlimon area: text said 120 ha, config.R uses 122 ha. Updated to 122.
+  5. MacroSheds totals: "210,058 site-years" → 133,425; "~16,000" → 26,685 (matching
+     abstract and conclusions which already said 26,685).
+  6. Figures 7-10 image swap: code saves Ca as fig07/fig09, NO3 as fig08/fig10, but paper
+     numbers NO3 first (Fig 7, Fig 9). The M8 image replacement mapped by filename number,
+     embedding wrong solute at each position. Fixed by correcting the image mapping.
+  7. "Figures 7-12" coarsening reference → "Figures 7-10" (11 = method comparison,
+     12 = flowchart, neither are coarsening results).
+- Context: These are all stale-text issues — values that were correct before M7 changes
+  (model unification, script renumbering) but were never updated in the paper text.
