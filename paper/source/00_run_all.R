@@ -17,7 +17,7 @@ scripts <- c(
 
 required_packages <- c(
   "tidyverse", "here", "feather", "lfstat", "lubridate",
-  "RiverLoad", "zoo", "patchwork", "EGRET", "macrosheds", "imputeTS"
+  "RiverLoad", "zoo", "patchwork", "macrosheds", "imputeTS"
 )
 
 required_data <- c(

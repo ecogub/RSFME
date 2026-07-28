@@ -99,8 +99,7 @@ ggsave_hess(filename = here('paper','figures', 'fig11_hbef_method_ts.png'))
 comp_data <- w3_all %>%
     left_join(w3_true, by = 'wy') %>%
     filter(!is.na(Ca.y),
-           method.x != 'true',
-           method.x != 'wrtds') %>%
+           method.x != 'true') %>%
     mutate(diff = Ca.x - Ca.y)
 
 fit_check <- comp_data %>% filter(method.x == 'recommended')

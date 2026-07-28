@@ -7,8 +7,7 @@ source(here('source/plot_theme.R'))
 # load annual loads computed by calculate_annual_flux.R
 all_loads <- read_csv(here('data', 'load_annual.csv'),
                       show_col_types = FALSE) %>%
-    filter(method != 'wrtds',
-           method != 'failed')
+    filter(method != 'failed')
 
 out_tbl <- all_loads %>%
     group_by(site_code, var, water_year) %>%

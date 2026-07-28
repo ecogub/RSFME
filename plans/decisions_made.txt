@@ -531,3 +531,34 @@ Update this file whenever a non-trivial choice is made.
   Coombs and Melack 2012->2013, Shilling->Schilling, Aulenbauch->Aulenbach, Appling 2016->2015,
   Likens et al. 2006 -> Likens and Buso 2006, and "etc." dropped from a citation parenthetical.
 - Only M9 item left is the Nic-owned figshare re-upload and DOI bump.
+
+2026-07-28 | WRTDS cut entirely (Nic's call)
+- Removed calculate_wrtds and all EGRET machinery from source/flux_methods.R (873 -> 163 lines,
+  -710), deleted source/egret_overwrites.R (570 lines), stripped the WRTDS computation and
+  output blocks from calculate_annual_flux.R, and dropped EGRET from required packages.
+- Safe because WRTDS failed for every site-solute-year: the wrtds branch never fired and
+  load_annual.csv contains only average/beale/composite/li/rating. Verified no function in the
+  removed range was referenced outside flux_methods.R/egret_overwrites.R before cutting.
+- Verified behaviour-preserving by regenerating Figures 8 and 11 after the removal and
+  comparing md5s - byte-identical. No rerun of the full pipeline needed.
+- Paper unchanged: its three WRTDS mentions are literature references (Hirsch et al. 2010 in the
+  Introduction, Lee et al. 2019 in the rating-method section, plus the Hirsch reference entry).
+  The paper never claimed to compute WRTDS, which is why the earlier "WRTDS undocumented" review
+  finding existed at all.
+- Also fixed a latent bug this surfaced: removing the 'wrtds' break from source/hbef_flux_plots.R
+  left its shape/size value vectors one element longer than breaks. Corrected.
+
+2026-07-28 | M10 consolidated as the single list of remaining work
+- Nic asked that M10 hold every straggler. Moved the figshare re-upload out of M9 (M9 is now
+  fully closed) and added M10f (figshare + DOI bump) and M10g (code tasks).
+- Audit also found 9 stale M7e rerun checkboxes (the rerun happened today) and an obsolete
+  ts_simulation/defunct cleanup item - the whole tree was deleted in M7e. Both resolved.
+- Handled directly rather than leaving for Nic: Colin et al. 2012 -> Neal et al. 2013 in text
+  (the entry already existed in the list), "Works Cited" -> "References", FINAL VERSION LINK ->
+  https://github.com/ecogub/RSFME (taken from the git remote), and three uncited claims given
+  citations that already existed in the reference list (Beale 1962 for the covariance
+  assumption, HBWatER 2023 for the HBEF instrumentation, Nava 2019/Vlah 2023 for the two R
+  packages).
+- NOT handled deliberately: adding the missing reference ENTRIES (Appling 2015, Nava 2019,
+  Gaillardet 1999, Likens 1977, NEON). Writing bibliographic details from memory into a
+  manuscript risks silently wrong citations; these belong in Mendeley. Left in M10a.

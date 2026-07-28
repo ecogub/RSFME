@@ -67,14 +67,14 @@ flux_compare_plot_r <- function(data, watershed, solute) {
         ## legend.position="none",
         text = element_text(size = 24),
         plot.title = element_text(size = 22, face = "bold")) +
-    scale_shape_manual(breaks =  c('average', 'li', 'beale', 'rating', 'wrtds', 'composite', 'published'),
-                     values = c(16, 16, 16, 16, 16, 16, 24)) +
-    scale_color_manual(breaks = c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
+    scale_shape_manual(breaks =  c('average', 'li', 'beale', 'rating', 'composite', 'published'),
+                     values = c(16, 16, 16, 16, 16, 24)) +
+    scale_color_manual(breaks = c('average', 'li', 'beale', 'rating', 'composite',  'published'),
                      values = fluxpal) +
-    scale_fill_manual(breaks = c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
+    scale_fill_manual(breaks = c('average', 'li', 'beale', 'rating', 'composite',  'published'),
                      values = fluxpal) +
-    scale_size_manual(breaks =  c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
-                    values = c(2, 2, 2, 2, 2, 2, 6)) +
+    scale_size_manual(breaks =  c('average', 'li', 'beale', 'rating', 'composite',  'published'),
+                    values = c(2, 2, 2, 2, 2, 6)) +
     ggtitle(glue("Hubbard Brook, {watershed}, 1960's-2020,\n {solute} Flux Estimates by Various Methods ",
                  watershed = watershed, solute = solute
                  )) +
@@ -103,14 +103,14 @@ flux_compare_plot <- function(data, watershed, solute) {
         ## legend.position="none",
         text = element_text(size = 18),
         plot.title = element_text(size = 22, face = "bold")) +
-    scale_shape_manual(breaks =  c('average', 'li', 'beale', 'rating', 'wrtds', 'composite', 'published'),
-                     values = c(16, 16, 16, 16, 16, 16, 24)) +
-    scale_color_manual(breaks = c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
+    scale_shape_manual(breaks =  c('average', 'li', 'beale', 'rating', 'composite', 'published'),
+                     values = c(16, 16, 16, 16, 16, 24)) +
+    scale_color_manual(breaks = c('average', 'li', 'beale', 'rating', 'composite',  'published'),
                      values = fluxpal) +
-    scale_fill_manual(breaks = c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
+    scale_fill_manual(breaks = c('average', 'li', 'beale', 'rating', 'composite',  'published'),
                      values = fluxpal) +
-    scale_size_manual(breaks =  c('average', 'li', 'beale', 'rating', 'wrtds', 'composite',  'published'),
-                    values = c(2, 2, 2, 2, 2, 2, 3)) +
+    scale_size_manual(breaks =  c('average', 'li', 'beale', 'rating', 'composite',  'published'),
+                    values = c(2, 2, 2, 2, 2, 3)) +
     ggtitle(glue("Hubbard Brook, {watershed}, 1960's-2020,\n {solute} Flux Estimates by Various Methods ",
                  watershed = watershed, solute = solute
                  )) +

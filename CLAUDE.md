@@ -24,6 +24,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M8:** Figure improvements (post-rerun) — complete (HBEF crop/color fix, NEON dynamic y-axis per method, facet spacing, stale data cleanup, Figure 11 truth recalculated as direct 15-min integration, captions updated, accuracy sweep done: 7 text fixes applied)
 - **M9:** Pre-submission adversarial review fixes — **COMPLETE** except the Nic-owned figshare re-upload. The 2026-07-28 review graded the manuscript 65/100 and found two blocking defects, both fixed: (1) "linear interpolation" actually called RiverLoad `method1`, a mean-C × mean-Q averaging estimator — switched to `method6` and `calculate_pw` renamed **`calculate_li`**; (2) the x-axis tick labels on Figs 7–10 were wrong (the "Weekly" tick was 4-day sampling) — breaks corrected. Full rerun clean (80.8 min, 0 failures). ~60 text corrections, Results/Discussion reorganised, MacroSheds methods split with a new **Table 2**, Figure 11 given a Methods and Results home, **Figures A10–A12** added for three previously orphaned assets, appendix relabelled A1–A12, Data Availability moved after the Conclusions. **Outstanding: figshare re-upload + DOI bump (Nic), and manual replacement of Figures 2 and 4 in Word (M10d).**
 - **M10:** Final tasks — **M10b complete** (9 citation year/name mismatches fixed). Remaining Nic-owned: M10a missing references (Appling 2015, Nava 2019, Colin/Neal 2013, NEON — all cited but absent from Works Cited), M10c uncited entries and uncited claims, M10d manual replacement of Figures 2 and 4, M10e formatting + final read-through.
+- **WRTDS removed (2026-07-28):** `calculate_wrtds`, all EGRET machinery and `source/egret_overwrites.R` deleted. WRTDS failed for every site-solute-year and contributed zero rows to `load_annual.csv`, so removing it is behaviour-preserving — verified by regenerating Figs 8 and 11 to byte-identical md5s. `flux_methods.R` went 873 → 163 lines; EGRET is no longer a dependency. The paper's three WRTDS mentions are literature references (Hirsch 2010, Lee 2019) and were left untouched.
 
 ### Important Conventions
 - **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push
@@ -37,7 +38,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 RSFME/
 ├── source/
 │   ├── config.R                 # Shared constants (watershed areas, site codes, target water years, Ca conversion coefficients)
-│   ├── flux_methods.R           # Core flux computation functions (LI/method6, Beale, Rating, Composite, WRTDS)
+│   ├── flux_methods.R           # Core flux computation functions (LI/method6, Beale, Rating, Composite)
 │   ├── plot_theme.R             # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
 │   └── calculate_annual_flux.R  # MacroSheds annual load estimation (reads data/macrosheds/, writes data/load_annual.csv)
 ├── ms_overwrites.R              # Unit/molecule conversion utilities for MacroSheds data
@@ -85,7 +86,7 @@ RSFME/
 | 12 | `12_hbef_method_comparison.R` | `fig11_hbef_method_ts.png`, `fig11_hbef_method_comparison.png` |
 
 ### Key Dependencies
-- R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, zoo, imputeTS, cowplot
+- R packages: tidyverse, RiverLoad, macrosheds, feather, here, lubridate, lfstat, patchwork, zoo, imputeTS, cowplot
 - External data: `w3_sensor_wdisch.feather` (HBEF high-freq sensor data, in repo root, gitignored — proprietary)
 
 ### R Configuration

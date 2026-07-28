@@ -2,11 +2,9 @@ library(tidyverse)
 library(here)
 library(glue)
 library(lubridate)
-library(EGRET)
 library(parallel)
 
 source(here('source/helper_functions.R'))
-source(here('source/egret_overwrites.R'))
 source(here('ms_overwrites.R'))
 source(here('source/flux_methods.R'))
 source(here('source/usgs_helpers.R'))
@@ -101,15 +99,6 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
         select(site_code, datetime, con, wy) %>%
         na.omit()
 
-    # WRTDS
-    flux_annual_wrtds <- NA
-    tryCatch({
-        flux_annual_wrtds <- calculate_wrtds(
-            chem_df = con_full, q_df = q_df, ws_size = area,
-            lat = lat, long = long, datecol = 'datetime',
-            agg = 'annual', minNumObs = 100, minNumUncen = 50)
-    }, error = function(e) {})
-
     for(k in 1:length(good_years)){
         target_year <- as.numeric(as.character(good_years[k]))
 
@@ -202,16 +191,6 @@ compute_site_solute_fluxes <- function(sc, target_solute, raw_data_q, domain_che
             n_c_obs = nrow(con_target_year), n_q_obs = nrow(q_target_year),
             n_paired_cq_obs = nrow(paired_df))
     } # end year loop
-
-    # WRTDS
-    if(is.data.frame(flux_annual_wrtds)) {
-        wrtds_out <- flux_annual_wrtds %>%
-            filter(wy %in% good_years) %>%
-            rename(val = flux) %>%
-            mutate(site_code = sc, var = target_solute,
-                   method = 'wrtds', ms_recommended = 0)
-        results[[length(results) + 1]] <- wrtds_out
-    }
 
     list(results = bind_rows(results), diags = bind_rows(diags))
 }

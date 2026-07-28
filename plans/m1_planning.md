@@ -39,7 +39,7 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 - [x] Remove debug `plot()` call from inside ts_simulation rep loop
 - [x] Extract shared configuration — created `source/config.R`, sourced by all 13 scripts
 - [x] Refactor HBEF/Plynlimon/NEON code duplication — extracted `run_coarsening_experiment()` into `coarsen_helpers.R`, reducing ~300 lines to ~35 per script
-- [ ] Remove or archive `ts_simulation/defunct/` scripts (deferred — low priority)
+- [x] ~~Remove or archive `ts_simulation/defunct/` scripts~~ OBSOLETE — the entire `ts_simulation` tree was deleted in M7e; no such directory exists anywhere in the repo.
 
 ### M2d: Verification
 - [x] Run each script in order (per `Run Order.txt`) and confirm it completes without error — all 11 figure scripts verified clean; analysis scripts 01/04/07/09 are long-running (skipped full re-run but verified syntax/paths)
@@ -314,7 +314,7 @@ Running as a chained background job: `calculate_annual_flux.R` first (Figs 11 an
 - [x] **Appendix captions a1 and a5** — both describe linear-interpolation behaviour ("prone to high errors at the COMO and WALK sites"; "does a poor job of handling the variability in turbidity data"). Re-check both.
 - [x] **Figure 11** — the method comparison changes: LI previously showed +49.5% mean bias vs sensor truth, by far the worst of the seven series. Recompute all per-method biases and the recommended-method R². This interacts with the M9b Figure 11 overclaim item.
 - [x] **Methods, LI section** — the text already says `method6`, so it becomes correct on its own. Add the RiverLoad citation once M10a resolves the missing Nava et al. (2019) entry.
-- [ ] **Released dataset** — `load_annual.csv` changes (both the `li` load values and any `ms_recommended` flags on LI-recommended site-years). Re-upload to figshare and mint a new DOI version; update the DOI in Data Availability, Results, and the Figure a9 caption. **Nic-owned — the only M9 item still outstanding.** DOI standardisation (`.v2` vs bare, 3 places) folds into this.
+- [x] ~~**Released dataset**~~ — moved to **M10f** (Nic-owned). M9 is now fully closed.
 </details>
 
 #### M9a-4: Decision-framework branch collapse — COMPLETE
@@ -475,6 +475,18 @@ Notes for whoever does this:
 
 ---
 
+### M10f: Released dataset — figshare (moved from M9)
+
+- [ ] **Released dataset** — `load_annual.csv` changes (both the `li` load values and any `ms_recommended` flags on LI-recommended site-years). Re-upload to figshare and mint a new DOI version; update the DOI in Data Availability, Results, and the Figure a9 caption. **Nic-owned — the only M9 item still outstanding.** DOI standardisation (`.v2` vs bare, 3 places) folds into this.
+- [ ] After re-uploading, bump the version in **all three** DOI references (Data Availability, the MacroSheds Results paragraph, and the Figure A9 caption). They are currently standardised to `https://doi.org/10.6084/m9.figshare.24975504.v2`, so it is a find-and-replace of the version suffix.
+
+### M10g: Code tasks still outstanding (not Nic-owned — flag for a future milestone)
+
+These are the only known code stragglers. Neither blocks submission.
+
+- [ ] **Global `area` variable** (`source/flux_methods.R`) — injected via `assign('area', area, envir = .GlobalEnv)` and read as a free variable by `calculate_li`, `calculate_beale`, `calculate_rating`, `calculate_wrtds` and `calculate_composite_from_rating_filled_df`. Prevents safe parallelism and makes the functions order-dependent. Fix is to add `area` as an explicit parameter and update all call sites. Deferred since M7d because it touches every flux function signature.
+- [x] ~~**WRTDS runs for nothing**~~ DONE 2026-07-28 — cut entirely per Nic. Removed `calculate_wrtds` and the ~670 lines of EGRET machinery from `source/flux_methods.R` (873 → 163 lines), deleted `source/egret_overwrites.R`, stripped the computation and output blocks from `calculate_annual_flux.R`, and dropped EGRET from the required packages. Verified nothing outside WRTDS used the EGRET helpers, then confirmed behaviour-preserving by regenerating Figures 8 and 11 to **byte-identical md5s**. The paper needed no change: its three WRTDS mentions are literature references (Hirsch et al. 2010, Lee et al. 2019), not claims about our computation.
+
 ## M7: Adversarial Code Review
 
 The goal is to document all bugs, logic errors, and methodological concerns found through an adversarial review of the full codebase — prioritized by potential impact on paper results.
@@ -519,15 +531,15 @@ The M7 fixes change computed values in multiple code paths. Simulation scripts (
 - [x] Removed simulation scripts (old 01, 02, 03) and base_storm_sep.R — already removed from paper text
 - [x] Renumbered remaining scripts 04→01 through 15→12 via git mv
 - [x] Updated 00_run_all.R, CLAUDE.md, README.md, data/README.md with new numbering
-- [ ] Rerun `01_coarsen_analysis_hbef.R` — wyday fix affects WRTDS; Ca intercept fix; non-finite concentration fix
-- [ ] Rerun `02_coarsen_figure_hbef.R` — regenerate Figs 7–8
-- [ ] Rerun `04_coarsen_analysis_plynlimon.R` — Q conversion fix changes absolute flux values; wyday fix affects WRTDS
-- [ ] Rerun `05_coarsen_figure_plynlimon.R` — regenerate Figs 9–10
-- [ ] Rerun `06_coarsen_analysis_neon.R` — wyday fix affects WRTDS
-- [ ] Rerun `07_coarsen_figure_neon.R` — filename parsing fix corrects year/site labels on turbidity figures
-- [ ] Rerun `12_hbef_method_comparison.R` — intercept fix changes sensor-derived truth values
-- [ ] Diff regenerated figures against current versions — check whether paper text claims still hold
-- [ ] Update paper text if any quantitative claims changed
+- [x] Rerun `01_coarsen_analysis_hbef.R` — wyday fix affects WRTDS; Ca intercept fix; non-finite concentration fix
+- [x] Rerun `02_coarsen_figure_hbef.R` — regenerate Figs 7–8
+- [x] Rerun `04_coarsen_analysis_plynlimon.R` — Q conversion fix changes absolute flux values; wyday fix affects WRTDS
+- [x] Rerun `05_coarsen_figure_plynlimon.R` — regenerate Figs 9–10
+- [x] Rerun `06_coarsen_analysis_neon.R` — wyday fix affects WRTDS
+- [x] Rerun `07_coarsen_figure_neon.R` — filename parsing fix corrects year/site labels on turbidity figures
+- [x] Rerun `12_hbef_method_comparison.R` — intercept fix changes sensor-derived truth values
+- [x] Diff regenerated figures against current versions — check whether paper text claims still hold
+- [x] Update paper text if any quantitative claims changed
 
 ---
 
