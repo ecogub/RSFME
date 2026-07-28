@@ -343,16 +343,20 @@ Every "linear interpolation" number in the paper changes. Work through these onc
 
 Goal is a clean section split **without rewriting content or breaking narrative continuity** — move whole paragraphs or sentences, adjust only the connective tissue needed to keep transitions readable.
 
-- [ ] **Move interpretation out of Results.** These belong in the Discussion's "Insights on load estimation uncertainty" subsection:
-  - The sentence comparing against Aulenbach et al. (2016) guidelines and the Fazekas et al. (2021) citation in the HBEF nitrate paragraph.
-  - The recommendation sentence in the Beale paragraph ("Users with coarse data interested primarily in reducing bias, rather than error, should consider using Beale derived estimates").
-  - The two synthesis paragraphs — "Comparing the results from NO3-N and Ca across methods confirms that C:Q model quality is a useful, though imperfect, guide…" and the NEON paragraph beginning "These NEON results underscore the importance of C:Q relationship strength…".
-- [ ] **Give Figure 11 a Methods and Results home.** Figure 11 currently debuts in the Discussion as a wholly new analysis with a new statistic. Add a short Methods subsection (data source for the grab samples, water years covered, origin of the "Published Hubbard Brook values", how the sensor truth is computed) and move the figure plus its one-paragraph result into Results. Keep the interpretive sentence in the Discussion.
-- [ ] **Move the Ca~SpCond calibration paragraph out of Results.** The one-sentence paragraph on the specific-conductance regression sits between the nitrate discussion and the Figure 8 caption, and duplicates the Methods description. Merge it into Methods.
-- [ ] **Consider a "Study sites and data" subsection.** The Methods currently carry four figures' worth of descriptive statistics and fitted regressions (Figures 2–5). Splitting site/data description into its own subsection under Methods gives a cleaner boundary without moving anything to Results. Low priority — do only if it does not disturb the flow.
-- [ ] **Merge the orphan NEON sentence.** "Results from the analysis of NEON data are available in the Appendix as Figures a1-a8" is immediately followed by a paragraph restating the same thing. Combine.
-- [ ] **Reorder around Figure 10.** The paragraph discussing Figure 10 appears *before* Figure 10's image and caption, wedged between the Figure 9 caption and the Figure 10 image. Move it after.
-- [ ] **Split the MacroSheds methods paragraph.** It is ~400 words covering the method application, decision-tree thresholds, and QA filters in one block. Split into two or three; the decision rules would read far better as a short table or as an explicit pointer to Figure 12's logic.
+**APPLIED 2026-07-28 ~14:45.** Paragraph-level moves only — no text was rewritten. Implemented with a body-aware splitter (`scratchpad/docx_body.py`) that walks top-level `<w:body>` children, because Table 1's cells are also `<w:p>` and naive index splicing would have corrupted the table. Each source and destination was identity-checked against an expected opening fragment before any move, the transform round-trips exactly, and the element count is asserted. Body went 276 → 275 elements (one deletion).
+
+- [x] ~~**Move the Ca~SpCond calibration paragraph out of Results.**~~ APPLIED — moved from between the nitrate discussion and the Figure 8 caption to immediately after the HBEF chemistry description in Methods, where it belongs alongside the regression it describes.
+- [x] ~~**Two synthesis paragraphs out of Results.**~~ APPLIED — "Comparing the results from NO3-N and Ca across methods confirms…" and "These NEON results underscore the importance of C:Q relationship strength…" both moved into the Discussion's "Insights on load estimation uncertainty" subsection, in that order, after the existing coarsening-experiments paragraph.
+- [x] ~~**Reorder around Figure 10.**~~ APPLIED — "Comparing Figures 8 and 10 highlights…" now follows the Figure 10 caption instead of sitting between the Figure 9 caption and the Figure 10 image. Figures 9 and 10 now appear back-to-back, which reads correctly because the preceding Plynlimon paragraph introduces both.
+- [x] ~~**Merge the orphan NEON sentence.**~~ APPLIED — deleted "Results from the analysis of NEON data are available in the Appendix as Figures a1-a8"; the following two paragraphs already cite Figures a1–a4 and a5–a8 directly.
+
+**Deliberately sequenced into M9a-3 rather than done here** (all three touch paragraphs whose linear-interpolation numbers change with the rerun, so doing them now would mean editing the same text twice):
+- [ ] Sentence-level moves out of Results: the Aulenbach (2016) comparison and Fazekas (2021) citation in the HBEF nitrate paragraph, and the Beale recommendation sentence ("Users with coarse data… should consider using Beale derived estimates"). Both require splitting runs mid-paragraph; fold them into the rewrite.
+- [ ] **Give Figure 11 a Methods and Results home.** It currently debuts in the Discussion as a wholly new analysis with a new statistic. Needs a short Methods subsection (grab-sample source, water years covered, origin of the "Published Hubbard Brook values", how sensor truth is computed) plus the figure and a result paragraph in Results, keeping interpretation in the Discussion. Its numbers change with the rerun, so write it once, afterwards.
+
+**Still open, independent of the rerun:**
+- [ ] **Split the MacroSheds methods paragraph.** ~400 words covering method application, decision-tree thresholds, and QA filters in one block. Splitting requires dividing a `<w:t>` run and cloning the `<w:pPr>` — mechanically fine but a different operation from the moves above. The decision rules would read far better as a short table or an explicit pointer to Figure 12's logic.
+- [ ] **Consider a "Study sites and data" subsection.** The Methods carry four figures' worth of descriptive statistics and fitted regressions (Figures 2–5). Low priority — do only if it does not disturb the flow.
 
 ### M9e: Smaller items
 
