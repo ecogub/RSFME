@@ -318,3 +318,23 @@ Update this file whenever a non-trivial choice is made.
 - Updated internal source() reference in 11_misc_figures.R (13_ca_correlation → 10_ca_correlation).
 - Context: Simulation analysis was tangential to the paper's core contribution (coarsening
   experiments on real data). Removing simplifies the pipeline and repo.
+
+2026-07-28 | Figure 11 Truth Calculation Changed
+- Decision: Changed Figure 11's "true" Ca load from daily-averaged composite method
+  (via calculate_truth()) to direct 15-minute integration: sum(Ca_conc * Q_lps * 900 / area * 1e-6).
+- Rationale: The sensor data is continuous 15-minute; aggregating to daily before applying
+  the composite method threw away resolution and produced artificially low truth values.
+- Impact: Truth values now comparable to other methods. R² between recommended and truth
+  changed from 0.63 to 0.74. Updated paper caption (PARA 173) and R² (PARA 174).
+- Note: Coarsening experiment truth (scripts 01-07) still uses composite method on full
+  time series — that is a different question (method accuracy vs. sampling frequency).
+
+2026-07-28 | M8: Coarsening Figure Improvements
+- Decision: Fixed three visual issues across coarsening figures after M7e rerun.
+  1. HBEF Ca y-axis clipping: scale_y_continuous(limits=) silently removed data points
+     outside ±20%. Switched to coord_cartesian(ylim=) which zooms without clipping.
+  2. Color inconsistency: HBEF used geom_rect + scale_fill_error_bands() for error bands,
+     producing a fill legend. Plynlimon/NEON used annotate() with no legend. Switched HBEF
+     to annotate() to match.
+  3. NEON figure height: With 5-6 sites stacked vertically in ncol=1 facets, default
+     golden-ratio height squished panels. Now scales at 4cm per site panel.

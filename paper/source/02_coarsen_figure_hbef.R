@@ -70,20 +70,15 @@ plot_tbl <- out_tbl %>%
 ## set breaks #####
 breaks <- c(1,24,96,192,384,768)
 x_labels <- c('Hourly', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
-y_min = -20
-y_max = 20
-
 ## generate plot with legend ####
 plot_tbl %>%
     group_by(method, hours) %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    geom_rect(alpha = .25,
-              aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = 'band_5pct')) +
-    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = 'band_20pct'), alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = -20, fill = 'band_20pct'), alpha = 0.50)+
-    scale_fill_error_bands(guide = guide_legend())+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .15)+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
@@ -92,8 +87,9 @@ plot_tbl %>%
     labs(x = 'Frequency', y = 'Error (%)', title = '(a) Calcium Load Accuracy')+
     theme_rsfme()+
     scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
-    scale_y_continuous(limits = c(y_min, y_max))+
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          panel.spacing.y = unit(1.2, 'lines'))+
+    coord_cartesian(ylim = c(-25, 25))
 ggsave_hess(filename = here('paper','figures', 'fig07_hbef_ca_coarsening.png'))
 
 # create nitrate figure #####
@@ -154,10 +150,9 @@ plot_tbl %>%
     mutate(min = min(error), max = max(error), median = median(error)) %>%
     filter(hours <= 899) %>%
     ggplot(., aes(x = hours, y = median))+
-    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = 'band_5pct'), alpha = 0.5) +
-    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = 'band_20pct'), alpha = 0.5)+
-    geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -5, ymax = -20, fill = 'band_20pct'), alpha = 0.50)+
-    scale_fill_error_bands(guide = guide_legend(override.aes = list(alpha = 1)))+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -5, ymax = 5, fill = error_band_colors['band_5pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = -20, ymax = -5, fill = error_band_colors['band_20pct'], alpha = .15)+
+    annotate('rect', xmin = -Inf, xmax = Inf, ymin = 5, ymax = 20, fill = error_band_colors['band_20pct'], alpha = .15)+
     geom_hline(yintercept = 0, linetype = 'dashed', linewidth = .25)+
     geom_line(linewidth = 1.5)+
     geom_line(aes(y = max), linewidth = .75)+
@@ -166,8 +161,9 @@ plot_tbl %>%
     labs(x = 'Frequency', y = 'Error (%)', title = '(b) Nitrate Load Accuracy')+
     theme_rsfme()+
     scale_x_continuous(breaks = breaks, labels = x_labels, guide = guide_axis(check.overlap = TRUE))+
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
-    coord_cartesian(ylim = c(-50,50))
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          panel.spacing.y = unit(1.2, 'lines'))+
+    coord_cartesian(ylim = c(-50, 50))
 
 ggsave_hess(filename = here('paper','figures', 'fig08_hbef_no3_coarsening.png'))
 

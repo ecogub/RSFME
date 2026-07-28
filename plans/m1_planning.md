@@ -218,12 +218,13 @@ The goal is to replace the standalone 1:1 scatter plot (`fig11_hbef_method_compa
 The goal is publication-ready figures after the M7e rerun. The rerun changed computed values, so figures need visual QA and fixes.
 
 ### M8a: Coarsening figures — cropping and color consistency
-- [ ] Fix y-axis cropping across all coarsening figures (methods extend beyond plot area after M7 fixes)
-- [ ] Unify color palette across all coarsening plots (HBEF, Plynlimon, NEON) — ensure method colors are consistent between figures. Note: Plynlimon plots already have the correct colors; HBEF and/or NEON need to match.
-- [ ] Make NEON figures taller — currently squished down, need significantly more height
+- [x] Fix y-axis cropping across all coarsening figures — HBEF Ca switched from `scale_y_continuous(limits=)` (clips data) to `coord_cartesian(ylim=)` (zooms only); all figures now use `coord_cartesian`
+- [x] Unify color palette across all coarsening plots (HBEF, Plynlimon, NEON) — HBEF switched from `geom_rect`/`scale_fill_error_bands()` to `annotate()` matching Plynlimon/NEON style
+- [x] Make NEON figures taller — height now scales dynamically at 4cm per facet panel (6 sites × 4cm = 24cm for conductivity, 5 × 4cm = 20cm for turbidity)
 
 ### M8b: Paper text updates
-- [ ] Update text describing Figure 11 'true' calculation — truth is now computed directly from 15-minute sensor data (Ca_conc × Q × 900s / area) instead of daily-averaged composite method via `calculate_truth()`
+- [x] Update Figure 11 caption (PARA 173) — "with the composite method applied" → "and multiplied by discharge to compute instantaneous load at each 15-minute timestep, then summed annually"
+- [x] Update R-squared in PARA 174 — 0.63 → 0.74 (changed due to new truth calculation)
 
 ### M8c: Additional figure issues
 *(To be populated as rerun proceeds — Nic will flag issues here.)*
