@@ -16,7 +16,7 @@ Can start immediately — these are structural issues independent of figure rege
 ### M4a-1: Rename "Conclusions" → "Results" and add real Conclusions
 
 - [x] Rename "Conclusions" heading → "Results"
-- [ ] Draft and insert "Summary and Conclusions" section — blocked on M4b (needs final results)
+- [x] Draft and insert "Summary and Conclusions" section (5 paragraphs) in `_claude_final.docx`
 
 **Deliverable:** Draft a new "Summary and Conclusions" section (~400–600 words) that:
 - Summarizes the key findings from the simulation, HBEF coarsening, Plynlimon validation, NEON application, and MacroSheds analysis
@@ -34,7 +34,7 @@ Can start immediately — these are structural issues independent of figure rege
 
 ### M4a-3: Expand NEON results
 
-- [ ] Draft 2–3 paragraphs expanding NEON results — blocked on M3 (needs NEON coarsening output)
+- [x] Draft 3 paragraphs expanding NEON results (conductivity, turbidity, synthesis) in `_claude_final.docx`
 
 Current paper says roughly "see Appendix" with one paragraph for the NEON analysis. HESS reviewers will flag this.
 
@@ -130,7 +130,7 @@ Equations 1–3 are embedded as inline images (`<w:drawing>` elements), not OMML
 ### M4c-4: Reduce Results ↔ Discussion repetition
 
 - [x] Analysis complete — see `plans/m4_deliverables/repetition_analysis.md`
-- [ ] Apply item 1 fix (remove "defensible" judgment from Results) — deferred to M4c-5 pass
+- [x] Apply item 1 fix (removed "defensible" judgment from Results, kept Discussion version)
 
 Repetition is milder than M0 suggested. One clear cut, two judgment calls for Nic.
 
@@ -159,7 +159,7 @@ For sub-milestones that need Nic's input before editing (e.g., which figure to i
 | M4a-3 | **DONE** | 3 paragraphs expanding NEON results (conductivity, turbidity, synthesis) in `_claude_final.docx`. |
 | M4a-4 | **DONE** | Table 1 content verified intact in XML (paras 109–129). |
 | M4a-5 | **DONE** | Added quality-filter clarification after "210,058 site-years" in para 165. |
-| M4b-1 | **DONE** | All 7 quantitative fixes applied to `_claude_final.docx`: yield exponent, Ca-SpCond slope/R², Plynlimon C:Q (slopes, R², narrative rewrite), MacroSheds counts (3 locations), Plynlimon missing days, Ca sd. See `plans/m4b_quantitative_audit_proposals.md`. |
+| M4b-1 | **DONE** | All 7 quantitative fixes applied + post-fix coarsening audit: paras 146/150 updated (composite is best for Ca, not PW). Conclusions (para 208) verified correct. See `plans/m4b_quantitative_audit_proposals.md`. |
 | M4b-2 | Deferred | Caption content unchanged; only theme styling changed. |
 | M4b-3 | Deferred | Simulation results go to supplement, not main text. Minimal text impact. |
 | M4c-1 | **DONE** | Fixed typos. "FINAL VERSION LINK" still needs URL from Nic. |

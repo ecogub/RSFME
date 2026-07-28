@@ -43,7 +43,7 @@ The goal is a codebase that runs end-to-end from a clean checkout, produces corr
 
 ### M2d: Verification
 - [x] Run each script in order (per `Run Order.txt`) and confirm it completes without error — all 11 figure scripts verified clean; analysis scripts 01/04/07/09 are long-running (skipped full re-run but verified syntax/paths)
-- [ ] Spot-check that key results (truth values, error envelopes) match what the paper reports
+- [x] Spot-check that key results (truth values, error envelopes) match what the paper reports — completed via M4b quantitative audit + post-fix coarsening audit; paras 146 and 150 updated to match corrected data
 - [x] Commit after each sub-milestone (M2a, M2b, M2c) so changes are reviewable
 
 ---

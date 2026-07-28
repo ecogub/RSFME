@@ -17,7 +17,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M1:** Plan creation — complete (see `plans/m1_planning.md`)
 - **M2:** Fix the codebase — complete (M2a–M2d all done, except shared config and defunct cleanup)
 - **M3:** Improve figures — complete (M3a–M3d all done)
-- **M4:** Reconcile narrative text — mostly complete (structure fixes, NEON expansion, Conclusions all done; quantitative audit + Nic tasks remain)
+- **M4:** Reconcile narrative text — mostly complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections all done; Nic tasks + captions + final read-through remain)
 - **M5:** Organize repo — M5a/M5b/M5c/M5d complete; old subdir cleanup done; end-to-end test of `00_run_all.R` remains
 
 ### Important Conventions
@@ -135,17 +135,17 @@ RSFME/
 ### Paper Text Issues
 
 **Structural:**
-1. **Missing "Results" header** - The section after Methods is labeled "Conclusions" but contains Results content. True conclusions are absent.
-2. **Missing Figure 13** - Paper references Figure 14 but there is no Figure 13.
-3. **NEON results underserved** - Just says "see Appendix" with a brief paragraph; needs proper treatment.
-4. **Table 1 content missing** from extracted text (NEON site descriptions).
-5. **Placeholder text** - "FINAL VERSION LINK" in Data Availability section.
+1. ~~Missing "Results" header~~ — Fixed: renamed "Conclusions" to "Results", added Summary and Conclusions section.
+2. ~~Missing Figure 13~~ — Fixed: was a numbering gap, renumbered all figures sequentially (1–12).
+3. ~~NEON results underserved~~ — Fixed: expanded from 1 paragraph to 3 (conductivity, turbidity, synthesis).
+4. ~~Table 1 content missing~~ — Verified: renders correctly in Word, extraction artifact only.
+5. **Placeholder text** - "FINAL VERSION LINK" in Data Availability section — **needs URL from Nic**.
 
 **Writing Quality:**
-6. **Typos** - "Plylimon" (should be Plynlimon), "Enchanced" (Enhanced), date range "6/19/20166/22/2016" (missing dash).
-7. **Equation rendering** - Equations 1-3 appear blank in the docx (symbols not rendering).
-8. **Works Cited formatting** inconsistent (some have DOIs, some don't; mixed date formats).
-9. **Repetition** between Results observations and Discussion points.
+6. ~~Typos~~ — Fixed: "Plylimon" → "Plynlimon", "Enchanced" → "Enhanced", date range dash added.
+7. ~~Equation rendering~~ — Non-issue: equations are inline images, render correctly in Word.
+8. **Works Cited formatting** inconsistent (some have DOIs, some don't; mixed date formats) — **Nic task (reference manager)**.
+9. ~~Repetition~~ — Fixed: removed duplicate "defensible" judgment from Results, kept Discussion version.
 
 ### Figure Quality Issues
 1. ~~Inconsistent styling~~ — Fixed: all scripts use `theme_rsfme()` and `ggsave_hess()` from `source/plot_theme.R`.
