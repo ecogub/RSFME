@@ -12,7 +12,7 @@ set.seed(53045)
 source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
-source(here('paper','source','13_ca_correlation.R'))
+source(here('paper','source','10_ca_correlation.R'))
 
 area <- HBEF_AREA
 site_code <- HBEF_SITE_CODE

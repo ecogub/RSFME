@@ -1,26 +1,23 @@
 library(here)
 
 scripts <- c(
-  "01_ts_simulation_analysis.R",
-  "02_ts_simulation_figure.R",
-  "03_ts_descriptive_figures.R",
-  "04_coarsen_analysis_hbef.R",
-  "05_coarsen_figure_hbef.R",
-  "06_coarsen_example_figure.R",
-  "07_coarsen_analysis_plynlimon.R",
-  "08_coarsen_figure_plynlimon.R",
-  "09_coarsen_analysis_neon.R",
-  "10_coarsen_figure_neon.R",
-  "11_macrosheds_compare.R",
-  "12_macrosheds_descriptive.R",
-  "13_ca_correlation.R",
-  "14_misc_figures.R",
-  "15_hbef_method_comparison.R"
+  "01_coarsen_analysis_hbef.R",
+  "02_coarsen_figure_hbef.R",
+  "03_coarsen_example_figure.R",
+  "04_coarsen_analysis_plynlimon.R",
+  "05_coarsen_figure_plynlimon.R",
+  "06_coarsen_analysis_neon.R",
+  "07_coarsen_figure_neon.R",
+  "08_macrosheds_compare.R",
+  "09_macrosheds_descriptive.R",
+  "10_ca_correlation.R",
+  "11_misc_figures.R",
+  "12_hbef_method_comparison.R"
 )
 
 required_packages <- c(
-  "tidyverse", "here", "feather", "forecast", "lfstat", "lubridate",
-  "RiverLoad", "zoo", "patchwork", "EGRET", "macrosheds"
+  "tidyverse", "here", "feather", "lfstat", "lubridate",
+  "RiverLoad", "zoo", "patchwork", "EGRET", "macrosheds", "imputeTS"
 )
 
 required_data <- c(
@@ -65,7 +62,6 @@ if (length(args) > 0) {
 
 # --- Run scripts ---
 
-dir.create(here("data", "ts_simulation"), showWarnings = FALSE)
 dir.create(here("data", "coarsen_hbef"), showWarnings = FALSE)
 dir.create(here("data", "coarsen_plynlimon"), showWarnings = FALSE)
 dir.create(here("data", "coarsen_neon"), showWarnings = FALSE)

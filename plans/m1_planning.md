@@ -213,7 +213,24 @@ The goal is to replace the standalone 1:1 scatter plot (`fig11_hbef_method_compa
 
 ---
 
-## M8: Final Tasks
+## M8: Figure Improvements (Post-Rerun)
+
+The goal is publication-ready figures after the M7e rerun. The rerun changed computed values, so figures need visual QA and fixes.
+
+### M8a: Coarsening figures — cropping and color consistency
+- [ ] Fix y-axis cropping across all coarsening figures (methods extend beyond plot area after M7 fixes)
+- [ ] Unify color palette across all coarsening plots (HBEF, Plynlimon, NEON) — ensure method colors are consistent between figures. Note: Plynlimon plots already have the correct colors; HBEF and/or NEON need to match.
+- [ ] Make NEON figures taller — currently squished down, need significantly more height
+
+### M8b: Paper text updates
+- [ ] Update text describing Figure 11 'true' calculation — truth is now computed directly from 15-minute sensor data (Ca_conc × Q × 900s / area) instead of daily-averaged composite method via `calculate_truth()`
+
+### M8c: Additional figure issues
+*(To be populated as rerun proceeds — Nic will flag issues here.)*
+
+---
+
+## M9: Final Tasks
 
 Pre-submission items that require Nic's input or a full document pass.
 
@@ -261,18 +278,19 @@ The goal is to document all bugs, logic errors, and methodological concerns foun
 - [x] `old_bottom`/`new_bottom` used without initialization for non-fractional units (`ms_overwrites.R`) — Fixed: guarded with `length(fraction) == 2` checks, defaulting `_conver` to 1 when no denominator.
 
 ### M7e: Rerun analyses and regenerate figures
-The M7 fixes change computed values in multiple code paths. All analysis scripts must be rerun to regenerate intermediate data files and figures.
+The M7 fixes change computed values in multiple code paths. Simulation scripts (01–03) removed from repo; remaining scripts renumbered 01–12. All analysis scripts must be rerun to regenerate intermediate data files and figures.
 
-- [ ] Refactor global `area` variable — add `area` as explicit parameter to `calculate_pw`, `calculate_beale`, `calculate_rating`, `calculate_wrtds` in `flux_methods.R`; update all call sites
-- [ ] Rerun `01_ts_simulation_analysis.R` — hold_factor fix changes enriching/diluting simulation results
-- [ ] Rerun `02_ts_simulation_figure.R` — regenerate supplement figure with corrected outlier counts and PI label
-- [ ] Rerun `04_coarsen_analysis_hbef.R` — wyday fix affects WRTDS; non-finite concentration fix affects composite
-- [ ] Rerun `05_coarsen_figure_hbef.R` — regenerate Figs 7–8
-- [ ] Rerun `07_coarsen_analysis_plynlimon.R` — Q conversion fix changes absolute flux values (100x); wyday fix affects WRTDS
-- [ ] Rerun `08_coarsen_figure_plynlimon.R` — regenerate Figs 9–10
-- [ ] Rerun `09_coarsen_analysis_neon.R` — wyday fix affects WRTDS
-- [ ] Rerun `10_coarsen_figure_neon.R` — filename parsing fix corrects year/site labels on turbidity figures
-- [ ] Rerun `15_hbef_method_comparison.R` — intercept fix changes sensor-derived truth values
+- [ ] Refactor global `area` variable — add `area` as explicit parameter to `calculate_pw`, `calculate_beale`, `calculate_rating`, `calculate_wrtds` in `flux_methods.R`; update all call sites (deferred)
+- [x] Removed simulation scripts (old 01, 02, 03) and base_storm_sep.R — already removed from paper text
+- [x] Renumbered remaining scripts 04→01 through 15→12 via git mv
+- [x] Updated 00_run_all.R, CLAUDE.md, README.md, data/README.md with new numbering
+- [ ] Rerun `01_coarsen_analysis_hbef.R` — wyday fix affects WRTDS; Ca intercept fix; non-finite concentration fix
+- [ ] Rerun `02_coarsen_figure_hbef.R` — regenerate Figs 7–8
+- [ ] Rerun `04_coarsen_analysis_plynlimon.R` — Q conversion fix changes absolute flux values; wyday fix affects WRTDS
+- [ ] Rerun `05_coarsen_figure_plynlimon.R` — regenerate Figs 9–10
+- [ ] Rerun `06_coarsen_analysis_neon.R` — wyday fix affects WRTDS
+- [ ] Rerun `07_coarsen_figure_neon.R` — filename parsing fix corrects year/site labels on turbidity figures
+- [ ] Rerun `12_hbef_method_comparison.R` — intercept fix changes sensor-derived truth values
 - [ ] Diff regenerated figures against current versions — check whether paper text claims still hold
 - [ ] Update paper text if any quantitative claims changed
 
@@ -305,7 +323,9 @@ The M7 fixes change computed values in multiple code paths. All analysis scripts
 | M7c | Medium-severity fixes | M7b |
 | M7d | Low-severity / code quality | M7c |
 | M7e | Rerun analyses + regenerate figures | M7a + M7b + M7c + M7d |
-| M8 | Final tasks (Nic-owned) | All other milestones |
+| M8a | Coarsening figure crops + colors | M7e (rerun complete) |
+| M8b | Additional figure issues (TBD) | M7e |
+| M9 | Final tasks (Nic-owned) | All other milestones |
 
 ## Resolved Questions
 

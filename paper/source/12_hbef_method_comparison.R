@@ -12,7 +12,7 @@ library(patchwork)
 source(here('source/config.R'))
 source(here('source/flux_methods.R'))
 source(here('source/plot_theme.R'))
-source(here('paper','source','calculate_truth_ts.R'))
+
 
 area <- HBEF_AREA
 site_code <- HBEF_SITE_CODE
@@ -48,41 +48,11 @@ w3_flux_methods <- w3_flux %>%
     select(wy, method, Ca)
 
 # bring in 'true' flux Ca from sensor
-w3_flux_true <- read_feather(here('w3_sensor_wdisch.feather')) %>%
-    mutate(wy = water_year(date, origin = 'usgs')) %>%
+w3_true <- read_feather(here('w3_sensor_wdisch.feather')) %>%
+    mutate(wy = water_year(date, origin = 'usgs'),
+           Ca_conc = IS_spCond * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT) %>%
     group_by(wy) %>%
-    summarise(Ca = sum(IS_spCond * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT, na.rm = TRUE)) %>%
-    mutate(site_code = site_code,
-           method = 'true') %>%
-    select(-Ca, Ca)
-
-d <- read_feather(here('w3_sensor_wdisch.feather')) %>%
-    mutate(wy = water_year(datetime, origin = 'usgs'))
-
-w3_true <- tibble(wy = as.integer(),
-                  Ca = as.numeric())
-for(i in unique(water_year(d$date, origin = 'usgs'))){
-    target_wy = as.integer(i)
-
-    dn <- d %>%
-        filter(wy == target_wy)
-
-    w3_chem <- dn$IS_spCond * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT
-
-    w3_q <- dn %>%
-        group_by(date) %>%
-        summarize(q_lps = mean(IS_discharge)) %>%
-        select(date, q_lps)
-
-    truth <- calculate_truth(w3_chem, w3_q, period = 'annual', dn = dn, target_wy = target_wy)$estimate[1]
-
-    out <- tibble(wy = target_wy,
-                  Ca = truth)
-
-    w3_true <- bind_rows(w3_true, out)
-}
-
-w3_true <- w3_true %>%
+    summarise(Ca = sum(Ca_conc * IS_discharge * 900 / area * 1e-6, na.rm = TRUE)) %>%
     mutate(method = 'true',
            wy = as.character(wy)) %>%
     select(wy, method, Ca)

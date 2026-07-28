@@ -26,9 +26,9 @@ RSFME/
 │   └── calculate_annual_flux.R  #   MacroSheds annual load computation
 ├── data/                        # All input and intermediate data (see data/README.md)
 ├── paper/
-│   ├── source/                  # Numbered analysis scripts (01–15)
+│   ├── source/                  # Numbered analysis scripts (01–12)
 │   │   └── 00_run_all.R         #   Runner script for full pipeline
-│   └── figures/                 # All output figures (30 PNGs)
+│   └── figures/                 # All output figures (PNGs)
 ├── plans/                       # Development plans and decisions log
 └── CLAUDE.md                    # Detailed project documentation
 ```
@@ -38,7 +38,7 @@ RSFME/
 ### Prerequisites
 
 - **R 4.4+**
-- Required packages: `tidyverse`, `here`, `feather`, `forecast`, `lfstat`, `lubridate`, `RiverLoad`, `zoo`, `patchwork`, `EGRET`, `macrosheds`
+- Required packages: `tidyverse`, `here`, `feather`, `lfstat`, `lubridate`, `RiverLoad`, `zoo`, `patchwork`, `EGRET`, `macrosheds`, `imputeTS`
 
 ### Data Setup
 
@@ -62,33 +62,30 @@ To resume from a specific script (e.g., skip the long-running analysis scripts):
 Rscript paper/source/00_run_all.R 5
 ```
 
-Scripts 01, 04, 07, and 09 run coarsening analyses with 100 repetitions each and may take 30+ minutes. Scripts 02–03, 05–06, 08, 10–15 generate figures and complete in seconds.
+Scripts 01, 04, and 06 run coarsening analyses with 100 repetitions each and may take 30+ minutes. Scripts 02–03, 05, 07–12 generate figures and complete in seconds.
 
 ### Outputs
 
 - **Figures** are written to `paper/figures/`, named by figure number (e.g., `fig07_hbef_ca_coarsening.png`).
-- **Intermediate data** (coarsening results, simulation outputs) are written to subdirectories of `data/`.
+- **Intermediate data** (coarsening results) are written to subdirectories of `data/`.
 - **Annual load estimates** are written to `data/load_annual.csv`.
 
 ## Script Run Order
 
 | # | Script | Description |
 |---|--------|-------------|
-| 01 | `01_ts_simulation_analysis.R` | ARIMA simulation and coarsening experiment |
-| 02 | `02_ts_simulation_figure.R` | Simulation results figure (supplement) |
-| 03 | `03_ts_descriptive_figures.R` | Hydrologic and C:Q regime panels |
-| 04 | `04_coarsen_analysis_hbef.R` | HBEF coarsening experiment (Ca, NO3) |
-| 05 | `05_coarsen_figure_hbef.R` | HBEF coarsening figures (Figs 7–8) |
-| 06 | `06_coarsen_example_figure.R` | Coarsening example illustration (Fig 6) |
-| 07 | `07_coarsen_analysis_plynlimon.R` | Plynlimon coarsening experiment |
-| 08 | `08_coarsen_figure_plynlimon.R` | Plynlimon coarsening figures (Figs 9–10) |
-| 09 | `09_coarsen_analysis_neon.R` | NEON coarsening experiment |
-| 10 | `10_coarsen_figure_neon.R` | NEON coarsening figures (supplement) |
-| 11 | `11_macrosheds_compare.R` | MacroSheds method comparison figures |
-| 12 | `12_macrosheds_descriptive.R` | MacroSheds load distribution figure |
-| 13 | `13_ca_correlation.R` | Ca–SpCond regression (helper, sourced by 14) |
-| 14 | `14_misc_figures.R` | Raw data and C:Q plots (Figs 2–5) |
-| 15 | `15_hbef_method_comparison.R` | HBEF method comparison (Fig 11) |
+| 01 | `01_coarsen_analysis_hbef.R` | HBEF coarsening experiment (Ca, NO3) |
+| 02 | `02_coarsen_figure_hbef.R` | HBEF coarsening figures (Figs 7–8) |
+| 03 | `03_coarsen_example_figure.R` | Coarsening example illustration (Fig 6) |
+| 04 | `04_coarsen_analysis_plynlimon.R` | Plynlimon coarsening experiment |
+| 05 | `05_coarsen_figure_plynlimon.R` | Plynlimon coarsening figures (Figs 9–10) |
+| 06 | `06_coarsen_analysis_neon.R` | NEON coarsening experiment |
+| 07 | `07_coarsen_figure_neon.R` | NEON coarsening figures (supplement) |
+| 08 | `08_macrosheds_compare.R` | MacroSheds method comparison figures |
+| 09 | `09_macrosheds_descriptive.R` | MacroSheds load distribution figure |
+| 10 | `10_ca_correlation.R` | Ca–SpCond regression (helper, sourced by 11) |
+| 11 | `11_misc_figures.R` | Raw data and C:Q plots (Figs 2–5) |
+| 12 | `12_hbef_method_comparison.R` | HBEF method comparison (Fig 11) |
 
 ## License
 

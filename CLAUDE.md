@@ -17,11 +17,12 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M1:** Plan creation — complete (see `plans/m1_planning.md`)
 - **M2:** Fix the codebase — complete (M2a–M2d all done; shared config extracted to `source/config.R`; defunct cleanup deferred)
 - **M3:** Improve figures — complete (M3a–M3d all done)
-- **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M8)
+- **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M9)
 - **M5:** Organize repo — complete (M5a–M5d done; end-to-end `00_run_all.R` test struck)
 - **M6:** Figure 11 panel improvement — complete (A/B panel with 1:1 scatter + difference bar chart; caption updated)
-- **M7:** Adversarial code review — 24/25 fixes applied. Ca~SpCond model unified (free intercept, HBEF CSV data, config constants). Self-referential truth confirmed deliberate. Simulation filenames genericized. Only remaining: global `area` variable (deferred — requires function signature refactor). **All analysis scripts need rerun (M7e).**
-- **M8:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
+- **M7:** Adversarial code review — 24/25 fixes applied. Ca~SpCond model unified (free intercept, HBEF CSV data, config constants). Self-referential truth confirmed deliberate. Simulation scripts (01–03) removed from repo and paper; remaining scripts renumbered 01–12. Only remaining: global `area` variable (deferred — requires function signature refactor). **All analysis scripts need rerun (M7e).**
+- **M8:** Figure improvements (post-rerun) — coarsening figure crops/colors, plus additional issues as identified
+- **M9:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
 
 ### Important Conventions
 - **Workflow after every milestone or sub-milestone:** do the work → update CLAUDE.md → update `plans/decisions_made.txt` → commit → push
@@ -49,19 +50,17 @@ RSFME/
 │   ├── macrosheds/              # EDI download (edi.1262.2) — site metadata, timeseries CSVs
 │   ├── neon/                    # NEON stream order CSV
 │   ├── plynlimon/               # Plynlimon high-frequency hydrochemistry CSV
-│   ├── ts_simulation/           # ARIMA simulation outputs
 │   ├── load_annual.csv          # Computed annual loads (output of calculate_annual_flux.R)
 │   └── load_annual_diagnostics.csv
 ├── paper/
 │   ├── paper_HESS_draft_v2.docx          # Original draft (READ-ONLY)
 │   ├── paper_HESS_draft_v2_claude_final.docx  # Working copy with all edits applied
-│   ├── source/                  # All analysis + figure scripts, numbered in execution order (00–15)
-│   │   ├── 00_run_all.R         # Pipeline runner: sources 01–15 in order with timing and error handling
-│   │   ├── 01–15_*.R            # Numbered scripts (see Script Run Order below)
+│   ├── source/                  # All analysis + figure scripts, numbered in execution order (00–12)
+│   │   ├── 00_run_all.R         # Pipeline runner: sources 01–12 in order with timing and error handling
+│   │   ├── 01–12_*.R            # Numbered scripts (see Script Run Order below)
 │   │   ├── coarsen_helpers.R    # Shared coarsening experiment function
-│   │   ├── calculate_truth_ts.R # Truth computation helper
-│   │   └── base_storm_sep.R     # Baseflow/stormflow separation utility
-│   └── figures/                 # All output figures, named by figure number (30 PNGs)
+│   │   └── calculate_truth_ts.R # Truth computation helper
+│   └── figures/                 # All output figures (PNGs)
 ├── plans/                       # Milestone plans and decisions log
 ├── w3_sensor_wdisch.feather     # HBEF sensor data (PROPRIETARY — gitignored)
 └── CLAUDE.md                    # This file
@@ -70,25 +69,22 @@ RSFME/
 ### Script Run Order (all in `paper/source/`)
 | # | Script | Produces |
 |---|--------|----------|
-| 00 | `00_run_all.R` | Pipeline runner — sources 01–15 in order; accepts `start_from` arg |
-| 01 | `01_ts_simulation_analysis.R` | Simulated time series, coarsening CSVs → `data/ts_simulation/` |
-| 02 | `02_ts_simulation_figure.R` | `fig_supp_ts_simulation.png` (supplement) |
-| 03 | `03_ts_descriptive_figures.R` | `fig_hydro_regime.png`, `fig_cq_regime.png` |
-| 04 | `04_coarsen_analysis_hbef.R` | HBEF coarsening results → `data/coarsen_hbef/` |
-| 05 | `05_coarsen_figure_hbef.R` | `fig07_hbef_ca_coarsening.png`, `fig08_hbef_no3_coarsening.png` |
-| 06 | `06_coarsen_example_figure.R` | `fig06_coarsen_example.png` |
-| 07 | `07_coarsen_analysis_plynlimon.R` | Plynlimon coarsening results → `data/coarsen_plynlimon/` |
-| 08 | `08_coarsen_figure_plynlimon.R` | `fig09_plynlimon_ca_coarsening.png`, `fig10_plynlimon_no3_coarsening.png` |
-| 09 | `09_coarsen_analysis_neon.R` | NEON coarsening results → `data/coarsen_neon/` |
-| 10 | `10_coarsen_figure_neon.R` | `figa_neon_cond_*.png`, `figa_neon_turb_*.png` (8 supplement figs) |
-| 11 | `11_macrosheds_compare.R` | `figa9_macrosheds_density.png`, `figa9_macrosheds_method_comp.png` |
-| 12 | `12_macrosheds_descriptive.R` | `figa9_macrosheds_load_hist.png` |
-| 13 | `13_ca_correlation.R` | Ca–SpCond regression (sourced by 14, no standalone output) |
-| 14 | `14_misc_figures.R` | `fig02–fig05` raw data and C:Q plots (8 PNGs) |
-| 15 | `15_hbef_method_comparison.R` | `fig11_hbef_method_ts.png`, `fig11_hbef_method_comparison.png` |
+| 00 | `00_run_all.R` | Pipeline runner — sources 01–12 in order; accepts `start_from` arg |
+| 01 | `01_coarsen_analysis_hbef.R` | HBEF coarsening results → `data/coarsen_hbef/` |
+| 02 | `02_coarsen_figure_hbef.R` | `fig07_hbef_ca_coarsening.png`, `fig08_hbef_no3_coarsening.png` |
+| 03 | `03_coarsen_example_figure.R` | `fig06_coarsen_example.png` |
+| 04 | `04_coarsen_analysis_plynlimon.R` | Plynlimon coarsening results → `data/coarsen_plynlimon/` |
+| 05 | `05_coarsen_figure_plynlimon.R` | `fig09_plynlimon_ca_coarsening.png`, `fig10_plynlimon_no3_coarsening.png` |
+| 06 | `06_coarsen_analysis_neon.R` | NEON coarsening results → `data/coarsen_neon/` |
+| 07 | `07_coarsen_figure_neon.R` | `figa_neon_cond_*.png`, `figa_neon_turb_*.png` (8 supplement figs) |
+| 08 | `08_macrosheds_compare.R` | `figa9_macrosheds_density.png`, `figa9_macrosheds_method_comp.png` |
+| 09 | `09_macrosheds_descriptive.R` | `figa9_macrosheds_load_hist.png` |
+| 10 | `10_ca_correlation.R` | Ca–SpCond regression (sourced by 11, no standalone output) |
+| 11 | `11_misc_figures.R` | `fig02–fig05` raw data and C:Q plots (8 PNGs) |
+| 12 | `12_hbef_method_comparison.R` | `fig11_hbef_method_ts.png`, `fig11_hbef_method_comparison.png` |
 
 ### Key Dependencies
-- R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, forecast, zoo, ggthemes, cowplot
+- R packages: tidyverse, RiverLoad, EGRET, macrosheds, feather, here, lubridate, lfstat, patchwork, zoo, imputeTS, cowplot
 - External data: `w3_sensor_wdisch.feather` (HBEF high-freq sensor data, in repo root, gitignored — proprietary)
 
 ### R Configuration

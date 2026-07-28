@@ -307,3 +307,14 @@ Update this file whenever a non-trivial choice is made.
 2026-07-28 | M7: Simulation Filename Cleanup
 - Decision: Removed hardcoded date '20221221' from simulation output filenames.
   Scripts 01, 02, 03 now use {freq}Freq_{reps}Reps.csv (no date stamp).
+
+2026-07-28 | M7e: Simulation Scripts Removed & Renumbering
+- Decision: Removed time series simulation analysis entirely (scripts 01_ts_simulation_analysis,
+  02_ts_simulation_figure, 03_ts_descriptive_figures, base_storm_sep.R). Already removed from
+  paper text in M4. Deleted data/ts_simulation/ and paper/ts_simulation/ directories.
+- Renumbered remaining scripts: 04→01, 05→02, 06→03, 07→04, 08→05, 09→06, 10→07,
+  11→08, 12→09, 13→10, 14→11, 15→12. Used git mv to preserve history.
+- Updated 00_run_all.R with new 12-script list, removed forecast package, added imputeTS.
+- Updated internal source() reference in 11_misc_figures.R (13_ca_correlation → 10_ca_correlation).
+- Context: Simulation analysis was tangential to the paper's core contribution (coarsening
+  experiments on real data). Removing simplifies the pipeline and repo.
