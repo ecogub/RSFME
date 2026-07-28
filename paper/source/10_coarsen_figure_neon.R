@@ -83,11 +83,12 @@ files <- list.files(here('data', 'coarsen_neon'), pattern="turb.*\\.RData$")
 
 files_years <- files %>%
     tools::file_path_sans_ext() %>%
-    str_split_i('_', 4)
+    str_split_i('_', 3) %>%
+    str_replace('^turb', '')
 
 files_sites <- files %>%
     tools::file_path_sans_ext() %>%
-    str_split_i('_', 5)
+    str_split_i('_', 4)
 
 file_table <- tibble(site_code = files_sites, wy = files_years)
 

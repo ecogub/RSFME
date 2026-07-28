@@ -18,13 +18,6 @@ area <- HBEF_AREA
 site_code <- HBEF_SITE_CODE
 
 # HBEF Flux Method Comparison
-w3_chem <- read_csv(here('data', 'macrosheds', 'timeseries_hbef.csv'),
-                    show_col_types = FALSE) %>%
-    filter(var_category == 'stream_chemistry', site_code == 'w3') %>%
-    distinct(date, site_code, var, .keep_all = TRUE) %>%
-    pivot_wider(names_from = var, values_from = val, id_cols = c('date', 'site_code')) %>%
-    filter(!is.na(Ca), !is.na(spCond))
-
 hbef_loads <- read_csv(here('data', 'load_annual.csv'),
                        show_col_types = FALSE) %>%
     filter(domain == 'hbef', site_code == 'w3')
@@ -50,23 +43,6 @@ w3_recc <- hbef_loads %>%
     mutate(wy = as.character(wy)) %>%
     select(wy, site_code, method, Ca)
 
-# create multiple linear model
-lm_fit <- lm(Ca ~ spCond, data=w3_chem)
-summary(lm_fit)
-
-ggplotRegression <- function (fit) {
-    ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) +
-        geom_point() +
-        stat_smooth(method = "lm", col = "red") +
-        labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                           "Intercept =",signif(fit$coef[[1]],5 ),
-                           " Slope =",signif(fit$coef[[2]], 5),
-                           " P =",signif(summary(fit)$coef[2,4], 5))) +
-        theme(text = element_text(size = 26))
-}
-
-ggplotRegression(lm_fit)
-
 # flux methods sf
 w3_flux_methods <- w3_flux %>%
     select(wy, method, Ca)
@@ -75,7 +51,7 @@ w3_flux_methods <- w3_flux %>%
 w3_flux_true <- read_feather(here('w3_sensor_wdisch.feather')) %>%
     mutate(wy = water_year(date, origin = 'usgs')) %>%
     group_by(wy) %>%
-    summarise(Ca = sum(IS_spCond, na.rm = TRUE)*lm_fit$coef[[2]]) %>%
+    summarise(Ca = sum(IS_spCond * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT, na.rm = TRUE)) %>%
     mutate(site_code = site_code,
            method = 'true') %>%
     select(-Ca, Ca)
@@ -91,7 +67,7 @@ for(i in unique(water_year(d$date, origin = 'usgs'))){
     dn <- d %>%
         filter(wy == target_wy)
 
-    w3_chem <- dn$IS_spCond*lm_fit$coef[[2]]
+    w3_chem <- dn$IS_spCond * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT
 
     w3_q <- dn %>%
         group_by(date) %>%

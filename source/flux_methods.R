@@ -170,15 +170,10 @@ calculate_pw <- function(chem_df, q_df, datecol = 'date', period = NULL){
                   return(((year%%4 == 0) & (year%%100 != 0)) | (year%%400 ==
                                                                     0))
               }
-              for (i in 1:(nrow(aggrg.data2))) {
-                  if (is.leapyear(as.numeric(aggrg.data2$newdate[i])) ==
-                      T) {
-                      method1 <- (load * (366) * 86400)
-                  }
-                  else {
-                      method1 <- (load * (365) * 86400)
-                  }
-              }
+              days_in_year <- sapply(as.numeric(aggrg.data2$newdate), function(y) {
+                  if(is.leapyear(y)) 366 else 365
+              })
+              method1 <- load * days_in_year * 86400
               rownames(method1) <- aggrg.data2[, 1]
               colnames(method1) <- c(names(db)[3:(ncomp + 2)])
               return(method1)
@@ -242,9 +237,8 @@ calculate_rating <- function(chem_df, q_df, datecol = 'date', period = NULL){
 
 ##### calculate WRTDS #####
 calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date', agg = 'default', minNumObs = 2, minNumUncen =2, gap_period = 730) {
-  tryCatch(
+  flux_from_egret <- tryCatch(
     expr = {
-      # default sums all daily flux values in df
       egret_results <- adapt_ms_egret(chem_df, q_df, ws_size,
                                       lat, long,
                                       datecol = datecol,
@@ -253,10 +247,10 @@ calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date',
                                       gap_period = gap_period)
 
       if(agg == 'default') {
-        flux_from_egret <- egret_results$Daily$FluxDay %>%
+        egret_results$Daily$FluxDay %>%
           warn_sum(.)/(area)
       } else if(agg == 'annual') {
-        flux_from_egret <- egret_results$Daily %>%
+        egret_results$Daily %>%
                     mutate(
                       wy = water_year(Date)
                     ) %>%
@@ -265,7 +259,7 @@ calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date',
             flux = warn_sum(FluxDay)/(area)
           )
       } else if(agg == 'monthly') {
-        flux_from_egret <- egret_results$Daily %>%
+        egret_results$Daily %>%
                     mutate(
                       wy = water_year(Date),
                       month = lubridate::month(Date)
@@ -278,7 +272,7 @@ calculate_wrtds <- function(chem_df, q_df, ws_size, lat, long, datecol = 'date',
         },
     error = function(e) {
             print('ERROR: WRTDS failed to run')
-            return(NA)
+            NA
         })
     return(flux_from_egret)
 }
@@ -318,7 +312,7 @@ generate_residual_corrected_con <- function(chem_df, q_df, datecol = 'date', sit
                    site_code = get(sitecol),
                    wy = water_year(get(datecol), origin = 'usgs'))
 
-        rating_filled_df$con_com[!is.finite(rating_filled_df$con_com)] <- 0
+        rating_filled_df$con_com[!is.finite(rating_filled_df$con_com)] <- NA
         return(rating_filled_df)
         }
         }
@@ -424,12 +418,11 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
         # gap between start WY and end of normal year, always 91 days
         correction_val <- yday('2021-12-31') - yday('2021-10-01')
 
-
-        # adjust yday from start of gregorian year to (usgs) WY year
-        wy_firsthalf <- yday(dates[month(dates) %in% c(10, 11, 12)]) - yday(wy_start) + 1
-        wy_secondhalf <- yday(dates[!month(dates) %in% c(10, 11, 12)]) + correction_val + 1
-
-        wydays <- c(wy_firsthalf, wy_secondhalf)
+        # compute water year day preserving input order
+        is_first_half <- month(dates) %in% c(10, 11, 12)
+        wydays <- numeric(length(dates))
+        wydays[is_first_half] <- yday(dates[is_first_half]) - yday(wy_start) + 1
+        wydays[!is_first_half] <- yday(dates[!is_first_half]) + correction_val + 1
 
       return(wydays)
     }
@@ -453,7 +446,6 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
       return(ydec)
     }
 
-    # TODO: rename with real descriptive name
     enlightened_yday <- function(dates, wy_type = 'usgs') {
         # get earliest and latest date from series
         start_date <- min(dates)
@@ -464,23 +456,21 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
         wy_start <- paste0(wy_first, '-10-01')
         wy_end <- paste0(wy_first+1, '-09-30')
 
-        # unenlightened yday of date vector
-        wy_firsthalf <- yday(dates[month(dates) %in% c(10, 11, 12)])
-        wy_secondhalf <- yday(dates[!month(dates) %in% c(10, 11, 12)])
+        is_first_half <- month(dates) %in% c(10, 11, 12)
 
-        # if first half of WY is a leap year,
-        if(366 %in% wy_firsthalf) {
-          ## print('first half of WY is leap year, adjusting')
-          wy_firsthalf = wy_firsthalf - 1
-        } else if(366 %in% wy_secondhalf) {
-          ## print('second half of WY is leap year, no action')
-        } else {
-          ## print('neither side of water year is a leap year')
-          invisible()
+        # unenlightened yday of date vector
+        first_half_ydays <- yday(dates[is_first_half])
+        second_half_ydays <- yday(dates[!is_first_half])
+
+        # if first half of WY is a leap year, adjust
+        if(366 %in% first_half_ydays) {
+          first_half_ydays = first_half_ydays - 1
         }
 
-        # adjust yday from start of gregorian year to (usgs) WY year
-        wy_ydays <- c(wy_firsthalf, wy_secondhalf)
+        # preserve input order
+        wy_ydays <- numeric(length(dates))
+        wy_ydays[is_first_half] <- first_half_ydays
+        wy_ydays[!is_first_half] <- second_half_ydays
 
       return(wy_ydays)
     }
@@ -703,7 +693,7 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
             mean_flow <- mean(Daily_file$Q[Daily_file$Q > 0], na.rm = TRUE)
 
             Daily_file <- Daily_file %>%
-                mutate(Q = ifelse(Q <= 0, !!mean_flow, Q))
+                mutate(Q = ifelse(Q <= 0, !!mean_flow * 0.001, Q))
           } else {
             # NOTE: could this be where Inf shows up too? like in min_chem?
             min_flow <- min(Daily_file$Q[Daily_file$Q > 0], na.rm = TRUE)
@@ -790,7 +780,7 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
                             construction_dt = NA,
                             inventory_dt = NA,
                             # ws area change (hectares to square miles)
-                            drain_area_va = area / 2.59,
+                            drain_area_va = area / 259,
                             contrib_drain_area_va = NA,
                             tz_cd = 'UTC',
                             local_time_fg = 'Y',
@@ -877,7 +867,7 @@ adapt_ms_egret <- function(chem_df, q_df, ws_size, lat, long,
         writeLines(paste('no gap in record detected larger than', gap_period, 'days'))
       } else {
 
-        for(i in length(sample_breaks['start'])) {
+        for(i in 1:length(sample_breaks['start'][[1]])) {
           # set period
           startBlank = sample_breaks['start'][[1]][[i]]
           endBlank = sample_breaks['end'][[1]][[i]]

@@ -19,11 +19,11 @@ target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy)
 ## read in output from 1_ts_simulation_analysis.R####
-weekly <- read_csv(here('data','ts_simulation', 'weeklyFreq_100Reps20221221.csv')) %>%
+weekly <- read_csv(here('data','ts_simulation', 'weeklyFreq_100Reps.csv')) %>%
     mutate(freq = 'Weekly')
-biweekly <- read_csv(here('data','ts_simulation', 'biweeklyFreq_100Reps20221221.csv')) %>%
+biweekly <- read_csv(here('data','ts_simulation', 'biweeklyFreq_100Reps.csv')) %>%
     mutate(freq = 'Biweekly')
-monthly <- read_csv(here('data','ts_simulation', 'monthlyFreq_100Reps20221221.csv')) %>%
+monthly <- read_csv(here('data','ts_simulation', 'monthlyFreq_100Reps.csv')) %>%
     mutate(freq = 'Monthly')
 loop_out <- rbind(weekly, biweekly, monthly) %>%
     mutate(freq = factor(freq, levels = c('Weekly', 'Biweekly', 'Monthly')))

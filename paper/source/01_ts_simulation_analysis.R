@@ -159,23 +159,23 @@ simulated_series = list()
 reg <- dn$IS_discharge
 simulated_series[[1]] = reg + resampled_residuals + 5
 simulated_series[[1]][which(simulated_series[[1]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[1]], na.rm = TRUE))
-simulated_series[[1]] <- simulated_series[[1]]*hold_factor
+hold_factor_unalt <- (sum_q/sum(simulated_series[[1]], na.rm = TRUE))
+simulated_series[[1]] <- simulated_series[[1]]*hold_factor_unalt
 
 ### stormflow dominated ####
 storm <- dn$IS_discharge
 simulated_series[[2]] = storm^1.5 + resampled_residuals + 5
 simulated_series[[2]][which(simulated_series[[2]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[2]], na.rm = TRUE))
-simulated_series[[2]] <- simulated_series[[2]]*hold_factor
+hold_factor_storm <- (sum_q/sum(simulated_series[[2]], na.rm = TRUE))
+simulated_series[[2]] <- simulated_series[[2]]*hold_factor_storm
 
 ###baseflow dominated ####
 base <- dn$IS_discharge
 simulated_series[[3]] <- base^0.9 + resampled_residuals + 5
 simulated_series[[3]] <- rollmean(simulated_series[[3]], k = 10, fill = T)
 simulated_series[[3]][which(simulated_series[[3]] <= 0)] = 0.1
-hold_factor <- (sum_q/sum(simulated_series[[3]], na.rm = TRUE))
-simulated_series[[3]] <- simulated_series[[3]]*hold_factor
+hold_factor_base <- (sum_q/sum(simulated_series[[3]], na.rm = TRUE))
+simulated_series[[3]] <- simulated_series[[3]]*hold_factor_base
 
 ## Chemistry series creation  ####
 # randomly sample for chemostatic
@@ -187,24 +187,24 @@ simulated_series[[5]] <- rtnorm(n = nrow(dn), sd = 0.5, mean = 2)
 
 ### enriching ####
 error_vec <- rnorm(length(simulated_series[[1]]), mean = 1, sd = 0.1)
-simulated_series[[6]] <- (10^((log10(simulated_series[[1]])*1)-1))*error_vec*hold_factor
+simulated_series[[6]] <- (10^((log10(simulated_series[[1]])*1)-1))*error_vec*hold_factor_unalt
 en_unalt <- simulated_series[[6]]
 
-simulated_series[[8]] <- (10^((log10(simulated_series[[2]])*1)-1))*error_vec*hold_factor
+simulated_series[[8]] <- (10^((log10(simulated_series[[2]])*1)-1))*error_vec*hold_factor_storm
 en_storm <- simulated_series[[8]]
 
-simulated_series[[9]] <- (10^((log10(simulated_series[[3]])*1)-1))*error_vec*hold_factor
+simulated_series[[9]] <- (10^((log10(simulated_series[[3]])*1)-1))*error_vec*hold_factor_base
 en_base <- simulated_series[[9]]
 
 ### simple dilution ####
 error_vec <- rnorm(length(simulated_series[[1]]), mean = 1, sd = 0.1)
-simulated_series[[7]] <- (10^((log10(simulated_series[[1]])*-1)+1.25))*error_vec*hold_factor
+simulated_series[[7]] <- (10^((log10(simulated_series[[1]])*-1)+1.25))*error_vec*hold_factor_unalt
 di_unalt <- simulated_series[[7]]
 
-simulated_series[[10]] <- (10^((log10(simulated_series[[2]])*-1)+1.25))*error_vec*hold_factor
+simulated_series[[10]] <- (10^((log10(simulated_series[[2]])*-1)+1.25))*error_vec*hold_factor_storm
 di_storm <- simulated_series[[10]]
 
-simulated_series[[11]] <- (10^((log10(simulated_series[[3]])*-1)+1.25))*error_vec*hold_factor
+simulated_series[[11]] <- (10^((log10(simulated_series[[3]])*-1)+1.25))*error_vec*hold_factor_base
 di_base <- simulated_series[[11]]
 
 # Estimate flux #####
@@ -360,7 +360,7 @@ loop_out_list[[i]] <- bind_rows(run_parts) %>%
         mutate(runid = i)
 }
 loop_out <- bind_rows(loop_out_list)
-write_csv(loop_out, file = here('data','ts_simulation', paste0(thin_freq,'Freq_',reps,'Reps20221221.csv')))
+write_csv(loop_out, file = here('data','ts_simulation', paste0(thin_freq,'Freq_',reps,'Reps.csv')))
 print(paste(thin_freq, ' done'))
 }
 save(simulated_series, file = here('data','ts_simulation', 'simulated_series.Rdata'))

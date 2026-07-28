@@ -73,7 +73,7 @@ ms_conversions <- function(d,
 
     whole_molecule <- c('NO3', 'SO4', 'PO4', 'SiO2', 'SiO3', 'NH4', 'NH3',
                         'NO3_NO2')
-    element_molecule <- c('NO3_N', 'SO4_S', 'PO4_P', 'SiO2_S', 'SiO3_S', 'NH4_N',
+    element_molecule <- c('NO3_N', 'SO4_S', 'PO4_P', 'SiO2_Si', 'SiO3_Si', 'NH4_N',
                           'NH3_N', 'NO3_NO2_N')
 
     if(cm){
@@ -116,15 +116,16 @@ ms_conversions <- function(d,
             d$val[vars == convert_molecules_element[v]] <-
                 convert_molecule(x = d$val[vars == convert_molecules_element[v]],
                                  from = molecule_real,
-                                 to = unname(molecular_conversion_map[v]))
+                                 to = unname(molecular_conversion_map[[convert_molecules_element[v]]]))
 
-            check_double <- stringr::str_split_fixed(unname(molecular_conversion_map[v]), '', n = Inf)[1,]
+            mol_name <- convert_molecules_element[v]
+            check_double <- stringr::str_split_fixed(unname(molecular_conversion_map[[mol_name]]), '', n = Inf)[1,]
 
             if(length(check_double) > 1 && length(unique(check_double)) == 1) {
-                molecular_conversion_map[v] <- unique(check_double)
+                molecular_conversion_map[[mol_name]] <- unique(check_double)
             }
 
-            new_name <- paste0(d$var[vars == convert_molecules_element[v]], '_', unname(molecular_conversion_map[v]))
+            new_name <- paste0(d$var[vars == mol_name], '_', unname(molecular_conversion_map[[mol_name]]))
 
             d$var[vars == convert_molecules_element[v]] <- new_name
         }
@@ -232,7 +233,7 @@ convert_unit <- function(x, input_unit, output_unit){
     new_fraction <- as.vector(stringr::str_split_fixed(output_unit, "/", n = Inf))
     new_top <- as.vector(stringr::str_split_fixed(new_fraction[1], "", n = Inf))
 
-    if(length(new_fraction == 2)) {
+    if(length(new_fraction) == 2) {
         new_bottom <- as.vector(stringr::str_split_fixed(new_fraction[2], "", n = Inf))
     }
 
@@ -244,12 +245,18 @@ convert_unit <- function(x, input_unit, output_unit){
         old_top_conver <- as.numeric(filter(units, prefix == old_top_unit)[,2])
     }
 
-    old_bottom_unit <- tolower(stringr::str_split_fixed(old_bottom, "", 2)[1])
-
-    if(old_bottom_unit %in% c('g', 'e', 'q', 'l') || old_fraction[2] == 'mol') {
-        old_bottom_conver <- 1
+    if(length(old_fraction) == 2) {
+        old_bottom_unit <- tolower(stringr::str_split_fixed(old_bottom, "", 2)[1])
     } else {
+        old_bottom_unit <- NA
+    }
+
+    if(!is.na(old_bottom_unit) && (old_bottom_unit %in% c('g', 'e', 'q', 'l') || old_fraction[2] == 'mol')) {
+        old_bottom_conver <- 1
+    } else if(!is.na(old_bottom_unit)) {
         old_bottom_conver <- as.numeric(filter(units, prefix == old_bottom_unit)[,2])
+    } else {
+        old_bottom_conver <- 1
     }
 
     new_top_unit <- tolower(stringr::str_split_fixed(new_top, "", 2)[1])
@@ -260,12 +267,18 @@ convert_unit <- function(x, input_unit, output_unit){
         new_top_conver <- as.numeric(filter(units, prefix == new_top_unit)[,2])
     }
 
-    new_bottom_unit <- tolower(stringr::str_split_fixed(new_bottom, "", 2)[1])
-
-    if(new_bottom_unit %in% c('g', 'e', 'q', 'l') || new_fraction[2] == 'mol') {
-        new_bottom_conver <- 1
+    if(length(new_fraction) == 2) {
+        new_bottom_unit <- tolower(stringr::str_split_fixed(new_bottom, "", 2)[1])
     } else {
+        new_bottom_unit <- NA
+    }
+
+    if(!is.na(new_bottom_unit) && (new_bottom_unit %in% c('g', 'e', 'q', 'l') || new_fraction[2] == 'mol')) {
+        new_bottom_conver <- 1
+    } else if(!is.na(new_bottom_unit)) {
         new_bottom_conver <- as.numeric(filter(units, prefix == new_bottom_unit)[,2])
+    } else {
+        new_bottom_conver <- 1
     }
 
     new_val <- x*old_top_conver
@@ -300,7 +313,7 @@ mean_or_x <- function(x, na.rm = FALSE) {
 
     if(length(x) == 1) return(x)
 
-    x <- mean(var(x, na.rm = na.rm))
+    x <- mean(x, na.rm = na.rm)
     print('multiple values meaned')
     return(x)
 }

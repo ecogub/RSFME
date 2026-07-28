@@ -19,7 +19,7 @@ d <- read_csv(here('data','plynlimon','PlynlimonHighFrequencyHydrochemistry.csv'
     filter(Site == site_code) %>%
     select(date_time, `NO3-N mg/l`, `Ca mg/l`, `water flux mm/hr`) %>%
     mutate(wy = water_year(date_time, origin = 'usgs'),
-           q_lps = `water flux mm/hr`*area*(1000/1)*(1/10000)*(1/3600)*(1000/1))
+           q_lps = `water flux mm/hr`*area*(1/1000)*(10000/1)*(1/3600)*(1000/1))
 
 
 

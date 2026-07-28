@@ -272,3 +272,38 @@ Update this file whenever a non-trivial choice is made.
   verified independently; full run is 3+ hours and low value).
 - Created M8 "Final Tasks" milestone for Nic-owned items: FINAL VERSION LINK placeholder,
   Works Cited formatting, final read-through. Moved from M4c.
+
+2026-07-28 | M7: Adversarial Code Review
+- Decision: Performed a full adversarial review of all source files and analysis scripts.
+  Found 25 issues across 4 severity tiers. Fixed 21 of 25:
+  - M7a (Critical): 3/4 fixed. hold_factor contamination in simulation chemistry,
+    mean_or_x computing variance instead of mean, wyday/enlightened_yday reordering
+    EGRET inputs. Self-referential truth is a methodological question (not a code fix).
+  - M7b (High): 5/6 fixed. Script 15 intercept, NEON filename parsing, WRTDS tryCatch,
+    leap-year scaling, molecular conversion map indexing. Ca~SpCond model inconsistency
+    between scripts 13/15 needs Nic's decision.
+  - M7c (Medium): 9/9 fixed. No-flow replacement, gap-blanking loop, drain_area_va,
+    Plynlimon Q conversion (3 files), convert_unit precedence, non-finite concentrations,
+    outlier definition, CI→PI label, SiO2/SiO3 suffix.
+  - M7d (Low): 4/6 fixed. base_storm_sep install guard, copy-paste in script 02,
+    old_bottom/new_bottom initialization. Global area variable and hardcoded date
+    in filenames deferred.
+- Key concern: All coarsening analyses (scripts 01, 04, 07, 09) need rerun after these
+  fixes to regenerate results and figures. The hold_factor, wyday, Plynlimon Q conversion,
+  and non-finite concentration fixes all affect computed values.
+
+2026-07-28 | M7: Ca~SpCond Model Unification
+- Decision: Unified Ca~SpCond regression across scripts 13, 04, 05, 14, 15.
+  All now use free-intercept model (Ca ~ spCond) on HBEF CSV data (WY 2016, W3).
+  Old: origin-forced slope 0.06284158 in scripts 04/05/14, separate MacroSheds-fitted
+  model with intercept in script 15.
+  New: intercept 0.01283, slope 0.05906, stored as CA_SPCOND_INTERCEPT/CA_SPCOND_SLOPE
+  in config.R. Script 15 no longer reads MacroSheds timeseries or fits its own model.
+
+2026-07-28 | M7: Self-Referential Truth — Deliberate Choice
+- Decision: Nic confirmed that defining "truth" as the composite method on full-resolution
+  data is a deliberate choice. No code change needed.
+
+2026-07-28 | M7: Simulation Filename Cleanup
+- Decision: Removed hardcoded date '20221221' from simulation output filenames.
+  Scripts 01, 02, 03 now use {freq}Freq_{reps}Reps.csv (no date stamp).

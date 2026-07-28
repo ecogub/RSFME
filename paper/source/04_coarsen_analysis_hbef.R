@@ -28,7 +28,7 @@ for (solute_var in HBEF_SOLUTES) {
         filter(wy == target_wy) %>%
         select(date, con = all_of(solute_var), q_lps = IS_discharge)
 
-    if (solute_var == 'IS_spCond') dn$con <- dn$con * CA_SPCOND_SLOPE
+    if (solute_var == 'IS_spCond') dn$con <- dn$con * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT
 
     out_tbl <- run_coarsening_experiment(
         ts_df = dn, site_code = site_code, target_wy = target_wy,

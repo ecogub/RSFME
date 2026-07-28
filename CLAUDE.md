@@ -20,6 +20,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 - **M4:** Reconcile narrative text — complete (structure fixes, NEON expansion, Conclusions, quantitative audit, post-fix coarsening text corrections, caption fixes all done; Nic-owned items moved to M8)
 - **M5:** Organize repo — complete (M5a–M5d done; end-to-end `00_run_all.R` test struck)
 - **M6:** Figure 11 panel improvement — complete (A/B panel with 1:1 scatter + difference bar chart; caption updated)
+- **M7:** Adversarial code review — 24/25 fixes applied. Ca~SpCond model unified (free intercept, HBEF CSV data, config constants). Self-referential truth confirmed deliberate. Simulation filenames genericized. Only remaining: global `area` variable (deferred — requires function signature refactor). **All analysis scripts need rerun (M7e).**
 - **M8:** Final tasks — Nic-owned: FINAL VERSION LINK, Works Cited formatting, final read-through
 
 ### Important Conventions
@@ -33,7 +34,7 @@ This project uses **milestone-driven development**. See `plans/` for current mil
 ```
 RSFME/
 ├── source/
-│   ├── config.R                 # Shared constants (watershed areas, site codes, target water years, Ca conversion slope)
+│   ├── config.R                 # Shared constants (watershed areas, site codes, target water years, Ca conversion coefficients)
 │   ├── flux_methods.R           # Core flux computation functions (PW, Beale, Rating, Composite, WRTDS)
 │   ├── plot_theme.R             # Shared HESS-compliant ggplot2 theme, palettes, and ggsave_hess()
 │   └── calculate_annual_flux.R  # MacroSheds annual load estimation (reads data/macrosheds/, writes data/load_annual.csv)

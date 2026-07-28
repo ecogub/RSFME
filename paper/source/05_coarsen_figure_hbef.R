@@ -29,7 +29,7 @@ dn <- d %>%
     select(date, all_of(target_solute), IS_discharge)
 colnames(dn)[2] <- 'con'
 #### convert from specific conductivity to calcium ####
-dn$con <- dn$con * CA_SPCOND_SLOPE
+dn$con <- dn$con * CA_SPCOND_SLOPE + CA_SPCOND_INTERCEPT
 
 load(file = here('data','coarsen_hbef', '100reps_annual_Ca.RData'))
 

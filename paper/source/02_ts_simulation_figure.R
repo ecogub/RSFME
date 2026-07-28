@@ -20,11 +20,11 @@ target_wy <- HBEF_TARGET_WY
 dn <- d %>%
     filter(wy == target_wy)
 ## read in output from 1_ts_simulation_analysis.R####
-weekly <- read_csv(here('data','ts_simulation', 'weeklyFreq_100Reps20221221.csv')) %>%
+weekly <- read_csv(here('data','ts_simulation', 'weeklyFreq_100Reps.csv')) %>%
   mutate(freq = 'Weekly')
-biweekly <- read_csv(here('data','ts_simulation', 'biweeklyFreq_100Reps20221221.csv')) %>%
+biweekly <- read_csv(here('data','ts_simulation', 'biweeklyFreq_100Reps.csv')) %>%
   mutate(freq = 'Biweekly')
-monthly <- read_csv(here('data','ts_simulation', 'monthlyFreq_100Reps20221221.csv')) %>%
+monthly <- read_csv(here('data','ts_simulation', 'monthlyFreq_100Reps.csv')) %>%
   mutate(freq = 'Monthly')
 loop_out <- rbind(weekly, biweekly, monthly) %>%
   mutate(freq = factor(freq, levels = c('Weekly', 'Biweekly', 'Monthly')))
@@ -353,7 +353,7 @@ p19_data <- loop_out %>%
          cq == 'dilution') %>%
   transform_loop_out()
 
-p19_data$method <- factor(p15_data$method, levels = c("pw", "beale", "rating", 'composite'))
+p19_data$method <- factor(p19_data$method, levels = c("pw", "beale", "rating", 'composite'))
 
 p19 <- plot_guts(p19_data) +
   theme(axis.text.x=element_text(angle = 45, vjust = .9, hjust = 1))+
@@ -403,7 +403,9 @@ supp_tbl_pre <- loop_out %>%
             max_error = round(max(error, na.rm = TRUE), digits = 2),
             iqr = IQR(error, na.rm = TRUE),
             median = round(median(error, na.rm = TRUE), digits = 2),
-            n_outliers = sum((error > median+(iqr*1.5))+(error < median-(iqr*1.5)), na.rm = TRUE),
+            q1 = quantile(error, 0.25, na.rm = TRUE),
+            q3 = quantile(error, 0.75, na.rm = TRUE),
+            n_outliers = sum((error > q3+(iqr*1.5))|(error < q1-(iqr*1.5)), na.rm = TRUE),
             ci = paste0(ci_95_low,', ', ci_95_hi)
   ) %>%
   left_join(.,pretty_cq, by = 'cq') %>%
@@ -414,7 +416,7 @@ supp_tbl_pre <- loop_out %>%
   #filter(flow == target_flow) %>%
   select(`Flow Regime` = flow_pretty, `C:Q` = cq_pretty, Frequency = freq,
          Method = method_pretty, Mean = mean_error, SD = sd_error,
-         `95% CI` = ci, Median = median, Minimum = min_error, Maximum = max_error, Outliers = n_outliers)
+         `95% PI` = ci, Median = median, Minimum = min_error, Maximum = max_error, Outliers = n_outliers)
 
 write_csv(supp_tbl_pre, file = here('data','ts_simulation', 'supp_table.csv'))
 

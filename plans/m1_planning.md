@@ -228,37 +228,53 @@ Pre-submission items that require Nic's input or a full document pass.
 The goal is to document all bugs, logic errors, and methodological concerns found through an adversarial review of the full codebase — prioritized by potential impact on paper results.
 
 ### M7a: Critical — could change paper results
-- [ ] `hold_factor` contamination across flow regimes (`01_ts_simulation_analysis.R:161-206`) — `hold_factor` is overwritten three times (unaltered→storm→baseflow) without saving intermediate values. By the time enriching/diluting chemistry series are created (lines 189–206), `hold_factor` contains only the baseflow normalization. Enriching and diluting series for unaltered and storm flow use the wrong scaling factor.
-- [ ] `mean_or_x` computes variance instead of mean (`ms_overwrites.R:303`) — copy-paste from `sd_or_0` above: `x <- mean(var(x, na.rm = na.rm))` should be `x <- mean(x, na.rm = na.rm)`. Affects MacroSheds daily aggregation of sub-daily data (`calculate_annual_flux.R:80,87`). If input data has multiple observations per day, daily values become the variance of those observations, not the mean.
-- [ ] `wyday`/`enlightened_yday` reorder output (`flux_methods.R:414-486`) — splits input dates into Oct-Dec and Jan-Sep subsets, processes each, then concatenates `c(firsthalf, secondhalf)`. Returns results in a different order than the input vector. When used by `decimalDateWY` (line 448), the reordered `wydays` is combined with unreordered `water_year(dates)` (line 451), misaligning columns in the EGRET Sample/Daily files.
-- [ ] Self-referential truth in coarsening experiments — scripts 04/05, 07/08, 09/10 define "truth" as the composite method applied to full-resolution data. The composite method therefore benchmarks its own subsampling consistency, not accuracy against an independent ground truth (e.g., direct integral of C×Q at 15-minute resolution). This is a methodological question — may be intentional, but should be documented/justified in the paper.
+- [x] `hold_factor` contamination across flow regimes (`01_ts_simulation_analysis.R:161-206`) — `hold_factor` was overwritten three times without saving intermediate values. Fixed: renamed to `hold_factor_unalt`, `hold_factor_storm`, `hold_factor_base` and used the correct factor for each flow regime's chemistry series.
+- [x] `mean_or_x` computes variance instead of mean (`ms_overwrites.R:303`) — copy-paste from `sd_or_0`. Fixed: `mean(var(x))` → `mean(x)`.
+- [x] `wyday`/`enlightened_yday` reorder output (`flux_methods.R:414-486`) — concatenating `c(firsthalf, secondhalf)` returned results in wrong order. Fixed: use boolean index mask to assign values back to original positions.
+- [x] ~~Self-referential truth in coarsening experiments~~ — Deliberate choice per Nic; no change needed.
 
 ### M7b: High — affects specific analyses
-- [ ] Script 15 ignores intercept in Ca prediction (`15_hbef_method_comparison.R:52,92`) — line 52 fits `lm(Ca ~ spCond)` (with intercept), but line 92 applies only the slope: `dn$IS_spCond * lm_fit$coef[[2]]`. The sensor-derived "truth" for the method comparison figure omits the intercept term, systematically biasing all truth values.
-- [ ] Inconsistent Ca~SpCond models between scripts 13 and 15 — script 13 fits `Ca ~ spCond + 0` (no intercept, origin-forced, coefficient 0.06284158 hardcoded in scripts 04/06), while script 15 fits `Ca ~ spCond` (with intercept) on different data (MacroSheds vs HBEF CSV). Two different regression models are used for the same physical relationship at the same site.
-- [ ] NEON turbidity filename parsing bug (`10_coarsen_figure_neon.R:84-90`) — turbidity filenames like `TEST100reps_annual_turb2016_w1.RData` split by `_` into 4 parts: `[TEST100reps, annual, turb2016, w1]`. `str_split_i('_', 4)` returns site code (`w1`), not year; `str_split_i('_', 5)` returns NA. The `wy` column gets site codes and `site_code` gets NAs, corrupting NEON turbidity figures.
-- [ ] `calculate_wrtds` tryCatch doesn't return NA on error (`flux_methods.R:279-283`) — the error handler's `return(NA)` exits the anonymous handler function, not `calculate_wrtds`. The tryCatch expression evaluates to NA, but this value is discarded. Execution continues to `return(flux_from_egret)` on line 283, which was never assigned, causing a crash instead of graceful degradation.
-- [ ] Leap-year scaling bug (`flux_methods.R:173-181`) — `method1_month` yearly branch loops over years but each iteration overwrites `method1` for ALL years with either 366 or 365 days. After the loop, `method1` has the last year's day count applied uniformly. Impact is small (±0.27%) but systematic.
-- [ ] `molecular_conversion_map` indexed by position not name (`ms_overwrites.R:119`) — `molecular_conversion_map[v]` where `v` is an integer index looks up the v-th list element, not the molecule name. If `convert_molecules_element` contains `'SO4'` at position 1, it retrieves the conversion for `NH4` (the 1st element) instead.
+- [x] Script 15 ignores intercept in Ca prediction (`15_hbef_method_comparison.R:52,92`) — Fixed: added `+ lm_fit$coef[[1]]` to both the dead-code truth (line 78) and the actual truth computation (line 92).
+- [x] Inconsistent Ca~SpCond models — Unified: all scripts now use free-intercept `Ca ~ spCond` on HBEF CSV data (intercept=0.01283, slope=0.05906). Config.R updated with `CA_SPCOND_INTERCEPT`. Script 15 no longer fits its own model; scripts 04/05/14/15 all use config constants.
+- [x] NEON turbidity filename parsing bug (`10_coarsen_figure_neon.R:84-90`) — Fixed: turbidity filenames extract year from 3rd underscore field (stripping `turb` prefix) and site from 4th field.
+- [x] `calculate_wrtds` tryCatch doesn't return NA on error (`flux_methods.R`) — Fixed: assigned `tryCatch(...)` result to `flux_from_egret` so the error handler's NA propagates correctly.
+- [x] Leap-year scaling bug (`flux_methods.R:173-181`) — Fixed: replaced per-row loop with vectorized `sapply` that applies correct day count per year.
+- [x] `molecular_conversion_map` indexed by position not name (`ms_overwrites.R`) — Fixed: changed `[v]` to `[[convert_molecules_element[v]]]` (name-based lookup) on all 4 references.
 
 ### M7c: Medium — correctness issues, limited result impact
-- [ ] No-flow replacement uses full mean instead of 0.1% (`flux_methods.R:701-706`) — `ifelse(Q <= 0, mean_flow, Q)` inflates Q 1000x on zero-flow days. USGS WRTDS manual specifies 0.1% of mean flow.
-- [ ] Gap-blanking loop only processes last break (`flux_methods.R:880`) — `for(i in length(sample_breaks['start']))` iterates over a single value (the count), not `1:length(...)`. If 3 breaks exist, only the 3rd is processed.
-- [ ] `drain_area_va` conversion 100x off (`flux_methods.R:793`) — `area / 2.59` converts hectares to sq mi, but should be `area / 259` (hectares → km² → sq mi). Only affects EGRET INFO table metadata, not flux calculations.
-- [ ] Plynlimon Q unit conversion 100x off (`07_coarsen_analysis_plynlimon.R:24`) — the mm→m and ha→m² factors are inverted: `(1000/1) * (1/10000)` should be `(1/1000) * (10000/1)`. Since both truth and estimates use the same conversion, relative coarsening errors are unaffected. Absolute flux values are wrong by 100x.
-- [ ] `convert_unit` precedence bug (`ms_overwrites.R:235`) — `if(length(new_fraction == 2))` evaluates `new_fraction == 2` first (a logical vector), then takes its `length()` (always ≥1, truthy). Should be `if(length(new_fraction) == 2)`.
-- [ ] Non-finite composite concentrations set to 0 (`flux_methods.R:321`) — `con_com[!is.finite(con_com)] <- 0` silently converts Inf/NaN to zero, underestimating loads rather than flagging model failure.
-- [ ] Outlier definition uses median±1.5×IQR (`02_ts_simulation_figure.R:405`) — standard boxplot definition uses Q1/Q3 ± 1.5×IQR, not median. Shifts both fences, miscounting outliers.
-- [ ] Mislabeled "95% CI" is a prediction interval (`02_ts_simulation_figure.R:399-400`) — `mean ± 1.96*SD` is a 95% prediction interval; a confidence interval of the mean uses `SD/sqrt(n)`.
-- [ ] `SiO2_S` / `SiO3_S` suffix in `ms_overwrites.R:76-77` — silicon is `Si`, not `S` (sulfur). The `element_molecule` names use wrong suffix.
+- [x] No-flow replacement uses full mean instead of 0.1% (`flux_methods.R:696`) — Fixed: `mean_flow` → `mean_flow * 0.001` per USGS WRTDS manual.
+- [x] Gap-blanking loop only processes last break (`flux_methods.R:870`) — Fixed: `for(i in length(...))` → `for(i in 1:length(...))`.
+- [x] `drain_area_va` conversion 100x off (`flux_methods.R:783`) — Fixed: `area / 2.59` → `area / 259`.
+- [x] Plynlimon Q unit conversion 100x off — Fixed in 3 files (`07`, `08`, `14`): `(1000/1) * (1/10000)` → `(1/1000) * (10000/1)`.
+- [x] `convert_unit` precedence bug (`ms_overwrites.R:235`) — Fixed: `length(new_fraction == 2)` → `length(new_fraction) == 2`.
+- [x] Non-finite composite concentrations set to 0 (`flux_methods.R:315`) — Fixed: `0` → `NA` so downstream code handles missing values explicitly.
+- [x] Outlier definition uses median±1.5×IQR (`02_ts_simulation_figure.R:405`) — Fixed: now computes Q1/Q3 and uses standard boxplot fences.
+- [x] Mislabeled "95% CI" is a prediction interval (`02_ts_simulation_figure.R`) — Fixed: renamed to "95% PI" in table output.
+- [x] `SiO2_S` / `SiO3_S` suffix in `ms_overwrites.R:76-77` — Fixed: `_S` → `_Si`.
 
 ### M7d: Low — code quality / robustness
-- [ ] Global `area` variable used as free variable throughout `flux_methods.R` — injected via `assign('area', area, envir = .GlobalEnv)`, prevents safe parallelism and creates stale-state risk.
-- [ ] `base_storm_sep.R:2` runs `devtools::install_github('cran/EcoHydRology')` every time it's sourced — no version pin, fails without internet, slow.
-- [ ] Hardcoded date `20221221` in simulation output filenames (`01_ts_simulation_analysis.R:362`) — downstream scripts (02, 03) read these exact filenames; any change breaks the chain.
-- [ ] `calculate_truth_ts.R` hardcodes `site_code = 'w3'` on lines 10, 13, 27, 30 — only valid for HBEF Watershed 3.
-- [ ] Copy-paste bug in `02_ts_simulation_figure.R:355` — `p19_data$method <- factor(p15_data$method, ...)` references `p15_data` instead of `p19_data`. Works by accident since both have the same factor levels.
-- [ ] `old_bottom` used without initialization for non-fractional units (`ms_overwrites.R:247`) — if `input_unit` has no `/`, `old_bottom` is never defined, causing a crash downstream.
+- [ ] Global `area` variable used as free variable throughout `flux_methods.R` — injected via `assign('area', area, envir = .GlobalEnv)`, prevents safe parallelism. Deferred — requires refactoring all flux method function signatures.
+- [x] `base_storm_sep.R:2` runs `devtools::install_github` every time sourced — Fixed: wrapped in `requireNamespace()` guard.
+- [x] Hardcoded date `20221221` in simulation output filenames — Fixed: removed date from filenames in scripts 01, 02, 03. Now `{freq}Freq_{reps}Reps.csv`.
+- [x] ~~`calculate_truth_ts.R` hardcodes `site_code = 'w3'`~~ — Already uses `HBEF_SITE_CODE` from `source/config.R`.
+- [x] Copy-paste bug in `02_ts_simulation_figure.R:355` — Fixed: `p15_data$method` → `p19_data$method`.
+- [x] `old_bottom`/`new_bottom` used without initialization for non-fractional units (`ms_overwrites.R`) — Fixed: guarded with `length(fraction) == 2` checks, defaulting `_conver` to 1 when no denominator.
+
+### M7e: Rerun analyses and regenerate figures
+The M7 fixes change computed values in multiple code paths. All analysis scripts must be rerun to regenerate intermediate data files and figures.
+
+- [ ] Refactor global `area` variable — add `area` as explicit parameter to `calculate_pw`, `calculate_beale`, `calculate_rating`, `calculate_wrtds` in `flux_methods.R`; update all call sites
+- [ ] Rerun `01_ts_simulation_analysis.R` — hold_factor fix changes enriching/diluting simulation results
+- [ ] Rerun `02_ts_simulation_figure.R` — regenerate supplement figure with corrected outlier counts and PI label
+- [ ] Rerun `04_coarsen_analysis_hbef.R` — wyday fix affects WRTDS; non-finite concentration fix affects composite
+- [ ] Rerun `05_coarsen_figure_hbef.R` — regenerate Figs 7–8
+- [ ] Rerun `07_coarsen_analysis_plynlimon.R` — Q conversion fix changes absolute flux values (100x); wyday fix affects WRTDS
+- [ ] Rerun `08_coarsen_figure_plynlimon.R` — regenerate Figs 9–10
+- [ ] Rerun `09_coarsen_analysis_neon.R` — wyday fix affects WRTDS
+- [ ] Rerun `10_coarsen_figure_neon.R` — filename parsing fix corrects year/site labels on turbidity figures
+- [ ] Rerun `15_hbef_method_comparison.R` — intercept fix changes sensor-derived truth values
+- [ ] Diff regenerated figures against current versions — check whether paper text claims still hold
+- [ ] Update paper text if any quantitative claims changed
 
 ---
 
@@ -288,6 +304,7 @@ The goal is to document all bugs, logic errors, and methodological concerns foun
 | M7b | High-severity bugs | M7a |
 | M7c | Medium-severity fixes | M7b |
 | M7d | Low-severity / code quality | M7c |
+| M7e | Rerun analyses + regenerate figures | M7a + M7b + M7c + M7d |
 | M8 | Final tasks (Nic-owned) | All other milestones |
 
 ## Resolved Questions

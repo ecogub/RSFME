@@ -16,7 +16,7 @@ complete_ds <- simple_chem_and_Q %>%
     select(datetime, spCond, Ca) %>%
     na.omit(spCond)
 
-summary(lm(Ca~spCond+0, data = complete_ds))
+summary(lm(Ca~spCond, data = complete_ds))
 
 
 complete_ds %>%
@@ -26,10 +26,8 @@ complete_ds %>%
     facet_wrap(~var)
 
 # extract fit ####
-fit <- summary(lm(Ca~spCond+0, data = complete_ds))
-fit$coefficients[[1]]
-
-## Ca in mg/L = spCond*0.06284158
+fit <- lm(Ca~spCond, data = complete_ds)
+cat('Intercept:', coef(fit)[1], '\nSlope:', coef(fit)[2], '\n')
 
 ca_sc_plot <- ggplot(simple_chem_and_Q, aes(x = spCond, y = Ca))+
                          geom_point()+

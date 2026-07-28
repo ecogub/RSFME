@@ -1,5 +1,6 @@
-library(devtools)
-devtools::install_github('https://github.com/cran/EcoHydRology')
+if(!requireNamespace('EcoHydRology', quietly = TRUE)) {
+    devtools::install_github('https://github.com/cran/EcoHydRology')
+}
 library(EcoHydRology)
 
 #load simulated_series from 1_ts_simulation_analysis.R ####
