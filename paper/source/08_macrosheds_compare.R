@@ -30,9 +30,6 @@ n_frame <- out_tbl %>%
     filter(solute == 'NO3_N' |
            solute == 'Ca')
 
-ggplot(n_frame, aes(x = rec_method)) +
-    geom_bar()
-
 # create boxplot
 p_box <- n_frame %>%
     select(solute, pct_range, wcs_range) %>%
@@ -49,6 +46,9 @@ p_box <- n_frame %>%
     theme_rsfme()+
     theme(legend.position = 'none')
 
+ggsave_hess(file = here('paper', 'figures', 'figa11_macrosheds_method_range.png'),
+            plot = p_box)
+
 # create density diagram
 p_den <- out_tbl  %>%
      filter(solute == 'NO3_N' |
@@ -64,8 +64,5 @@ p_den <- out_tbl  %>%
          y = 'Density',
          color = 'Solute')+
     theme_rsfme()
-ggsave_hess(file = here('paper', 'figures', 'figa9_macrosheds_density.png'))
-
-# combine figures and save out
-p_den|p_box
-ggsave_hess(file = here('paper', 'figures', 'figa9_macrosheds_method_comp.png'))
+ggsave_hess(file = here('paper', 'figures', 'figa10_macrosheds_density.png'),
+            plot = p_den)

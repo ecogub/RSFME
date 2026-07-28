@@ -5,6 +5,10 @@ HESS_SINGLE_COL_CM <- 8
 HESS_DOUBLE_COL_CM <- 17.4
 HESS_DPI <- 300
 
+# height budget for one row of a vertically stacked facet grid, e.g. the
+# per-site NEON appendix figures (height = n_sites * FACET_ROW_CM)
+FACET_ROW_CM <- 4
+
 cm_to_in <- function(cm) cm / 2.54
 
 # Shared ggplot2 theme for RSFME figures (HESS submission)

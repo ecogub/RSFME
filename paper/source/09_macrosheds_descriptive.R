@@ -23,5 +23,5 @@ data %>%
     scale_fill_manual(values = c('Ca' = unname(solute_colors['Ca']), 'NO3_N' = unname(solute_colors['NO3'])))+
     theme_rsfme()+
     theme(legend.position = 'none')
-ggsave_hess(file = here('paper', 'figures', 'figa9_macrosheds_load_hist.png'))
+ggsave_hess(file = here('paper', 'figures', 'figa09_macrosheds_load_hist.png'))
 

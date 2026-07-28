@@ -46,8 +46,11 @@ breaks <- c(1,3,7,14,30,60)
 x_labels <- c('Daily', 'Twice Weekly', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 
 ## generate plots####
+# conductivity panels are paper Figures A1-A4; the map is also the loop order
+cond_fig_num <- c(li = 'a01', beale = 'a02', rating = 'a03', composite = 'a04')
+n_sites <- length(unique(error_table$site_code))
 
-for(i in c('li', 'beale', 'rating', 'composite')){
+for(i in names(cond_fig_num)){
     method_data <- error_table %>% filter(method == i)
     y_ext <- ceiling(max(abs(method_data$error[method_data$n <= 30]), na.rm = TRUE) / 10) * 10
     y_ext <- max(y_ext, 25)
@@ -71,9 +74,9 @@ for(i in c('li', 'beale', 'rating', 'composite')){
         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
         facet_wrap(~site_code, ncol = 1)
 
-    n_sites <- length(unique(error_table$site_code))
-    ggsave_hess(here('paper', 'figures', paste0('figa_neon_cond_', i,'.png')),
-                height = n_sites * 4)
+    ggsave_hess(here('paper', 'figures',
+                     paste0('fig', cond_fig_num[i], '_neon_cond_', i,'.png')),
+                height = n_sites * FACET_ROW_CM)
 }
 
 # turb plots ####
@@ -117,8 +120,11 @@ breaks <- c(1,3,7,14,30,60)
 x_labels <- c('Daily', 'Twice Weekly', 'Weekly', 'Biweekly', 'Monthly', 'Bimonthly')
 
 ## generate plots ####
+# turbidity panels are paper Figures A5-A8; the map is also the loop order
+turb_fig_num <- c(li = 'a05', beale = 'a06', rating = 'a07', composite = 'a08')
+n_sites <- length(unique(error_table$site_code))
 
-for(i in c('li', 'beale', 'rating', 'composite')){
+for(i in names(turb_fig_num)){
     method_data <- error_table %>% filter(method == i)
     n_cutoff <- if (i %in% c('beale', 'rating', 'composite')) 14 else 30
     y_ext <- ceiling(max(abs(method_data$error[method_data$n <= n_cutoff]), na.rm = TRUE) / 10) * 10
@@ -143,7 +149,7 @@ for(i in c('li', 'beale', 'rating', 'composite')){
         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+
         facet_wrap(~site_code, ncol = 1)
 
-    n_sites <- length(unique(error_table$site_code))
-    ggsave_hess(here('paper', 'figures', paste0('figa_neon_turb_', i,'.png')),
-                height = n_sites * 4)
+    ggsave_hess(here('paper', 'figures',
+                     paste0('fig', turb_fig_num[i], '_neon_turb_', i,'.png')),
+                height = n_sites * FACET_ROW_CM)
 }

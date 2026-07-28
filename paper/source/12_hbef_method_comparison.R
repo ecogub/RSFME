@@ -91,9 +91,8 @@ ggplot( aes(x = as.integer(wy), y= Ca)) +
     labs(x = '', color = 'Method',
          y = 'Annual Ca Load (kg/ha/yr)')
 
-p_ts
-
-ggsave_hess(filename = here('paper','figures', 'fig11_hbef_method_ts.png'))
+ggsave_hess(filename = here('paper','figures', 'figa12_hbef_method_ts.png'),
+            plot = p_ts)
 
 # prepare comparison data
 comp_data <- w3_all %>%

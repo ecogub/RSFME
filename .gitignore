@@ -29,3 +29,6 @@ plans/
 
 # editor / tooling config
 .claude/
+
+# manuscript backups written before an automated edit
+*.docx.bak*
