@@ -489,3 +489,21 @@ Update this file whenever a non-trivial choice is made.
   all three after re-uploading load_annual.csv.
 - M9 is now complete apart from two Nic-owned items: the figshare re-upload/DOI bump, and
   manual replacement of Figures 2 and 4 in Word.
+
+2026-07-28 | Planning-doc audit (post-push)
+- Nic asked to confirm the repo and planning checklist were up to date. They were not.
+- Found and fixed: a DUPLICATED M9a-5 block (the x-axis, truncation and NEON stream-order
+  items each appeared twice, all unchecked despite being done), M9a-4 wedged between the two
+  copies, and 28 checklist items left unchecked across M9a-2, M9a-3, M9b, M9c and M9e that
+  had actually been completed. Sections now read M9a-1 .. M9a-5 in order.
+- Closed the last open M9a-4 item by checking the recommended-method distribution after the
+  method6 switch: across the 26,639 solute-site-years carrying a recommendation it is
+  li 38.3%, composite 28.7%, average 20.6%, rating 12.5% - sensible.
+- Confirmed genuinely still open (10 items, now accurately unchecked). The one worth calling
+  out: "add short in-text references for unreferenced figures" was an explicit Nic request
+  during M9 that was planned but never executed - figa9_macrosheds_density.png,
+  figa9_macrosheds_method_comp.png and fig11_hbef_method_ts.png are still orphaned, with the
+  document referencing only Figures a1-a9. Doing it properly means adding new numbered
+  appendix figures (images + captions + in-text pointers), which is a content decision.
+- Lesson: writing a completion summary above a checklist does not update the checklist.
+  Tick items as they are done, not in a prose summary.
