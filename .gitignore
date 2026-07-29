@@ -32,3 +32,7 @@ plans/
 
 # manuscript backups written before an automated edit
 *.docx.bak*
+
+# superseded drafts - kept locally, not published. The current manuscript is
+# paper/paper_refresh_HESS_formatted.docx
+/paper/paper_HESS_draft*.docx
