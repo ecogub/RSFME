@@ -36,3 +36,9 @@ plans/
 # superseded drafts - kept locally, not published. The current manuscript is
 # paper/paper_refresh_HESS_formatted.docx
 /paper/paper_HESS_draft*.docx
+
+# earlier Limnology & Oceanography: Methods submission and rendered PDFs
+/paper/paper_LandOmethods.docx
+/paper/lom_cover.docx
+/paper/paper_final.pdf
+/paper/paper_final_lom.pdf
